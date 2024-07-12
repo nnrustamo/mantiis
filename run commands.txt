@@ -1,0 +1,33 @@
+# output file name
+-o filename.extension
+
+# opencv flags
+`pkg-config --cflags --libs opencv4`
+# or
+-I /usr/local/include/opencv4 `pkg-config --cflags --libs opencv4`
+
+# suppress warnings
+-w
+
+# enable debuging
+-g
+
+# enable openmp
+-fopenmp
+
+# optimization flags
+-O1
+-O2
+-O3
+-Ofast
+
+# shorten the command line 
+PS1='\u:\W\$'
+
+## 
+g++ -g main.cpp -o main -I/usr/local/include/opencv4 -L/usr/local/lib -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_ximgproc
+-I/src/externalLibs/alg/src
+src/externalLibs/alg/src/*.cpp
+
+'/mnt/c/users/fwin11/OneDrive - University of Wyoming/Desktop/LBM/GeneralLB/'
+
