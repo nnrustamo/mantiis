@@ -27,9 +27,11 @@
 #include <map>
 #include <string>
 
-#include "externalLibs/alg/src/LinAlg.h"
-#include "externalLibs/alg/src/stdafx.h"
-#include "externalLibs/alg/src/interpolation.h"
+
+#include "linalg.h"
+#include "stdafx.h"
+#include "interpolation.h"
+#include "ap.h"
 
 #include "globalParameters.hpp"
 #include "grid.hpp"
@@ -877,7 +879,7 @@ void LB2D::calculateMacroscopicPorperties()
 
 void LB2D::interpolateBlockInterface(int l1, int l2)
 {
-    //====================================================================== Coarse buffer cells
+   //====================================================================== Coarse buffer cells
     int bufferType = l2 * 10 + l1;
     std::vector<int64_t> cells(5);
     double tau_coarse, tau_fine, avg_f;
@@ -1005,7 +1007,6 @@ void LB2D::interpolateBlockInterface(int l1, int l2)
             }
         }
     }
-
 }
 
 void LB2D::zeroDown(int lvl = 1)
@@ -1024,7 +1025,7 @@ void LB2D::zeroDown(int lvl = 1)
 }
 
 void LB2D::calculateVelocityDifference()
-{
+{   
     double sum1 = 0;
     double sum2 = 0;
 #pragma omp parallel for default(shared) reduction(+ : sum1, sum2)

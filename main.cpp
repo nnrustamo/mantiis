@@ -2,7 +2,7 @@
 using namespace std::chrono;
 #include <omp.h>
 
-#include "lb2d.hpp"
+#include "src/lb2d.hpp"
 
 int main()
 {
@@ -13,7 +13,7 @@ int main()
     _GLOBAL_::Fbody = 1.0e-7;
 
     //  Shape
-    int Nx = 512, Ny = 512;
+    int Nx = 64, Ny = 64;
 
     Shape shape(Nx, Ny);
     std::string folder = "in_out/";
@@ -22,13 +22,13 @@ int main()
     shape.addHorizontalBoundary(0);
     shape.addHorizontalBoundary(Ny - 1);
     // shape.addRectangle(400, 600, 400, 600);
-    shape.addCircle(20, 255, 255);
+    // shape.addCircle(20, 255, 255);
     shape.calculateProperties(_GLOBAL_::Cl, _GLOBAL_::mfp);
     shape.writeToText(folder);
     
     // Grid
     lattice latt;
-    Grid2D G(shape, latt, true);
+    Grid2D G(shape, latt, false);
 
     // LB
     std::cout << "Initializing..." << std::endl;

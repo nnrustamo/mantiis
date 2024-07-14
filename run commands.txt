@@ -23,10 +23,10 @@
 
 # shorten the command line 
 PS1='\u:\W\$'
-
+/home/nrustamo/projects/GeneralLB/src/externalLibs/alg/src
 ## 
 g++ -g main.cpp -o main -I/usr/local/include/opencv4 -L/usr/local/lib -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_ximgproc
--I/src/externalLibs/alg/src
+-I src/externalLibs/alg/src
 src/externalLibs/alg/src/*.cpp
 
 '/mnt/c/users/fwin11/OneDrive - University of Wyoming/Desktop/LBM/GeneralLB/'
