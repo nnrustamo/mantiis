@@ -20,8 +20,8 @@
     Auxiliary Functions
 */
 
-#ifndef UTILS_HPP
-#define UTILS_HPP
+#pragma once
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -770,4 +770,3 @@ namespace utils
         }
     };
 }
-#endif // UTILS_HPP

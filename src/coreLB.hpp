@@ -19,6 +19,7 @@
 /*
     Core Lattice Boltzmann Method
 */
+#pragma once
 
 #include <vector>
 #include <iostream>
@@ -26,7 +27,6 @@
 #include <cmath>
 #include <map>
 #include <string>
-
 
 #include "linalg.h"
 #include "stdafx.h"

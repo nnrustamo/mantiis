@@ -28,7 +28,7 @@ int main()
     
     // Grid
     lattice latt;
-    Grid2D G(shape, latt, false);
+    Grid2D G(shape, latt, true);
 
     // LB
     std::cout << "Initializing..." << std::endl;

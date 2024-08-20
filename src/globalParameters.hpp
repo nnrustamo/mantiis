@@ -20,8 +20,8 @@
     Globally Accessible Simulation Parameters
 */
 
-#ifndef GLOBAL_PARAMETERS
-#define GLOBAL_PARAMETERS
+#pragma once
+
 #include <math.h>
 #include <vector>
 #include <limits>
@@ -161,5 +161,3 @@ namespace _GLOBAL_
     // MRT relaxation matrix
     std::vector<double> R;
 }
-
-#endif

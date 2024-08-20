@@ -20,8 +20,8 @@
     Create 2D rectancle and add obstacles
 */
 
-#ifndef SHAPE_HPP
-#define SHAPE_HPP
+#pragma once
+
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -400,4 +400,3 @@ void Shape::writeToText(std::string& folder)
 Shape::~Shape()
 {
 }
-#endif

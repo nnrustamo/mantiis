@@ -15,7 +15,7 @@
  * Unauthorized copying, modification, or distribution of this software,
  * or any portion of it is prohibited
  */
-
+#pragma once
 
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>

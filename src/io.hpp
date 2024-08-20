@@ -20,8 +20,8 @@
     File Descrition goes here
 */
 
-#ifndef FILE_OPERATIONS_HPP
-#define FILE_OPERATIONS_HPP
+#pragma once
+
 
 #include <vector>
 #include <string>
@@ -79,4 +79,4 @@ namespace IO
         file.close();
     }
 }
-#endif // FILE_OPERATIONS_HPP
+

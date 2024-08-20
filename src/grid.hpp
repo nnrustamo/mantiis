@@ -20,8 +20,8 @@
     Process and construct 2D domain for single-grid and multi-grid system
 */
 
-#ifndef GRID_HPP
-#define GRID_HPP
+#pragma once
+
 #include <vector>
 #include <array>
 #include <iostream>
@@ -1304,4 +1304,3 @@ std::vector<std::vector<T>> Grid2D::concatenateMatrices(const std::vector<std::v
 
     return result;
 }
-#endif // UTILS_HPP
