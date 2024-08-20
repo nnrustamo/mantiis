@@ -16,7 +16,7 @@ This project implements a geometric multigrid method for the Lattice Boltzmann M
 
 3. **Build ALGLIB**
     ```bash
-    Copy the following and create a Makefile for ALGLIB
+    # Copy the following and create a Makefile for ALGLIB
 
     CXX := g++
     CXXFLAGS := -std=c++17 -Wall -Wextra
@@ -46,13 +46,16 @@ This project implements a geometric multigrid method for the Lattice Boltzmann M
     $(TARGET_LIB): $(OBJS)
         ar rcs $@ $(OBJS)
 
+        
+    ```
     Build ALGLIB
+    ```bash
     make -j <n_jobs>
 
 2. **Make sure directories in Makefile are correct**
 
-    ```bash
     Compile
+    ```bash
     make -j <n_jobs>
 
 
