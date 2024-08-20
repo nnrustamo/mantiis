@@ -4,7 +4,7 @@ This project implements a geometric multigrid method for the Lattice Boltzmann M
 
 ## External Dependencies
 
-- **OpenCV**: Used for image processing and computer vision tasks. For installation instructions, please refer to the [OpenCV Documentation](https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html).
+- **OpenCV**: Used for image processing and computer vision tasks. For installation instructions, please refer to the [OpenCV Documentation](https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html). Make sure to build with opencv_contrib.
 - **ALGLIB**: A numerical analysis and data processing library. You can download it from the [ALGLIB Website](https://www.alglib.net/download.php).
 
 ## Installation
@@ -13,10 +13,10 @@ This project implements a geometric multigrid method for the Lattice Boltzmann M
 
    ```bash
    git clone git@github.com:nnrustamo/multigrid.git
-   cd your-repository
 
-3. **Compile ALGLIB**
-    Copy the following and create a Makefile for alaglib
+3. **Build ALGLIB**
+    ```bash
+    Copy the following and create a Makefile for ALGLIB
 
     CXX := g++
     CXXFLAGS := -std=c++17 -Wall -Wextra
@@ -46,7 +46,12 @@ This project implements a geometric multigrid method for the Lattice Boltzmann M
     $(TARGET_LIB): $(OBJS)
         ar rcs $@ $(OBJS)
 
+    Build ALGLIB
+    make -j <n_jobs>
+
 2. **Make sure directories in Makefile are correct**
+
+    ```bash
     Compile
     make -j <n_jobs>
 
