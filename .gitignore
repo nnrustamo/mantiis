@@ -1,3 +1,5 @@
 *.txt
 *.dat
 main
+*.vtu
+*.svg
