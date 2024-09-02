@@ -251,16 +251,12 @@ Grid2D::Grid2D(Shape &ShapeObject, lattice &latt, bool isMultigrid = false)
     std::vector<std::vector<int64_t>> reconstructedImage;
     std::cout << "Processing Grid..." << std::endl;
     if (isMultigrid)
-    {
         processMultigrid(ShapeObject, reconstructedImage);
-    }
     else
-    {
         processSinglegrid(ShapeObject, reconstructedImage);
-    }
 
     // TODO
-    std::string fName = "recon.dat";
+    std::string fName = "reconstructed.dat";
     std::vector<int64_t> linDomain(reconstructedImage.size() * reconstructedImage[0].size());
     for (int i = 0; i < reconstructedImage.size(); i++)
     {
@@ -466,8 +462,6 @@ void Grid2D::rebuildGrid(const std::vector<std::vector<int64_t>> &matrix,
     std::vector<int64_t> cellsCounted;
     std::vector<int> vecSize = {ny, nx};
     std::vector<int> newVecSize = {ny, nx, maxLevel}; // this vector will be used later in this scope
-    
-
     
     std::unordered_map<int64_t, std::vector<int>> ij_to_index_map;
     
@@ -1147,7 +1141,7 @@ QuadTreeNode<int> Grid2D::quadtreeDecompose(const std::vector<std::vector<int>> 
     double beta, cond;
     double dx_prime = 0;
     bool division_flag = false;
-    int maxAllowedLevel = 4, lvl;
+    int maxAllowedLevel = 2, lvl;
     int minDist = ceil(pow(2, maxAllowedLevel - 1))*sqrt(2);
 
     // Loop over each matrix (quadrant)
