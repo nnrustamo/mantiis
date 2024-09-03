@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Parameters
-omp_threads=(1 5 10)
+omp_threads=(1 2 4 8 16)
 grid_options=("true" "false")
 nx_sizes=(1024 512 256 128 64)
 
