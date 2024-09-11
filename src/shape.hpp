@@ -42,7 +42,7 @@ public:
 
 public:
     // initiate empty shape
-    Shape(int x, int y);
+    Shape(int x, int y, double res);
 
     void addHorizontalBoundary(int h);
 
@@ -62,7 +62,7 @@ public:
 };
 
 // initiate empty shape
-Shape::Shape(int x, int y) : Nx(x), Ny(y)
+Shape::Shape(int x, int y, double res) : Nx(x), Ny(y), resolution(res)
 {
     // resize vectors and fill with ones
     domain.resize(Ny, std::vector<bool>(Nx, true));
@@ -128,10 +128,10 @@ void Shape::displayAll()
 void Shape::calculateProperties(double resolution, double mfp, bool dispSkeleton = false)
 {   
     
-    resolution = resolution;
+    this->resolution = resolution;
     // ================================================================== Prepping
     // Expand shape in both directions to obtain correct skeleton
-    int Nx_exp = Nx + 2 * floor(std::max(Nx, Ny)), Ny_exp = Nx + 2 * floor(std::max(Nx, Ny));
+    int Nx_exp = Nx + 2 * floor(std::max(Nx, Ny)), Ny_exp = Ny + 2 * floor(std::max(Nx, Ny));
     std::vector<std::vector<bool>> domain_exp(Ny_exp, std::vector<bool>(Nx_exp, 0));
     // Place the domain in the middle of expanded shape
     int startX = (Nx_exp - Nx) / 2;
@@ -306,7 +306,8 @@ void Shape::calculateProperties(double resolution, double mfp, bool dispSkeleton
 }
 
 void Shape::loadExistingModel(std::string &f)
-{
+{   
+    std::cout<<"Loading input from saved data\n";
     std::vector<double> data(Ny * Nx);
 
     // domain

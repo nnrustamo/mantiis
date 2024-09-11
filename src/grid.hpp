@@ -1142,7 +1142,7 @@ QuadTreeNode<int> Grid2D::quadtreeDecompose(const std::vector<std::vector<int>> 
     double dx_prime = 0;
     bool division_flag = false;
     int maxAllowedLevel = 2, lvl;
-    int minDist = ceil(pow(2, maxAllowedLevel - 1))*sqrt(2);
+    int minDist = ceil(pow(2, maxAllowedLevel - 1))*sqrt(3);
 
     // Loop over each matrix (quadrant)
     for (int i = 0; i < 4; i++)
@@ -1154,11 +1154,11 @@ QuadTreeNode<int> Grid2D::quadtreeDecompose(const std::vector<std::vector<int>> 
 
         // Calculate thresholds
         dx_prime = dx * q.size(); // 9.56 * std::pow(10.0, -3.0) * 1 / calculateMean(q_kn); // correlation
-        cond = static_cast<double>(10 * 9.56e-3 * (1.0 / utils::calculateMean(q_kn)));
+        cond = static_cast<double>(2*9.56e-3 * (1.0 / utils::calculateMean(q_kn)));
         beta = utils::calculateRatio(q, solids);
 
         // Kn based decision
-        // division_flag = (dx_prime >= cond) ? true : false;
+        division_flag = (dx_prime >= cond) ? true : false;
 
         // Distance to wall based decision
         if (q.size() > 1 && utils::findMinValue(q_dwall) < minDist * q_dwall.size())

@@ -34,9 +34,9 @@ namespace _GLOBAL_
     std::string system_directory = "";
     // ================================================= Simulation Conditions
     // these parameters can be modified from elsewhere
-    double Cl = 1e-9;     // resolution
+    double Cl = 1.0e-9;     // resolution
     double Fbody = 1e-5;  // body force for transport
-    double T_phy = 333.0; // physical temperature, K;
+    double T_phy = 300.0; // physical temperature, K;
     double P_phy = 2.0e6; // physical pressure, Pa;
 
     // ================================================= Fluid specific parameters

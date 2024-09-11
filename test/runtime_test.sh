@@ -4,6 +4,7 @@
 omp_threads=(1 2 4 8 16)
 grid_options=("true" "false")
 nx_sizes=(1024 512 256 128 64)
+iterations=10000
 
 # Path to the executable
 executable="../main"
@@ -36,7 +37,7 @@ for threads in "${omp_threads[@]}"; do
             # Run the executable with the parameters and log output
             {
                 echo "Running command: $(basename "$executable") $threads $grid $nx"
-                ./$(basename "$executable") $threads $grid $nx
+                ./$(basename "$executable") $threads $grid $nx $iterations
                 exit_status=$?
                 echo "Exit status: $exit_status"
                 

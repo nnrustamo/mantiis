@@ -78,5 +78,5 @@ r_mole = d_mole/2;
 
 rho_mol = rhoG_lu/Mw_lu;
 n = rho_mol*Crho_mol * 6.02214076*10^23;
-lamb = 1./(sqrt(2)*n*pi*(2*r_mole+2*r_mole)^2);
+lamb = 1./(sqrt(2)*n*pi*(2*r_mole+2*r_mole)^2)
 end

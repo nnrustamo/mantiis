@@ -74,9 +74,82 @@ def write_vtk_unstructured_grid(filename, unstructured_grid):
     writer.SetInputData(unstructured_grid)
     writer.Write()
 
-# Example usage
-ny = 64
-nx = ny
+# def create_vtk_structured_grid_from_matrices(matrices, file_name):
+#     """
+#     Create a VTK Structured Grid from a series of 2D numpy matrices and write it to a VTK file.
+
+#     Parameters:
+#     - matrices: List of 2D numpy arrays (all the same shape) representing different fields.
+#     - file_name: Output VTK file name.
+
+#     Notes:
+#     - The matrices should be in the order [rho, ux, uy, uz, Knudsen number, Localporesize].
+#     """
+#     if len(matrices) != 6:
+#         raise ValueError("There should be exactly 6 matrices (rho, ux, uy, uz, Knudsen number, Localporesize).")
+
+#     num_slices = len(matrices)
+#     rows, cols = matrices[0].shape
+
+#     # Create VTK structures
+#     structured_grid = vtk.vtkStructuredGrid()
+
+#     # Define the dimensions of the grid
+#     structured_grid.SetDimensions(cols, rows, num_slices)
+
+#     # Create points for the structured grid
+#     points = vtk.vtkPoints()
+#     for z in range(num_slices):
+#         for y in range(rows):
+#             for x in range(cols):
+#                 points.InsertNextPoint(x, y, z)
+
+#     structured_grid.SetPoints(points)
+
+#     # Add scalars for each matrix
+#     for i, matrix in enumerate(matrices):
+#         scalars = vtk.vtkFloatArray()
+#         scalars.SetName(f"Field_{i}")
+#         scalars.SetNumberOfComponents(1)
+        
+#         for z in range(num_slices):
+#             for y in range(rows):
+#                 for x in range(cols):
+#                     scalars.InsertNextValue(matrix[y, x])
+        
+#         structured_grid.GetCellData().AddArray(scalars)
+
+#     # Write the structured grid to a VTK file
+#     writer = vtk.vtkStructuredGridWriter()
+#     writer.SetFileName(file_name)
+#     writer.SetInputData(structured_grid)
+#     writer.Write()
+
+# if __name__ == "__main__":
+#     ny = 1024
+#     nx = 1024
+#     num_slices = 5
+#     rows, cols = 10, 10
+#     matrices = []
+
+#     reconstructedImage = np.loadtxt('../reconstructed.dat').reshape((ny, nx))
+#     matrices.append(reconstructedImage)
+#     rho = np.loadtxt('../input_output/rho.txt').reshape((ny, nx))
+#     matrices.append(rho)
+#     ux = np.loadtxt('../input_output/ux.txt').reshape((ny, nx))
+#     matrices.append(ux)
+#     uy = np.loadtxt('../input_output/ux.txt').reshape((ny, nx))
+#     matrices.append(uy)
+#     Kn = np.loadtxt('../input_output/Kn.txt').reshape((ny, nx))
+#     matrices.append(uy)
+    
+#     create_vtk_structured_grid_from_matrices(matrices, "structured_grid.vtk")
+
+#     diff_over_time = np.loadtxt('../input_output/convergence.txt').reshape((ny, nx))
+
+ny = 512
+nx = 512
+# create_vtk_structured_grid_from_matrices()
 reconstructedImage = np.loadtxt('../reconstructed.dat').reshape((ny, nx))
 unstructured_grid = create_vtk_unstructured_grid_from_quadtree(reconstructedImage)
 write_vtk_unstructured_grid('quadtree.vtu', unstructured_grid)

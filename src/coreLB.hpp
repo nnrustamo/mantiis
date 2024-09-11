@@ -338,7 +338,7 @@ void LB2D::calculateMultigridTauS(Shape &shape)
         std::vector<std::vector<bool>> resizedBinaryImage;
         utils::resizeBinaryImage(shape.domain, resizedBinaryImage, shape.Nx * resizingFactor, shape.Ny * resizingFactor);
         // Make a new shape
-        Shape resizedShape(shape.Nx * resizingFactor, shape.Ny * resizingFactor);
+        Shape resizedShape(shape.Nx * resizingFactor, shape.Ny * resizingFactor, resolution / resizingFactor);
         resizedShape.addHorizontalBoundary(0);
         resizedShape.addHorizontalBoundary(resizedShape.Ny - 1);
         // Modify shape domain
@@ -878,8 +878,10 @@ void LB2D::calculateMacroscopicPorperties()
 }
 
 void LB2D::interpolateBlockInterface(int l1, int l2)
-{
+{   
+    std::cout<<"Interpolating levels "<<l1<<" and "<<l2<<std::endl;
    //====================================================================== Coarse buffer cells
+   std::cout<<"Coarse buffers\n";
     int bufferType = l2 * 10 + l1;
     std::vector<int64_t> cells(5);
     double tau_coarse, tau_fine, avg_f;
@@ -910,6 +912,7 @@ void LB2D::interpolateBlockInterface(int l1, int l2)
 
     //====================================================================== Fine buffer cells
     // coordinate shift for centralization
+    std::cout<<"Fine buffers\n";
     double parent_shift = pow(2.0, l2 - 2) - 0.5;
     double child_shift = (l1 == 1) ? 0 : pow(2.0, l1 - 2) - 0.5;
     bufferType = l1 * 10 + l2;
