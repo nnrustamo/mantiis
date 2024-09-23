@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import sys
 
 def plotQuadTree(quadTreeImage, facecolor=None, visibility='off'):
     """
@@ -53,12 +54,25 @@ def plotQuadTree(quadTreeImage, facecolor=None, visibility='off'):
     
     return fig
 
-# Note that this is not recommonded for large images
-# Rendering will take too long and not done properly
-# For large images, use create_vtk script and visualize it in Paraview
-ny = 32
-nx = ny
-reconstructedImage = np.loadtxt('../reconstructed.dat').reshape((ny, nx))
-print(reconstructedImage)
-fig = plotQuadTree(reconstructedImage, visibility='on')
-fig.savefig('quadtree.svg')
+
+if __name__ == "__main__":
+    # Ensure enough arguments are provided
+    if len(sys.argv) < 2:
+        print("Usage: python3 plotQuadTree.py <ny>")
+        sys.exit(1)
+
+    ny = int(sys.argv[1])
+    nx = ny
+
+    """
+     Each file contains linearized 2D array in column first order
+    """
+    # Note that this is not recommonded for large images
+    # Rendering will take too long and not done properly
+    # For large images, use create_vtk script and visualize it in Paraview
+    ny = 1024
+    nx = ny
+    reconstructedImage = np.loadtxt('../reconstructed.dat').reshape((ny, nx))
+    print(reconstructedImage)
+    fig = plotQuadTree(reconstructedImage, visibility='on')
+    fig.savefig('quadtree.png')

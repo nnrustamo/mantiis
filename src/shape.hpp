@@ -298,8 +298,11 @@ void Shape::calculateProperties(double resolution, double mfp, bool dispSkeleton
             if (domain[i][j] == 1)
             {
                 linInd = distanceIndex[i][j];
-                LocPore[i][j] = 2.0 * midAxisDistance[linInd / Nx][linInd % Nx];
-                Kn[i][j] = mfp / LocPore[i][j] / resolution;
+                // LocPore[i][j] = 2.0 * midAxisDistance[linInd / Nx][linInd % Nx];
+                // Kn[i][j] = mfp / LocPore[i][j] / resolution;
+                // for special validation case only.
+                Kn[i][j] = 0.15;
+                LocPore[i][j] = _GLOBAL_::mfp / Kn[i][j]/this->resolution;
             }
         }
     }

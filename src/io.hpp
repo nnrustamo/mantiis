@@ -42,7 +42,8 @@ namespace IO
         std::ifstream file(fileName);
 
         if (!file.is_open())
-        {
+        {   
+            std::cout<<"Tried loading "<<fileName<<std::endl;
             throw std::runtime_error("[ERROR]: File not found.");
         }
 
@@ -65,7 +66,7 @@ namespace IO
 
         if (!file.is_open())
         {
-            // File couldn't be opened, handle the error as needed
+            std::cout<<"Tried writing "<<fileName<<std::endl;
             throw std::runtime_error("[ERROR]: Unable to open file for writing.");
         }
 

@@ -3,3 +3,8 @@
 main
 *.vtu
 *.svg
+*.png
+*.jpg
+*.jpeg
+*.vts
+

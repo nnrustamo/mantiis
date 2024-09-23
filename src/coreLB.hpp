@@ -866,22 +866,25 @@ void LB2D::calculateMacroscopicPorperties()
         }
 
         ux[i] = jx / rho[i] + Fbody / (2.0 * rho[i]) * pow(2.0, grid.gridLevel[i] - 1);
-
         uy[i] = jy / rho[i];
 
         uxsq[i] = ux[i] * ux[i];
-
         uysq[i] = uy[i] * uy[i];
-
         usq[i] = uxsq[i] + uysq[i];
+
+        // TODO
+        if (ux[i] < 0)
+        {
+            // std::cout<<"negative velocity detected\n";
+            // std::cout<<"Cell id: "<<grid.gridIJ[i][0]<<" "<<grid.gridIJ[i][1]<<std::endl;
+            // exit(1);
+        }
     }
 }
 
 void LB2D::interpolateBlockInterface(int l1, int l2)
 {   
-    std::cout<<"Interpolating levels "<<l1<<" and "<<l2<<std::endl;
    //====================================================================== Coarse buffer cells
-   std::cout<<"Coarse buffers\n";
     int bufferType = l2 * 10 + l1;
     std::vector<int64_t> cells(5);
     double tau_coarse, tau_fine, avg_f;
@@ -912,7 +915,6 @@ void LB2D::interpolateBlockInterface(int l1, int l2)
 
     //====================================================================== Fine buffer cells
     // coordinate shift for centralization
-    std::cout<<"Fine buffers\n";
     double parent_shift = pow(2.0, l2 - 2) - 0.5;
     double child_shift = (l1 == 1) ? 0 : pow(2.0, l1 - 2) - 0.5;
     bufferType = l1 * 10 + l2;

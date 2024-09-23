@@ -1158,7 +1158,7 @@ QuadTreeNode<int> Grid2D::quadtreeDecompose(const std::vector<std::vector<int>> 
         beta = utils::calculateRatio(q, solids);
 
         // Kn based decision
-        division_flag = (dx_prime >= cond) ? true : false;
+        // division_flag = (dx_prime >= cond) ? true : false;
 
         // Distance to wall based decision
         if (q.size() > 1 && utils::findMinValue(q_dwall) < minDist * q_dwall.size())

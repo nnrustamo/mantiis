@@ -7,10 +7,11 @@ using namespace std::chrono;
 int main(int argc, char* argv[])
 {
     if (argc < 5) {
-        std::cerr << "Usage: " << argv[0] << " <num_threads> <initialize_grid> <Nx>\n";
+        std::cerr << "Usage: " << argv[0] << " <num_threads> <grid_type> <Nx> <Nt> <input_folder/>\n";
         std::cerr << "  <num_threads> : Number of OpenMP threads (e.g., 14)\n";
-        std::cerr << "  <initialize_grid> : true or false (e.g., true)\n";
+        std::cerr << "  <grid_type> : true or false (e.g., true)\n";
         std::cerr << "  <Nx> : Size of the grid in x-direction (e.g., 512)\n";
+        std::cerr << "  <input_folder/> : Directory to read and write\n";
         std::cerr << "  <Nt> : Number of iterations\n";
         return 1;
     }
@@ -26,30 +27,24 @@ int main(int argc, char* argv[])
     _GLOBAL_::T_phy = 300.0; // physical temperature, K;
     _GLOBAL_::P_phy = 2.0e6; // physical pressure, Pa;
     _GLOBAL_::Cl = 1.0e-9;
-    _GLOBAL_::Fbody = 1.0e-7;
+    _GLOBAL_::Fbody = 1e-7;
     // _GLOBAL_::mfp  = 7.7308e-10;
     std::cout<<"Mean free path: "<<_GLOBAL_::mfp<<std::endl;
+    std::cout<<"Cl: "<<_GLOBAL_::Cl<<std::endl;
+    std::cout<<"Fbody: "<<_GLOBAL_::Fbody<<std::endl;
 
     // Shape
     int Nx = std::stoi(argv[3]);
     int Ny = Nx;
     Shape shape(Nx, Ny, _GLOBAL_::Cl);
-    std::string folder = "input_output/";
-    // shape.loadExistingModel(folder);
-    shape.addHorizontalBoundary(0);
-    shape.addHorizontalBoundary(Ny - 1);
-    shape.addRectangle(400, 600, 400, 600);
-    
-    // =================== For runtime tests only ==========================
-    // const int center_x = Nx / 2 - 1;
-    // const int center_y = Ny / 2 - 1;
-    // const int radius = Nx / 8;
-    // shape.addCircle(radius, center_x, center_y);
-    // shape.addCircle(20, 255, 255);
-    // =================== ===================== ==========================
-    
-    shape.calculateProperties(_GLOBAL_::Cl, _GLOBAL_::mfp);
-    shape.writeToText(folder);
+    std::string folder = argv[4]; // "input_output/";
+    shape.loadExistingModel(folder);
+    // shape.addHorizontalBoundary(0);
+    // shape.addHorizontalBoundary(Ny - 1);
+    // shape.addRectangle(400, 600, 400, 600);
+    // shape.addCircle(1, 31, 31);
+    // shape.calculateProperties(_GLOBAL_::Cl, _GLOBAL_::mfp);
+    // shape.writeToText(folder);
 
     // Grid
     lattice latt;
@@ -64,7 +59,7 @@ int main(int argc, char* argv[])
     lb.setWallBoundary(&LB2D::SRBBWall);
 
     double tol = 1.0e-6;
-    int iter = std::stoi(argv[4]);;
+    int iter = std::stoi(argv[5]);;
     int verbose = 1;
 
     auto start_sim = high_resolution_clock::now();
@@ -120,3 +115,4 @@ int main(int argc, char* argv[])
 
     return 0;
 }
+

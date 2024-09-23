@@ -1,10 +1,10 @@
 close all; clear;
 %% Define domain parameters
 % dimensions
-ny  = 512;
-nx = 512;
+ny  = 1024;
+nx = 1024;
 % write to this folder
-output_folder = '../input_output/';
+output_folder = '../input_output_multi/';
 
 % physical conditions
 Pressure = 2.0e6; % Pa
@@ -15,7 +15,9 @@ Resolution = 1e-9; % m
 % create a domain or load existing onee 
 % pore = randomGaussianDomain(ny, nx);
 % pore = simplePore(ny, nx);
-pore = narrowing_tube(nx, 500, 10);
+% pore = narrowing_tube(nx, 500, 10);
+% pore = createRectangleObstacleFlowGeom(nx);
+pore = createTriangularFlowGeom(nx);
 
 % clean boundaries
 % pore = clean_boundaries(pore);
@@ -24,13 +26,19 @@ pore = narrowing_tube(nx, 500, 10);
 % local pore size
 [kn, localpore, pore] = poreProperties(pore, mean_free_path, Resolution);
 
+% manual treatment for some validation cases only.
+kn_man = 0.15;
+locpore_man = mean_free_path/kn_man/Resolution;
+kn(kn~=0) = kn_man;
+localpore(localpore~=0) = locpore_man;
+
 %% Save
-figure('visible','off'); imagesc(pore); colormap gray;
-saveas(gcf, strcat(output_folder, 'domain.svg'))
-figure('visible','off'); imagesc(kn); colormap jet; colorbar;
-saveas(gcf, strcat(output_folder, 'kn.svg'))
-figure('visible','off'); imagesc(localpore); colormap jet; colorbar;
-saveas(gcf, strcat(output_folder, 'localpore.svg'))
+figure(); imagesc(pore); colormap gray;
+saveas(gcf, strcat(output_folder, 'domain.png'))
+figure(); imagesc(kn); colormap jet; colorbar;
+saveas(gcf, strcat(output_folder, 'kn.png'))
+figure(); imagesc(localpore); colormap jet; colorbar;
+saveas(gcf, strcat(output_folder, 'localpore.png'))
 
 savetoFile(kn, strcat(output_folder ,'Kn.txt'))
 savetoFile(localpore, strcat(output_folder ,'localporesize.txt'))

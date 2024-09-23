@@ -1,14 +1,35 @@
+# /*
+#  * Copyright (c) January 2024
+#  *
+#  * Author: Nijat Rustamov
+#  * Organization: University of Wyoming
+#  * Email: nrustamo@uwyo.edu
+#  *
+#  * Academic Supervisor: Saman Aryana
+#  * Email: saryana@uwyo.edu
+#  * Organization: University of Wyoming
+#  *
+#  * This file is a part of Lattice Boltzmann Simulation Software
+#  * Proprietary Software - All Rights Reserved
+#  *
+#  * Unauthorized copying, modification, or distribution of this software,
+#  * or any portion of it is prohibited
+#  */
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import sys
 
-def plot_imgs(array_2d, color_map='turbo', name='turbo'):
+def plot_imgs(array_2d, color_map='turbo', name=''):
     """
     Plot an image from a 2D numpy array and add a colorbar with the specified colormap.
 
     Parameters:
     - array_2d: 2D numpy array representing the image data.
     - color_map: Colormap to use for the colorbar. Default is 'turbo'.
+    - name: Name of the png file to save to
 
     Returns:
     - None
@@ -20,9 +41,9 @@ def plot_imgs(array_2d, color_map='turbo', name='turbo'):
     img = plt.imshow(array_2d, cmap=color_map, origin='lower')
     cbar = plt.colorbar(img, orientation='vertical', shrink=0.8, aspect=10)
     
-    cbar_ticks = np.linspace(array_2d.min(), array_2d.max(), 10)
-    rounded_ticks = np.round(cbar_ticks, 2)   
-    cbar.set_ticks(rounded_ticks)
+    # cbar_ticks = np.linspace(array_2d.min(), array_2d.max(), 10)
+    # rounded_ticks = np.round(cbar_ticks, 2)   
+    # cbar.set_ticks(rounded_ticks)
 
     plt.xlim(0, array_2d.shape[0]) 
     plt.ylim(0, array_2d.shape[1]) 
@@ -34,18 +55,21 @@ def plot_imgs(array_2d, color_map='turbo', name='turbo'):
 
 
 if __name__ == "__main__":
-    ny = 512
-    nx = ny
-    pore = np.loadtxt('../input_output/pore.txt').reshape((ny, nx))
-    plot_imgs(pore, "gray", "pore")
-    kn = np.loadtxt('../input_output/Kn.txt').reshape((ny, nx))
-    plot_imgs(kn, "turbo", "kn")
-    localporesize = np.loadtxt('../input_output/localporesize.txt').reshape((ny, nx))
-    plot_imgs(localporesize, "turbo", "localporesize")
-    
-    ux = np.loadtxt('../input_output/ux.txt').reshape((ny, nx))
+    # Ensure enough arguments are provided
+    if len(sys.argv) < 4:
+        print("Usage: python3 plot_heatmaps.py <file_path> <ny> <nx>")
+        print("Optionally: python3 create_vtk.py <file_path> <ny> <nx> <output_directory>")
+        sys.exit(1)
+
+    file_path = sys.argv[1]
+    ny = int(sys.argv[2])
+    nx = int(sys.argv[3])
+    """
+     Each file contains linearized 2D array in column first order
+    """
+    ux = np.loadtxt(file_path + 'ux.txt').reshape((ny, nx))
     plot_imgs(ux, "turbo", "ux")
-    uy = np.loadtxt('../input_output/uy.txt').reshape((ny, nx))
+    uy = np.loadtxt(file_path + 'uy.txt').reshape((ny, nx))
     plot_imgs(uy, "turbo", "uy")
-    rho = np.loadtxt('../input_output/rho.txt').reshape((ny, nx))
+    rho = np.loadtxt(file_path + 'rho.txt').reshape((ny, nx))
     plot_imgs(rho, "turbo", "rho")

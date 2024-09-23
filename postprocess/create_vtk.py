@@ -1,155 +1,101 @@
+# /*
+#  * Copyright (c) January 2024
+#  *
+#  * Author: Nijat Rustamov
+#  * Organization: University of Wyoming
+#  * Email: nrustamo@uwyo.edu
+#  *
+#  * Academic Supervisor: Saman Aryana
+#  * Email: saryana@uwyo.edu
+#  * Organization: University of Wyoming
+#  *
+#  * This file is a part of Lattice Boltzmann Simulation Software
+#  * Proprietary Software - All Rights Reserved
+#  *
+#  * Unauthorized copying, modification, or distribution of this software,
+#  * or any portion of it is prohibited
+#  */
+
+"""
+Create structured vtk grid from 2D or 3D numpy arrays
+"""
+import sys
 import numpy as np
 import vtk
+from vtk.util import numpy_support
 
-def create_vtk_unstructured_grid_from_quadtree(quadTreeImage):
-    """
-    Create a VTK Unstructured Grid from a 2D numpy array representing quadtree data with rectangles.
+def create_vtk_from_arrays(structured_grid_matrices):
+  """
+  Create a VTK structured grid from a 2D or 3D numpy arrays representing quadtree data with rectangles.
 
-    Parameters:
-    - quadTreeImage: 2D numpy array of integers representing the quadtree.
+  Parameters:
+  - structured_grid_matrices: List of numpy arrays
 
-    Returns:
-    - vtkUnstructuredGrid object
-    """
-    rows, cols = quadTreeImage.shape
+  Returns:
+  - vtkMultiBlockDataSet object
+  """
+  # Determine dimensions
+  # FOR NOW only 2D is supported
+  # Create a structured grid
+  shape = structured_grid_matrices[0].shape
+  structured_grid = vtk.vtkStructuredGrid()
+  structured_grid.SetDimensions(shape[0], shape[1], 1)
 
-    # Create VTK structures
-    points = vtk.vtkPoints()
-    cells = vtk.vtkCellArray()
+  # Create points
+  points = vtk.vtkPoints()
+  for i in range(shape[0]):
+    for j in range(shape[1]):
+      points.InsertNextPoint(i, j, 0)
+  structured_grid.SetPoints(points)
 
-    unique_cells = np.unique(quadTreeImage)
+  # Convert numpy arrays to vtk arrays
+  binary_media_vtk = numpy_support.numpy_to_vtk(structured_grid_matrices[0].ravel(), deep=True, array_type=vtk.VTK_INT)
+  pore_size_vtk = numpy_support.numpy_to_vtk(structured_grid_matrices[1].ravel(), deep=True, array_type=vtk.VTK_FLOAT)
+  knudsen_number_vtk = numpy_support.numpy_to_vtk(structured_grid_matrices[2].ravel(), deep=True, array_type=vtk.VTK_FLOAT)
 
-    # Set default colors based on cell values
-    vtk_colors = vtk.vtkFloatArray()
-    vtk_colors.SetNumberOfComponents(1)
-    vtk_colors.SetName("Face Colors")
+  # Set names for the arrays
+  binary_media_vtk.SetName("BinaryMedia")
+  pore_size_vtk.SetName("PoreSize")
+  knudsen_number_vtk.SetName("KnudsenNumber")
 
-    for cell_value in unique_cells:
-        coords = np.argwhere(quadTreeImage == cell_value)
-        if coords.size == 0:
-            continue
+  # Add arrays to the structured grid
+  structured_grid.GetPointData().AddArray(binary_media_vtk)
+  structured_grid.GetPointData().AddArray(pore_size_vtk)
+  structured_grid.GetPointData().AddArray(knudsen_number_vtk)
 
-        min_row, min_col = coords.min(axis=0)
-        max_row, max_col = coords.max(axis=0)
+  return structured_grid
 
-        if quadTreeImage[min_row, min_col] < 0:
-            # Solid nodes (dark gray)
-            color = 0.6
-        else:
-            # Fluid nodes (white)
-            color = 0.3
-        
-        # Create points for the rectangle
-        p0 = [min_col, min_row, 0]
-        p1 = [max_col + 1, min_row, 0]
-        p2 = [max_col + 1, max_row + 1, 0]
-        p3 = [min_col, max_row + 1, 0]
+if __name__ == "__main__":
+  # Ensure enough arguments are provided
+  if len(sys.argv) < 4:
+    print("Usage: python3 create_vtk.py <file_path> <ny> <nx>")
+    print("Optionally: python3 create_vtk.py <file_path> <ny> <nx> <output_directory>")
+    sys.exit(1)
 
-        point_ids = []
-        for p in [p0, p1, p2, p3]:
-            point_id = points.InsertNextPoint(p)
-            point_ids.append(point_id)
+  file_path = sys.argv[1]
+  ny = int(sys.argv[2])
+  nx = int(sys.argv[3])
+  """
+  Each file contains linearized 2D array in column first order
+  """
+  pore_image = np.loadtxt(file_path + 'pore.txt').reshape((ny, nx))
+  kn = np.loadtxt(file_path + 'Kn.txt').reshape((ny, nx))
+  local_pore_sizes = np.loadtxt(file_path + 'localporesize.txt').reshape((ny, nx))
 
-        cells.InsertNextCell(4, point_ids)
-        vtk_colors.InsertNextValue(color)
+  matrices = []
+  matrices.append(pore_image)
+  matrices.append(kn)
+  matrices.append(local_pore_sizes)
 
-    # Create an unstructured grid
-    unstructured_grid = vtk.vtkUnstructuredGrid()
-    unstructured_grid.SetPoints(points)
-    unstructured_grid.SetCells(vtk.VTK_QUAD, cells)
-    unstructured_grid.GetCellData().SetScalars(vtk_colors)
+  # Write
+  file_path = "."
+  if len(sys.argv) == 5:
+      file_path = sys.argv[4]
 
-    return unstructured_grid
+  structured_grid = create_vtk_from_arrays(matrices)
+  writer = vtk.vtkXMLStructuredGridWriter()
+  writer.SetFileName(file_path + '/structured_grid.vts')
+  writer.SetInputData(structured_grid)
+  writer.Write()
+  print("Done")
 
-def write_vtk_unstructured_grid(filename, unstructured_grid):
-    """
-    Write a VTK Unstructured Grid to a file.
-    
-    Parameters:
-    - filename: Output VTK file name.
-    - unstructured_grid: vtkUnstructuredGrid object
-    """
-    writer = vtk.vtkXMLUnstructuredGridWriter()
-    writer.SetFileName(filename)
-    writer.SetInputData(unstructured_grid)
-    writer.Write()
-
-# def create_vtk_structured_grid_from_matrices(matrices, file_name):
-#     """
-#     Create a VTK Structured Grid from a series of 2D numpy matrices and write it to a VTK file.
-
-#     Parameters:
-#     - matrices: List of 2D numpy arrays (all the same shape) representing different fields.
-#     - file_name: Output VTK file name.
-
-#     Notes:
-#     - The matrices should be in the order [rho, ux, uy, uz, Knudsen number, Localporesize].
-#     """
-#     if len(matrices) != 6:
-#         raise ValueError("There should be exactly 6 matrices (rho, ux, uy, uz, Knudsen number, Localporesize).")
-
-#     num_slices = len(matrices)
-#     rows, cols = matrices[0].shape
-
-#     # Create VTK structures
-#     structured_grid = vtk.vtkStructuredGrid()
-
-#     # Define the dimensions of the grid
-#     structured_grid.SetDimensions(cols, rows, num_slices)
-
-#     # Create points for the structured grid
-#     points = vtk.vtkPoints()
-#     for z in range(num_slices):
-#         for y in range(rows):
-#             for x in range(cols):
-#                 points.InsertNextPoint(x, y, z)
-
-#     structured_grid.SetPoints(points)
-
-#     # Add scalars for each matrix
-#     for i, matrix in enumerate(matrices):
-#         scalars = vtk.vtkFloatArray()
-#         scalars.SetName(f"Field_{i}")
-#         scalars.SetNumberOfComponents(1)
-        
-#         for z in range(num_slices):
-#             for y in range(rows):
-#                 for x in range(cols):
-#                     scalars.InsertNextValue(matrix[y, x])
-        
-#         structured_grid.GetCellData().AddArray(scalars)
-
-#     # Write the structured grid to a VTK file
-#     writer = vtk.vtkStructuredGridWriter()
-#     writer.SetFileName(file_name)
-#     writer.SetInputData(structured_grid)
-#     writer.Write()
-
-# if __name__ == "__main__":
-#     ny = 1024
-#     nx = 1024
-#     num_slices = 5
-#     rows, cols = 10, 10
-#     matrices = []
-
-#     reconstructedImage = np.loadtxt('../reconstructed.dat').reshape((ny, nx))
-#     matrices.append(reconstructedImage)
-#     rho = np.loadtxt('../input_output/rho.txt').reshape((ny, nx))
-#     matrices.append(rho)
-#     ux = np.loadtxt('../input_output/ux.txt').reshape((ny, nx))
-#     matrices.append(ux)
-#     uy = np.loadtxt('../input_output/ux.txt').reshape((ny, nx))
-#     matrices.append(uy)
-#     Kn = np.loadtxt('../input_output/Kn.txt').reshape((ny, nx))
-#     matrices.append(uy)
-    
-#     create_vtk_structured_grid_from_matrices(matrices, "structured_grid.vtk")
-
-#     diff_over_time = np.loadtxt('../input_output/convergence.txt').reshape((ny, nx))
-
-ny = 512
-nx = 512
-# create_vtk_structured_grid_from_matrices()
-reconstructedImage = np.loadtxt('../reconstructed.dat').reshape((ny, nx))
-unstructured_grid = create_vtk_unstructured_grid_from_quadtree(reconstructedImage)
-write_vtk_unstructured_grid('quadtree.vtu', unstructured_grid)

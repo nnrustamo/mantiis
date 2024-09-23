@@ -16,9 +16,8 @@
 #  * or any portion of it is prohibited
 #  */
 
-
 CXX := g++
-CXXFLAGS := -std=c++17 -Ofast -fopenmp
+CXXFLAGS := -std=c++17
 LDFLAGS := 
 
 ALGLIB_DIR:=$(HOME)/Programs/alglib/alg/src
@@ -29,10 +28,11 @@ OPENCV_LIBS=-lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -
 
 # Default to release build
 BUILD_TYPE := release
+CXXFLAGS += -Ofast -fopenmp
 
-# If debug is specified, add debug flags
+# If debug is specified, adjust flags (no optimization, no OpenMP)
 ifeq ($(MAKECMDGOALS),debug)
-    CXXFLAGS := -std=c++17 -g -O0 -fopenmp
+    CXXFLAGS := -std=c++17 -g -O0
     BUILD_TYPE := debug
 endif
 
@@ -56,3 +56,4 @@ debug: $(TARGET)
 	@echo "Compiled in debug mode."
 
 .PHONY: clean debug
+
