@@ -1,0 +1,51 @@
+clear; close all;
+%% Load Data
+nx = 256; ny = 256;
+file_md = "md/";
+% Load MD data
+% md_0 = readmatrix(strcat(file_md, "md_0.csv"));
+% md_025 = readmatrix(strcat(file_md, "md_025.csv"));
+% md_05 = readmatrix(strcat(file_md, "md_05.csv"));
+% md_075 = readmatrix(strcat(file_md, "md_075.csv"));
+% save('md.mat', 'md_0', 'md_025', 'md_05', 'md_075');
+load("md.mat");
+
+% Load LBM Data
+folder_sm = ["single_grid_results/", "multi_grid_results/"];
+x_norm = linspace(0, 1, ny - 2)';
+legends = ["single-grid", "multi-grid"];
+
+figure;
+im = 1;
+% for im = 1:length(folder_sm)
+    % Load
+    filename = strcat(folder_sm(im) + "ux.txt");
+    ux = loadTxtFile(filename);
+    ux = reshape(ux, [ny, nx])';
+    ux_0 = flipud(ux(2:end-1, 1)); % reverse the order of values
+    ux_0_norm = ux_0./mean(ux_0);
+    % Plot
+    subplot(1, 2, 1);
+    plot(md_0(:, 1), md_0(:, 2), 'o', DisplayName="MD");
+    hold on;
+    plot(x_norm, ux_0_norm, DisplayName=legends(im));
+    xlabel("Normalized Poisition")
+    ylabel("Normalized Velocity")
+    ylim([0, 2]);
+    xlim([0, 1]);
+    legend(Location="north", Box="off");
+    
+    ux_05 = flipud(ux(2:end-1, nx/2)); % reverse the order of values
+    ux_05_norm = ux_05./mean(ux_05);
+
+    subplot(1, 2, 2);
+    plot(md_05(:, 1), md_05(:, 2), 'o', DisplayName="MD");
+    hold on;
+    plot(x_norm, ux_05_norm, DisplayName=legends(im));
+    xlabel("Normalized Poisition")
+    ylabel("Normalized Velocity")
+    ylim([0, 2]);
+    xlim([0, 1]);
+    legend(Location="north");
+% end
+

@@ -15,11 +15,7 @@ function binaryMatrix = createTriangularFlowGeom(H)
     
     % Create the triangle using poly2mask
     mask = poly2mask(xVertices, yVertices, H, H);
-    
-    % Set the triangle area to 0 and the rest to 1 (inverted)
     binaryMatrix(mask) = 0;
-    
-    % Set the top and bottom walls
     binaryMatrix(1, :) = 0;   % Top wall
     binaryMatrix(end, :) = 0; % Bottom wall
 end

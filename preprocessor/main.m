@@ -4,12 +4,12 @@ close all; clear;
 ny  = 1024;
 nx = 1024;
 % write to this folder
-output_folder = '../input_output_multi/';
+output_folder = '../input_output_single/';
 
 % physical conditions
-Pressure = 2.0e6; % Pa
+Pressure = 0.1e6; % Pa
 Temperature = 300; % K
-Resolution = 1e-9; % m
+Resolution = 5.0e-8; % m
 [~, ~, mean_free_path] = thermodynamicProperties(Pressure, Temperature);
 
 % create a domain or load existing onee 

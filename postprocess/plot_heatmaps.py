@@ -64,12 +64,17 @@ if __name__ == "__main__":
     file_path = sys.argv[1]
     ny = int(sys.argv[2])
     nx = int(sys.argv[3])
+
+    output_path = ''
+    if len(sys.argv) == 5:
+        output_path = sys.argv[4]
+
     """
      Each file contains linearized 2D array in column first order
     """
     ux = np.loadtxt(file_path + 'ux.txt').reshape((ny, nx))
-    plot_imgs(ux, "turbo", "ux")
+    plot_imgs(ux, "turbo", output_path + 'ux')
     uy = np.loadtxt(file_path + 'uy.txt').reshape((ny, nx))
-    plot_imgs(uy, "turbo", "uy")
+    plot_imgs(uy, "turbo", output_path + 'uy')
     rho = np.loadtxt(file_path + 'rho.txt').reshape((ny, nx))
-    plot_imgs(rho, "turbo", "rho")
+    plot_imgs(rho, "turbo", output_path + 'rho')

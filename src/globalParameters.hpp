@@ -37,7 +37,7 @@ namespace _GLOBAL_
     double Cl = 1.0e-10;     // resolution
     double Fbody = 1e-11;  // body force for transport
     double T_phy = 300.0; // physical temperature, K;
-    double P_phy = 2.0e6; // physical pressure, Pa;
+    double P_phy = 0.1e6; // physical pressure, Pa;
 
     // ================================================= Fluid specific parameters
     // methane case, these parameters can be modified from elsewhere
@@ -111,7 +111,7 @@ namespace _GLOBAL_
 
     // ================================================= Boundary parameters
     const double A1 = 1 - 0.1817; // half-way bounce-back C1
-    double r = 0.62;        // 2.0 * A1 / (sqrt(6.0 / M_PI) + A1);
+    double r = 0.005;        // 2.0 * A1 / (sqrt(6.0 / M_PI) + A1);
     const double A2 = 0.6;        // 1.0 / M_PI + 0.5 * pow(A1, 2); //
 
     // Specular reflection boundary files

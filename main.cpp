@@ -25,9 +25,9 @@ int main(int argc, char* argv[])
     
     // Simulation conditions
     _GLOBAL_::T_phy = 300.0; // physical temperature, K;
-    _GLOBAL_::P_phy = 2.0e6; // physical pressure, Pa;
-    _GLOBAL_::Cl = 1.0e-9;
-    _GLOBAL_::Fbody = 1e-7;
+    _GLOBAL_::P_phy = 0.1e6; // physical pressure, Pa;
+    _GLOBAL_::Cl = 5.0e-8;
+    _GLOBAL_::Fbody = 1.0e-11;
     // _GLOBAL_::mfp  = 7.7308e-10;
     std::cout<<"Mean free path: "<<_GLOBAL_::mfp<<std::endl;
     std::cout<<"Cl: "<<_GLOBAL_::Cl<<std::endl;

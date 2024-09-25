@@ -1,0 +1,2112 @@
+Running with OpenMP threads=1, MultiGrid=true, Nx=2048
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 1 true 2048
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 1067008
+Initializing...
+Timestep: 0, error: 0.500303
+Timestep: 1, error: 0.333484
+Timestep: 2, error: 0.249987
+Timestep: 3, error: 0.199916
+Timestep: 4, error: 0.166545
+Timestep: 5, error: 0.142716
+Timestep: 6, error: 0.124849
+Timestep: 7, error: 0.110956
+Timestep: 8, error: 0.0998425
+Timestep: 9, error: 0.0907511
+Timestep: 10, error: 0.083176
+Timestep: 11, error: 0.076767
+Timestep: 12, error: 0.0712742
+Timestep: 13, error: 0.0665143
+Timestep: 14, error: 0.0623498
+Timestep: 15, error: 0.0586756
+Timestep: 16, error: 0.05541
+Timestep: 17, error: 0.0524884
+Timestep: 18, error: 0.0498593
+Timestep: 19, error: 0.0474807
+Simulation run time (milliseconds) 19397
+Total run time (milliseconds) 13572073
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=1, Grid Initialization=true, Nx=2048 [SUCCESS][0m
+Running with OpenMP threads=1, MultiGrid=true, Nx=1024
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 1 true 1024
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 271360
+Initializing...
+Timestep: 0, error: 0.5006
+Timestep: 1, error: 0.333631
+Timestep: 2, error: 0.249974
+Timestep: 3, error: 0.199833
+Timestep: 4, error: 0.166425
+Timestep: 5, error: 0.142578
+Timestep: 6, error: 0.124701
+Timestep: 7, error: 0.110803
+Timestep: 8, error: 0.0996875
+Timestep: 9, error: 0.0905957
+Timestep: 10, error: 0.083021
+Timestep: 11, error: 0.0766132
+Timestep: 12, error: 0.071122
+Timestep: 13, error: 0.066364
+Timestep: 14, error: 0.0622017
+Timestep: 15, error: 0.0585297
+Timestep: 16, error: 0.0552664
+Timestep: 17, error: 0.0523472
+Timestep: 18, error: 0.0497204
+Timestep: 19, error: 0.0473442
+Simulation run time (milliseconds) 5131
+Total run time (milliseconds) 926442
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=1, Grid Initialization=true, Nx=1024 [SUCCESS][0m
+Running with OpenMP threads=1, MultiGrid=true, Nx=512
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 1 true 512
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 70144
+Initializing...
+Timestep: 0, error: 0.50118
+Timestep: 1, error: 0.33392
+Timestep: 2, error: 0.249949
+Timestep: 3, error: 0.199672
+Timestep: 4, error: 0.166191
+Timestep: 5, error: 0.142309
+Timestep: 6, error: 0.124413
+Timestep: 7, error: 0.110505
+Timestep: 8, error: 0.0993849
+Timestep: 9, error: 0.0902919
+Timestep: 10, error: 0.0827182
+Timestep: 11, error: 0.0763125
+Timestep: 12, error: 0.0708244
+Timestep: 13, error: 0.06607
+Timestep: 14, error: 0.0619116
+Timestep: 15, error: 0.0582438
+Timestep: 16, error: 0.0549849
+Timestep: 17, error: 0.0520701
+Timestep: 18, error: 0.0494478
+Timestep: 19, error: 0.0470761
+Simulation run time (milliseconds) 1372
+Total run time (milliseconds) 64705
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=1, Grid Initialization=true, Nx=512 [SUCCESS][0m
+Running with OpenMP threads=1, MultiGrid=true, Nx=256
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 1 true 256
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 18688
+Initializing...
+Timestep: 0, error: 0.502283
+Timestep: 1, error: 0.33447
+Timestep: 2, error: 0.249902
+Timestep: 3, error: 0.199367
+Timestep: 4, error: 0.165748
+Timestep: 5, error: 0.141796
+Timestep: 6, error: 0.123863
+Timestep: 7, error: 0.109936
+Timestep: 8, error: 0.0988078
+Timestep: 9, error: 0.089712
+Timestep: 10, error: 0.0821393
+Timestep: 11, error: 0.0757372
+Timestep: 12, error: 0.0702542
+Timestep: 13, error: 0.0655062
+Timestep: 14, error: 0.0613549
+Timestep: 15, error: 0.0576947
+Timestep: 16, error: 0.0544437
+Timestep: 17, error: 0.051537
+Timestep: 18, error: 0.0489228
+Timestep: 19, error: 0.0465592
+Simulation run time (milliseconds) 452
+Total run time (milliseconds) 5669
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=1, Grid Initialization=true, Nx=256 [SUCCESS][0m
+Running with OpenMP threads=1, MultiGrid=true, Nx=128
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 1 true 128
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 5248
+Initializing...
+Timestep: 0, error: 0.504283
+Timestep: 1, error: 0.335474
+Timestep: 2, error: 0.249823
+Timestep: 3, error: 0.198819
+Timestep: 4, error: 0.164946
+Timestep: 5, error: 0.140867
+Timestep: 6, error: 0.122865
+Timestep: 7, error: 0.108902
+Timestep: 8, error: 0.0977549
+Timestep: 9, error: 0.0886519
+Timestep: 10, error: 0.0810791
+Timestep: 11, error: 0.0746815
+Timestep: 12, error: 0.0692062
+Timestep: 13, error: 0.0644679
+Timestep: 14, error: 0.0603278
+Timestep: 15, error: 0.0566798
+Timestep: 16, error: 0.0534417
+Timestep: 17, error: 0.0505482
+Timestep: 18, error: 0.0479476
+Timestep: 19, error: 0.0455976
+Simulation run time (milliseconds) 135
+Total run time (milliseconds) 680
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=1, Grid Initialization=true, Nx=128 [SUCCESS][0m
+Running with OpenMP threads=1, MultiGrid=true, Nx=64
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 1 true 64
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 1600
+Initializing...
+Timestep: 0, error: 0.507618
+Timestep: 1, error: 0.337168
+Timestep: 2, error: 0.249705
+Timestep: 3, error: 0.19792
+Timestep: 4, error: 0.16362
+Timestep: 5, error: 0.139324
+Timestep: 6, error: 0.121201
+Timestep: 7, error: 0.10717
+Timestep: 8, error: 0.0959859
+Timestep: 9, error: 0.0868647
+Timestep: 10, error: 0.0792855
+Timestep: 11, error: 0.0728895
+Timestep: 12, error: 0.0674213
+Timestep: 13, error: 0.0626938
+Timestep: 14, error: 0.0585673
+Timestep: 15, error: 0.0549349
+Timestep: 16, error: 0.0517135
+Timestep: 17, error: 0.0488378
+Timestep: 18, error: 0.0462555
+Timestep: 19, error: 0.0439242
+Simulation run time (milliseconds) 51
+Total run time (milliseconds) 137
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=1, Grid Initialization=true, Nx=64 [SUCCESS][0m
+Running with OpenMP threads=1, MultiGrid=false, Nx=2048
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 1 false 2048
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 4190208
+Initializing...
+Timestep: 0, error: 0.499949
+Timestep: 1, error: 0.333264
+Timestep: 2, error: 0.249926
+Timestep: 3, error: 0.199926
+Timestep: 4, error: 0.166594
+Timestep: 5, error: 0.142787
+Timestep: 6, error: 0.124932
+Timestep: 7, error: 0.111045
+Timestep: 8, error: 0.0999362
+Timestep: 9, error: 0.0908473
+Timestep: 10, error: 0.0832734
+Timestep: 11, error: 0.0768648
+Timestep: 12, error: 0.0713719
+Timestep: 13, error: 0.0666115
+Timestep: 14, error: 0.0624462
+Timestep: 15, error: 0.0587711
+Timestep: 16, error: 0.0555043
+Timestep: 17, error: 0.0525815
+Timestep: 18, error: 0.049951
+Timestep: 19, error: 0.047571
+Simulation run time (milliseconds) 38042
+Total run time (milliseconds) 77380317
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=1, Grid Initialization=false, Nx=2048 [SUCCESS][0m
+Running with OpenMP threads=1, MultiGrid=false, Nx=1024
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 1 false 1024
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 1046528
+Initializing...
+Timestep: 0, error: 0.499899
+Timestep: 1, error: 0.333194
+Timestep: 2, error: 0.249853
+Timestep: 3, error: 0.199852
+Timestep: 4, error: 0.166522
+Timestep: 5, error: 0.142716
+Timestep: 6, error: 0.124864
+Timestep: 7, error: 0.110979
+Timestep: 8, error: 0.0998723
+Timestep: 9, error: 0.0907853
+Timestep: 10, error: 0.0832132
+Timestep: 11, error: 0.0768064
+Timestep: 12, error: 0.0713151
+Timestep: 13, error: 0.0665562
+Timestep: 14, error: 0.0623923
+Timestep: 15, error: 0.0587184
+Timestep: 16, error: 0.0554529
+Timestep: 17, error: 0.0525312
+Timestep: 18, error: 0.0499017
+Timestep: 19, error: 0.0475228
+Simulation run time (milliseconds) 9581
+Total run time (milliseconds) 2846399
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=1, Grid Initialization=false, Nx=1024 [SUCCESS][0m
+Running with OpenMP threads=1, MultiGrid=false, Nx=512
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 1 false 512
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 261120
+Initializing...
+Timestep: 0, error: 0.499797
+Timestep: 1, error: 0.333054
+Timestep: 2, error: 0.249704
+Timestep: 3, error: 0.199704
+Timestep: 4, error: 0.166376
+Timestep: 5, error: 0.142575
+Timestep: 6, error: 0.124727
+Timestep: 7, error: 0.110847
+Timestep: 8, error: 0.0997438
+Timestep: 9, error: 0.0906608
+Timestep: 10, error: 0.0830924
+Timestep: 11, error: 0.076689
+Timestep: 12, error: 0.0712009
+Timestep: 13, error: 0.0664449
+Timestep: 14, error: 0.0622838
+Timestep: 15, error: 0.0586125
+Timestep: 16, error: 0.0553494
+Timestep: 17, error: 0.05243
+Timestep: 18, error: 0.0498027
+Timestep: 19, error: 0.0474258
+Simulation run time (milliseconds) 2306
+Total run time (milliseconds) 205498
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=1, Grid Initialization=false, Nx=512 [SUCCESS][0m
+Running with OpenMP threads=1, MultiGrid=false, Nx=256
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 1 false 256
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 65024
+Initializing...
+Timestep: 0, error: 0.499593
+Timestep: 1, error: 0.332773
+Timestep: 2, error: 0.249406
+Timestep: 3, error: 0.199405
+Timestep: 4, error: 0.166083
+Timestep: 5, error: 0.14229
+Timestep: 6, error: 0.124451
+Timestep: 7, error: 0.110579
+Timestep: 8, error: 0.0994847
+Timestep: 9, error: 0.0904095
+Timestep: 10, error: 0.0828484
+Timestep: 11, error: 0.0764519
+Timestep: 12, error: 0.0709701
+Timestep: 13, error: 0.0662201
+Timestep: 14, error: 0.0620645
+Timestep: 15, error: 0.0583984
+Timestep: 16, error: 0.0551401
+Timestep: 17, error: 0.0522252
+Timestep: 18, error: 0.0496022
+Timestep: 19, error: 0.0472293
+Simulation run time (milliseconds) 575
+Total run time (milliseconds) 11745
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=1, Grid Initialization=false, Nx=256 [SUCCESS][0m
+Running with OpenMP threads=1, MultiGrid=false, Nx=128
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 1 false 128
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 16128
+Initializing...
+Timestep: 0, error: 0.499179
+Timestep: 1, error: 0.332203
+Timestep: 2, error: 0.248802
+Timestep: 3, error: 0.198799
+Timestep: 4, error: 0.165489
+Timestep: 5, error: 0.141712
+Timestep: 6, error: 0.123889
+Timestep: 7, error: 0.110035
+Timestep: 8, error: 0.0989572
+Timestep: 9, error: 0.0898975
+Timestep: 10, error: 0.0823511
+Timestep: 11, error: 0.0759681
+Timestep: 12, error: 0.070499
+Timestep: 13, error: 0.0657608
+Timestep: 14, error: 0.0616162
+Timestep: 15, error: 0.0579604
+Timestep: 16, error: 0.0547118
+Timestep: 17, error: 0.0518059
+Timestep: 18, error: 0.0491914
+Timestep: 19, error: 0.0468265
+Simulation run time (milliseconds) 176
+Total run time (milliseconds) 1011
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=1, Grid Initialization=false, Nx=128 [SUCCESS][0m
+Running with OpenMP threads=1, MultiGrid=false, Nx=64
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 1 false 64
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 3968
+Initializing...
+Timestep: 0, error: 0.498328
+Timestep: 1, error: 0.331033
+Timestep: 2, error: 0.24756
+Timestep: 3, error: 0.197552
+Timestep: 4, error: 0.164264
+Timestep: 5, error: 0.140517
+Timestep: 6, error: 0.122729
+Timestep: 7, error: 0.108909
+Timestep: 8, error: 0.0978636
+Timestep: 9, error: 0.0888347
+Timestep: 10, error: 0.081317
+Timestep: 11, error: 0.0749609
+Timestep: 12, error: 0.0695167
+Timestep: 13, error: 0.0648018
+Timestep: 14, error: 0.0606789
+Timestep: 15, error: 0.0570434
+Timestep: 16, error: 0.0538138
+Timestep: 17, error: 0.0509257
+Timestep: 18, error: 0.0483279
+Timestep: 19, error: 0.0459788
+Simulation run time (milliseconds) 36
+Total run time (milliseconds) 159
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=1, Grid Initialization=false, Nx=64 [SUCCESS][0m
+Running with OpenMP threads=5, MultiGrid=true, Nx=2048
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 5 true 2048
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 1067008
+Initializing...
+Timestep: 0, error: 0.500303
+Timestep: 1, error: 0.333484
+Timestep: 2, error: 0.249987
+Timestep: 3, error: 0.199916
+Timestep: 4, error: 0.166545
+Timestep: 5, error: 0.142716
+Timestep: 6, error: 0.124849
+Timestep: 7, error: 0.110956
+Timestep: 8, error: 0.0998425
+Timestep: 9, error: 0.0907511
+Timestep: 10, error: 0.083176
+Timestep: 11, error: 0.076767
+Timestep: 12, error: 0.0712742
+Timestep: 13, error: 0.0665143
+Timestep: 14, error: 0.0623498
+Timestep: 15, error: 0.0586756
+Timestep: 16, error: 0.05541
+Timestep: 17, error: 0.0524884
+Timestep: 18, error: 0.0498593
+Timestep: 19, error: 0.0474807
+Simulation run time (milliseconds) 6480
+Total run time (milliseconds) 9084133
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=5, Grid Initialization=true, Nx=2048 [SUCCESS][0m
+Running with OpenMP threads=5, MultiGrid=true, Nx=1024
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 5 true 1024
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 271360
+Initializing...
+Timestep: 0, error: 0.5006
+Timestep: 1, error: 0.333631
+Timestep: 2, error: 0.249974
+Timestep: 3, error: 0.199833
+Timestep: 4, error: 0.166425
+Timestep: 5, error: 0.142578
+Timestep: 6, error: 0.124701
+Timestep: 7, error: 0.110803
+Timestep: 8, error: 0.0996875
+Timestep: 9, error: 0.0905957
+Timestep: 10, error: 0.083021
+Timestep: 11, error: 0.0766132
+Timestep: 12, error: 0.071122
+Timestep: 13, error: 0.066364
+Timestep: 14, error: 0.0622017
+Timestep: 15, error: 0.0585297
+Timestep: 16, error: 0.0552664
+Timestep: 17, error: 0.0523472
+Timestep: 18, error: 0.0497204
+Timestep: 19, error: 0.0473442
+Simulation run time (milliseconds) 1655
+Total run time (milliseconds) 625181
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=5, Grid Initialization=true, Nx=1024 [SUCCESS][0m
+Running with OpenMP threads=5, MultiGrid=true, Nx=512
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 5 true 512
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 70144
+Initializing...
+Timestep: 0, error: 0.50118
+Timestep: 1, error: 0.33392
+Timestep: 2, error: 0.249949
+Timestep: 3, error: 0.199672
+Timestep: 4, error: 0.166191
+Timestep: 5, error: 0.142309
+Timestep: 6, error: 0.124413
+Timestep: 7, error: 0.110505
+Timestep: 8, error: 0.0993849
+Timestep: 9, error: 0.0902919
+Timestep: 10, error: 0.0827182
+Timestep: 11, error: 0.0763125
+Timestep: 12, error: 0.0708244
+Timestep: 13, error: 0.06607
+Timestep: 14, error: 0.0619116
+Timestep: 15, error: 0.0582438
+Timestep: 16, error: 0.0549849
+Timestep: 17, error: 0.0520701
+Timestep: 18, error: 0.0494478
+Timestep: 19, error: 0.0470761
+Simulation run time (milliseconds) 401
+Total run time (milliseconds) 45582
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=5, Grid Initialization=true, Nx=512 [SUCCESS][0m
+Running with OpenMP threads=5, MultiGrid=true, Nx=256
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 5 true 256
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 18688
+Initializing...
+Timestep: 0, error: 0.502283
+Timestep: 1, error: 0.33447
+Timestep: 2, error: 0.249902
+Timestep: 3, error: 0.199367
+Timestep: 4, error: 0.165748
+Timestep: 5, error: 0.141796
+Timestep: 6, error: 0.123863
+Timestep: 7, error: 0.109936
+Timestep: 8, error: 0.0988078
+Timestep: 9, error: 0.089712
+Timestep: 10, error: 0.0821393
+Timestep: 11, error: 0.0757372
+Timestep: 12, error: 0.0702542
+Timestep: 13, error: 0.0655062
+Timestep: 14, error: 0.0613549
+Timestep: 15, error: 0.0576947
+Timestep: 16, error: 0.0544437
+Timestep: 17, error: 0.051537
+Timestep: 18, error: 0.0489228
+Timestep: 19, error: 0.0465592
+Simulation run time (milliseconds) 132
+Total run time (milliseconds) 3998
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=5, Grid Initialization=true, Nx=256 [SUCCESS][0m
+Running with OpenMP threads=5, MultiGrid=true, Nx=128
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 5 true 128
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 5248
+Initializing...
+Timestep: 0, error: 0.504283
+Timestep: 1, error: 0.335474
+Timestep: 2, error: 0.249823
+Timestep: 3, error: 0.198819
+Timestep: 4, error: 0.164946
+Timestep: 5, error: 0.140867
+Timestep: 6, error: 0.122865
+Timestep: 7, error: 0.108902
+Timestep: 8, error: 0.0977549
+Timestep: 9, error: 0.0886519
+Timestep: 10, error: 0.0810791
+Timestep: 11, error: 0.0746815
+Timestep: 12, error: 0.0692062
+Timestep: 13, error: 0.0644679
+Timestep: 14, error: 0.0603278
+Timestep: 15, error: 0.0566798
+Timestep: 16, error: 0.0534417
+Timestep: 17, error: 0.0505482
+Timestep: 18, error: 0.0479476
+Timestep: 19, error: 0.0455976
+Simulation run time (milliseconds) 56
+Total run time (milliseconds) 488
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=5, Grid Initialization=true, Nx=128 [SUCCESS][0m
+Running with OpenMP threads=5, MultiGrid=true, Nx=64
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 5 true 64
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 1600
+Initializing...
+Timestep: 0, error: 0.507618
+Timestep: 1, error: 0.337168
+Timestep: 2, error: 0.249705
+Timestep: 3, error: 0.19792
+Timestep: 4, error: 0.16362
+Timestep: 5, error: 0.139324
+Timestep: 6, error: 0.121201
+Timestep: 7, error: 0.10717
+Timestep: 8, error: 0.0959859
+Timestep: 9, error: 0.0868647
+Timestep: 10, error: 0.0792855
+Timestep: 11, error: 0.0728895
+Timestep: 12, error: 0.0674213
+Timestep: 13, error: 0.0626938
+Timestep: 14, error: 0.0585673
+Timestep: 15, error: 0.0549349
+Timestep: 16, error: 0.0517135
+Timestep: 17, error: 0.0488378
+Timestep: 18, error: 0.0462555
+Timestep: 19, error: 0.0439242
+Simulation run time (milliseconds) 22
+Total run time (milliseconds) 96
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=5, Grid Initialization=true, Nx=64 [SUCCESS][0m
+Running with OpenMP threads=5, MultiGrid=false, Nx=2048
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 5 false 2048
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 4190208
+Initializing...
+Timestep: 0, error: 0.499949
+Timestep: 1, error: 0.333264
+Timestep: 2, error: 0.249926
+Timestep: 3, error: 0.199926
+Timestep: 4, error: 0.166594
+Timestep: 5, error: 0.142787
+Timestep: 6, error: 0.124932
+Timestep: 7, error: 0.111045
+Timestep: 8, error: 0.0999362
+Timestep: 9, error: 0.0908473
+Timestep: 10, error: 0.0832734
+Timestep: 11, error: 0.0768648
+Timestep: 12, error: 0.0713719
+Timestep: 13, error: 0.0666115
+Timestep: 14, error: 0.0624462
+Timestep: 15, error: 0.0587711
+Timestep: 16, error: 0.0555043
+Timestep: 17, error: 0.0525815
+Timestep: 18, error: 0.049951
+Timestep: 19, error: 0.047571
+Simulation run time (milliseconds) 12903
+Total run time (milliseconds) 20796871
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=5, Grid Initialization=false, Nx=2048 [SUCCESS][0m
+Running with OpenMP threads=5, MultiGrid=false, Nx=1024
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 5 false 1024
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 1046528
+Initializing...
+Timestep: 0, error: 0.499899
+Timestep: 1, error: 0.333194
+Timestep: 2, error: 0.249853
+Timestep: 3, error: 0.199852
+Timestep: 4, error: 0.166522
+Timestep: 5, error: 0.142716
+Timestep: 6, error: 0.124864
+Timestep: 7, error: 0.110979
+Timestep: 8, error: 0.0998723
+Timestep: 9, error: 0.0907853
+Timestep: 10, error: 0.0832132
+Timestep: 11, error: 0.0768064
+Timestep: 12, error: 0.0713151
+Timestep: 13, error: 0.0665562
+Timestep: 14, error: 0.0623923
+Timestep: 15, error: 0.0587184
+Timestep: 16, error: 0.0554529
+Timestep: 17, error: 0.0525312
+Timestep: 18, error: 0.0499017
+Timestep: 19, error: 0.0475228
+Simulation run time (milliseconds) 3379
+Total run time (milliseconds) 792882
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=5, Grid Initialization=false, Nx=1024 [SUCCESS][0m
+Running with OpenMP threads=5, MultiGrid=false, Nx=512
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 5 false 512
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 261120
+Initializing...
+Timestep: 0, error: 0.499797
+Timestep: 1, error: 0.333054
+Timestep: 2, error: 0.249704
+Timestep: 3, error: 0.199704
+Timestep: 4, error: 0.166376
+Timestep: 5, error: 0.142575
+Timestep: 6, error: 0.124727
+Timestep: 7, error: 0.110847
+Timestep: 8, error: 0.0997438
+Timestep: 9, error: 0.0906608
+Timestep: 10, error: 0.0830924
+Timestep: 11, error: 0.076689
+Timestep: 12, error: 0.0712009
+Timestep: 13, error: 0.0664449
+Timestep: 14, error: 0.0622838
+Timestep: 15, error: 0.0586125
+Timestep: 16, error: 0.0553494
+Timestep: 17, error: 0.05243
+Timestep: 18, error: 0.0498027
+Timestep: 19, error: 0.0474258
+Simulation run time (milliseconds) 747
+Total run time (milliseconds) 54906
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=5, Grid Initialization=false, Nx=512 [SUCCESS][0m
+Running with OpenMP threads=5, MultiGrid=false, Nx=256
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 5 false 256
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 65024
+Initializing...
+Timestep: 0, error: 0.499593
+Timestep: 1, error: 0.332773
+Timestep: 2, error: 0.249406
+Timestep: 3, error: 0.199405
+Timestep: 4, error: 0.166083
+Timestep: 5, error: 0.14229
+Timestep: 6, error: 0.124451
+Timestep: 7, error: 0.110579
+Timestep: 8, error: 0.0994847
+Timestep: 9, error: 0.0904095
+Timestep: 10, error: 0.0828484
+Timestep: 11, error: 0.0764519
+Timestep: 12, error: 0.0709701
+Timestep: 13, error: 0.0662201
+Timestep: 14, error: 0.0620645
+Timestep: 15, error: 0.0583984
+Timestep: 16, error: 0.0551401
+Timestep: 17, error: 0.0522252
+Timestep: 18, error: 0.0496022
+Timestep: 19, error: 0.0472293
+Simulation run time (milliseconds) 178
+Total run time (milliseconds) 3665
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=5, Grid Initialization=false, Nx=256 [SUCCESS][0m
+Running with OpenMP threads=5, MultiGrid=false, Nx=128
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 5 false 128
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 16128
+Initializing...
+Timestep: 0, error: 0.499179
+Timestep: 1, error: 0.332203
+Timestep: 2, error: 0.248802
+Timestep: 3, error: 0.198799
+Timestep: 4, error: 0.165489
+Timestep: 5, error: 0.141712
+Timestep: 6, error: 0.123889
+Timestep: 7, error: 0.110035
+Timestep: 8, error: 0.0989572
+Timestep: 9, error: 0.0898975
+Timestep: 10, error: 0.0823511
+Timestep: 11, error: 0.0759681
+Timestep: 12, error: 0.070499
+Timestep: 13, error: 0.0657608
+Timestep: 14, error: 0.0616162
+Timestep: 15, error: 0.0579604
+Timestep: 16, error: 0.0547118
+Timestep: 17, error: 0.0518059
+Timestep: 18, error: 0.0491914
+Timestep: 19, error: 0.0468265
+Simulation run time (milliseconds) 53
+Total run time (milliseconds) 386
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=5, Grid Initialization=false, Nx=128 [SUCCESS][0m
+Running with OpenMP threads=5, MultiGrid=false, Nx=64
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 5 false 64
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 3968
+Initializing...
+Timestep: 0, error: 0.498328
+Timestep: 1, error: 0.331033
+Timestep: 2, error: 0.24756
+Timestep: 3, error: 0.197552
+Timestep: 4, error: 0.164264
+Timestep: 5, error: 0.140517
+Timestep: 6, error: 0.122729
+Timestep: 7, error: 0.108909
+Timestep: 8, error: 0.0978636
+Timestep: 9, error: 0.0888347
+Timestep: 10, error: 0.081317
+Timestep: 11, error: 0.0749609
+Timestep: 12, error: 0.0695167
+Timestep: 13, error: 0.0648018
+Timestep: 14, error: 0.0606789
+Timestep: 15, error: 0.0570434
+Timestep: 16, error: 0.0538138
+Timestep: 17, error: 0.0509257
+Timestep: 18, error: 0.0483279
+Timestep: 19, error: 0.0459788
+Simulation run time (milliseconds) 21
+Total run time (milliseconds) 91
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=5, Grid Initialization=false, Nx=64 [SUCCESS][0m
+Running with OpenMP threads=10, MultiGrid=true, Nx=2048
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 10 true 2048
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 1067008
+Initializing...
+Timestep: 0, error: 0.500303
+Timestep: 1, error: 0.333484
+Timestep: 2, error: 0.249987
+Timestep: 3, error: 0.199916
+Timestep: 4, error: 0.166545
+Timestep: 5, error: 0.142716
+Timestep: 6, error: 0.124849
+Timestep: 7, error: 0.110956
+Timestep: 8, error: 0.0998425
+Timestep: 9, error: 0.0907511
+Timestep: 10, error: 0.083176
+Timestep: 11, error: 0.076767
+Timestep: 12, error: 0.0712742
+Timestep: 13, error: 0.0665143
+Timestep: 14, error: 0.0623498
+Timestep: 15, error: 0.0586756
+Timestep: 16, error: 0.05541
+Timestep: 17, error: 0.0524884
+Timestep: 18, error: 0.0498593
+Timestep: 19, error: 0.0474807
+Simulation run time (milliseconds) 5034
+Total run time (milliseconds) 6562586
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=10, Grid Initialization=true, Nx=2048 [SUCCESS][0m
+Running with OpenMP threads=10, MultiGrid=true, Nx=1024
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 10 true 1024
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 271360
+Initializing...
+Timestep: 0, error: 0.5006
+Timestep: 1, error: 0.333631
+Timestep: 2, error: 0.249974
+Timestep: 3, error: 0.199833
+Timestep: 4, error: 0.166425
+Timestep: 5, error: 0.142578
+Timestep: 6, error: 0.124701
+Timestep: 7, error: 0.110803
+Timestep: 8, error: 0.0996875
+Timestep: 9, error: 0.0905957
+Timestep: 10, error: 0.083021
+Timestep: 11, error: 0.0766132
+Timestep: 12, error: 0.071122
+Timestep: 13, error: 0.066364
+Timestep: 14, error: 0.0622017
+Timestep: 15, error: 0.0585297
+Timestep: 16, error: 0.0552664
+Timestep: 17, error: 0.0523472
+Timestep: 18, error: 0.0497204
+Timestep: 19, error: 0.0473442
+Simulation run time (milliseconds) 1056
+Total run time (milliseconds) 461300
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=10, Grid Initialization=true, Nx=1024 [SUCCESS][0m
+Running with OpenMP threads=10, MultiGrid=true, Nx=512
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 10 true 512
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 70144
+Initializing...
+Timestep: 0, error: 0.50118
+Timestep: 1, error: 0.33392
+Timestep: 2, error: 0.249949
+Timestep: 3, error: 0.199672
+Timestep: 4, error: 0.166191
+Timestep: 5, error: 0.142309
+Timestep: 6, error: 0.124413
+Timestep: 7, error: 0.110505
+Timestep: 8, error: 0.0993849
+Timestep: 9, error: 0.0902919
+Timestep: 10, error: 0.0827182
+Timestep: 11, error: 0.0763125
+Timestep: 12, error: 0.0708244
+Timestep: 13, error: 0.06607
+Timestep: 14, error: 0.0619116
+Timestep: 15, error: 0.0582438
+Timestep: 16, error: 0.0549849
+Timestep: 17, error: 0.0520701
+Timestep: 18, error: 0.0494478
+Timestep: 19, error: 0.0470761
+Simulation run time (milliseconds) 314
+Total run time (milliseconds) 35232
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=10, Grid Initialization=true, Nx=512 [SUCCESS][0m
+Running with OpenMP threads=10, MultiGrid=true, Nx=256
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 10 true 256
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 18688
+Initializing...
+Timestep: 0, error: 0.502283
+Timestep: 1, error: 0.33447
+Timestep: 2, error: 0.249902
+Timestep: 3, error: 0.199367
+Timestep: 4, error: 0.165748
+Timestep: 5, error: 0.141796
+Timestep: 6, error: 0.123863
+Timestep: 7, error: 0.109936
+Timestep: 8, error: 0.0988078
+Timestep: 9, error: 0.089712
+Timestep: 10, error: 0.0821393
+Timestep: 11, error: 0.0757372
+Timestep: 12, error: 0.0702542
+Timestep: 13, error: 0.0655062
+Timestep: 14, error: 0.0613549
+Timestep: 15, error: 0.0576947
+Timestep: 16, error: 0.0544437
+Timestep: 17, error: 0.051537
+Timestep: 18, error: 0.0489228
+Timestep: 19, error: 0.0465592
+Simulation run time (milliseconds) 110
+Total run time (milliseconds) 3510
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=10, Grid Initialization=true, Nx=256 [SUCCESS][0m
+Running with OpenMP threads=10, MultiGrid=true, Nx=128
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 10 true 128
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 5248
+Initializing...
+Timestep: 0, error: 0.504283
+Timestep: 1, error: 0.335474
+Timestep: 2, error: 0.249823
+Timestep: 3, error: 0.198819
+Timestep: 4, error: 0.164946
+Timestep: 5, error: 0.140867
+Timestep: 6, error: 0.122865
+Timestep: 7, error: 0.108902
+Timestep: 8, error: 0.0977549
+Timestep: 9, error: 0.0886519
+Timestep: 10, error: 0.0810791
+Timestep: 11, error: 0.0746815
+Timestep: 12, error: 0.0692062
+Timestep: 13, error: 0.0644679
+Timestep: 14, error: 0.0603278
+Timestep: 15, error: 0.0566798
+Timestep: 16, error: 0.0534417
+Timestep: 17, error: 0.0505482
+Timestep: 18, error: 0.0479476
+Timestep: 19, error: 0.0455976
+Simulation run time (milliseconds) 51
+Total run time (milliseconds) 530
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=10, Grid Initialization=true, Nx=128 [SUCCESS][0m
+Running with OpenMP threads=10, MultiGrid=true, Nx=64
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 10 true 64
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 1600
+Initializing...
+Timestep: 0, error: 0.507618
+Timestep: 1, error: 0.337168
+Timestep: 2, error: 0.249705
+Timestep: 3, error: 0.19792
+Timestep: 4, error: 0.16362
+Timestep: 5, error: 0.139324
+Timestep: 6, error: 0.121201
+Timestep: 7, error: 0.10717
+Timestep: 8, error: 0.0959859
+Timestep: 9, error: 0.0868647
+Timestep: 10, error: 0.0792855
+Timestep: 11, error: 0.0728895
+Timestep: 12, error: 0.0674213
+Timestep: 13, error: 0.0626938
+Timestep: 14, error: 0.0585673
+Timestep: 15, error: 0.0549349
+Timestep: 16, error: 0.0517135
+Timestep: 17, error: 0.0488378
+Timestep: 18, error: 0.0462555
+Timestep: 19, error: 0.0439242
+Simulation run time (milliseconds) 11
+Total run time (milliseconds) 93
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=10, Grid Initialization=true, Nx=64 [SUCCESS][0m
+Running with OpenMP threads=10, MultiGrid=false, Nx=2048
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 10 false 2048
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 4190208
+Initializing...
+Timestep: 0, error: 0.499949
+Timestep: 1, error: 0.333264
+Timestep: 2, error: 0.249926
+Timestep: 3, error: 0.199926
+Timestep: 4, error: 0.166594
+Timestep: 5, error: 0.142787
+Timestep: 6, error: 0.124932
+Timestep: 7, error: 0.111045
+Timestep: 8, error: 0.0999362
+Timestep: 9, error: 0.0908473
+Timestep: 10, error: 0.0832734
+Timestep: 11, error: 0.0768648
+Timestep: 12, error: 0.0713719
+Timestep: 13, error: 0.0666115
+Timestep: 14, error: 0.0624462
+Timestep: 15, error: 0.0587711
+Timestep: 16, error: 0.0555043
+Timestep: 17, error: 0.0525815
+Timestep: 18, error: 0.049951
+Timestep: 19, error: 0.047571
+Simulation run time (milliseconds) 9346
+Total run time (milliseconds) 11271815
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=10, Grid Initialization=false, Nx=2048 [SUCCESS][0m
+Running with OpenMP threads=10, MultiGrid=false, Nx=1024
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 10 false 1024
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 1046528
+Initializing...
+Timestep: 0, error: 0.499899
+Timestep: 1, error: 0.333194
+Timestep: 2, error: 0.249853
+Timestep: 3, error: 0.199852
+Timestep: 4, error: 0.166522
+Timestep: 5, error: 0.142716
+Timestep: 6, error: 0.124864
+Timestep: 7, error: 0.110979
+Timestep: 8, error: 0.0998723
+Timestep: 9, error: 0.0907853
+Timestep: 10, error: 0.0832132
+Timestep: 11, error: 0.0768064
+Timestep: 12, error: 0.0713151
+Timestep: 13, error: 0.0665562
+Timestep: 14, error: 0.0623923
+Timestep: 15, error: 0.0587184
+Timestep: 16, error: 0.0554529
+Timestep: 17, error: 0.0525312
+Timestep: 18, error: 0.0499017
+Timestep: 19, error: 0.0475228
+Simulation run time (milliseconds) 2647
+Total run time (milliseconds) 479038
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=10, Grid Initialization=false, Nx=1024 [SUCCESS][0m
+Running with OpenMP threads=10, MultiGrid=false, Nx=512
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 10 false 512
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 261120
+Initializing...
+Timestep: 0, error: 0.499797
+Timestep: 1, error: 0.333054
+Timestep: 2, error: 0.249704
+Timestep: 3, error: 0.199704
+Timestep: 4, error: 0.166376
+Timestep: 5, error: 0.142575
+Timestep: 6, error: 0.124727
+Timestep: 7, error: 0.110847
+Timestep: 8, error: 0.0997438
+Timestep: 9, error: 0.0906608
+Timestep: 10, error: 0.0830924
+Timestep: 11, error: 0.076689
+Timestep: 12, error: 0.0712009
+Timestep: 13, error: 0.0664449
+Timestep: 14, error: 0.0622838
+Timestep: 15, error: 0.0586125
+Timestep: 16, error: 0.0553494
+Timestep: 17, error: 0.05243
+Timestep: 18, error: 0.0498027
+Timestep: 19, error: 0.0474258
+Simulation run time (milliseconds) 566
+Total run time (milliseconds) 33380
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=10, Grid Initialization=false, Nx=512 [SUCCESS][0m
+Running with OpenMP threads=10, MultiGrid=false, Nx=256
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 10 false 256
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 65024
+Initializing...
+Timestep: 0, error: 0.499593
+Timestep: 1, error: 0.332773
+Timestep: 2, error: 0.249406
+Timestep: 3, error: 0.199405
+Timestep: 4, error: 0.166083
+Timestep: 5, error: 0.14229
+Timestep: 6, error: 0.124451
+Timestep: 7, error: 0.110579
+Timestep: 8, error: 0.0994847
+Timestep: 9, error: 0.0904095
+Timestep: 10, error: 0.0828484
+Timestep: 11, error: 0.0764519
+Timestep: 12, error: 0.0709701
+Timestep: 13, error: 0.0662201
+Timestep: 14, error: 0.0620645
+Timestep: 15, error: 0.0583984
+Timestep: 16, error: 0.0551401
+Timestep: 17, error: 0.0522252
+Timestep: 18, error: 0.0496022
+Timestep: 19, error: 0.0472293
+Simulation run time (milliseconds) 139
+Total run time (milliseconds) 2386
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=10, Grid Initialization=false, Nx=256 [SUCCESS][0m
+Running with OpenMP threads=10, MultiGrid=false, Nx=128
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 10 false 128
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 16128
+Initializing...
+Timestep: 0, error: 0.499179
+Timestep: 1, error: 0.332203
+Timestep: 2, error: 0.248802
+Timestep: 3, error: 0.198799
+Timestep: 4, error: 0.165489
+Timestep: 5, error: 0.141712
+Timestep: 6, error: 0.123889
+Timestep: 7, error: 0.110035
+Timestep: 8, error: 0.0989572
+Timestep: 9, error: 0.0898975
+Timestep: 10, error: 0.0823511
+Timestep: 11, error: 0.0759681
+Timestep: 12, error: 0.070499
+Timestep: 13, error: 0.0657608
+Timestep: 14, error: 0.0616162
+Timestep: 15, error: 0.0579604
+Timestep: 16, error: 0.0547118
+Timestep: 17, error: 0.0518059
+Timestep: 18, error: 0.0491914
+Timestep: 19, error: 0.0468265
+Simulation run time (milliseconds) 46
+Total run time (milliseconds) 355
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=10, Grid Initialization=false, Nx=128 [SUCCESS][0m
+Running with OpenMP threads=10, MultiGrid=false, Nx=64
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 10 false 64
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 3968
+Initializing...
+Timestep: 0, error: 0.498328
+Timestep: 1, error: 0.331033
+Timestep: 2, error: 0.24756
+Timestep: 3, error: 0.197552
+Timestep: 4, error: 0.164264
+Timestep: 5, error: 0.140517
+Timestep: 6, error: 0.122729
+Timestep: 7, error: 0.108909
+Timestep: 8, error: 0.0978636
+Timestep: 9, error: 0.0888347
+Timestep: 10, error: 0.081317
+Timestep: 11, error: 0.0749609
+Timestep: 12, error: 0.0695167
+Timestep: 13, error: 0.0648018
+Timestep: 14, error: 0.0606789
+Timestep: 15, error: 0.0570434
+Timestep: 16, error: 0.0538138
+Timestep: 17, error: 0.0509257
+Timestep: 18, error: 0.0483279
+Timestep: 19, error: 0.0459788
+Simulation run time (milliseconds) 14
+Total run time (milliseconds) 57
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=10, Grid Initialization=false, Nx=64 [SUCCESS][0m
+Running with OpenMP threads=14, MultiGrid=true, Nx=2048
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 14 true 2048
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 1067008
+Initializing...
+Timestep: 0, error: 0.500303
+Timestep: 1, error: 0.333484
+Timestep: 2, error: 0.249987
+Timestep: 3, error: 0.199916
+Timestep: 4, error: 0.166545
+Timestep: 5, error: 0.142716
+Timestep: 6, error: 0.124849
+Timestep: 7, error: 0.110956
+Timestep: 8, error: 0.0998425
+Timestep: 9, error: 0.0907511
+Timestep: 10, error: 0.083176
+Timestep: 11, error: 0.076767
+Timestep: 12, error: 0.0712742
+Timestep: 13, error: 0.0665143
+Timestep: 14, error: 0.0623498
+Timestep: 15, error: 0.0586756
+Timestep: 16, error: 0.05541
+Timestep: 17, error: 0.0524884
+Timestep: 18, error: 0.0498593
+Timestep: 19, error: 0.0474807
+Simulation run time (milliseconds) 4239
+Total run time (milliseconds) 5758418
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=14, Grid Initialization=true, Nx=2048 [SUCCESS][0m
+Running with OpenMP threads=14, MultiGrid=true, Nx=1024
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 14 true 1024
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 271360
+Initializing...
+Timestep: 0, error: 0.5006
+Timestep: 1, error: 0.333631
+Timestep: 2, error: 0.249974
+Timestep: 3, error: 0.199833
+Timestep: 4, error: 0.166425
+Timestep: 5, error: 0.142578
+Timestep: 6, error: 0.124701
+Timestep: 7, error: 0.110803
+Timestep: 8, error: 0.0996875
+Timestep: 9, error: 0.0905957
+Timestep: 10, error: 0.083021
+Timestep: 11, error: 0.0766132
+Timestep: 12, error: 0.071122
+Timestep: 13, error: 0.066364
+Timestep: 14, error: 0.0622017
+Timestep: 15, error: 0.0585297
+Timestep: 16, error: 0.0552664
+Timestep: 17, error: 0.0523472
+Timestep: 18, error: 0.0497204
+Timestep: 19, error: 0.0473442
+Simulation run time (milliseconds) 886
+Total run time (milliseconds) 414429
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=14, Grid Initialization=true, Nx=1024 [SUCCESS][0m
+Running with OpenMP threads=14, MultiGrid=true, Nx=512
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 14 true 512
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 70144
+Initializing...
+Timestep: 0, error: 0.50118
+Timestep: 1, error: 0.33392
+Timestep: 2, error: 0.249949
+Timestep: 3, error: 0.199672
+Timestep: 4, error: 0.166191
+Timestep: 5, error: 0.142309
+Timestep: 6, error: 0.124413
+Timestep: 7, error: 0.110505
+Timestep: 8, error: 0.0993849
+Timestep: 9, error: 0.0902919
+Timestep: 10, error: 0.0827182
+Timestep: 11, error: 0.0763125
+Timestep: 12, error: 0.0708244
+Timestep: 13, error: 0.06607
+Timestep: 14, error: 0.0619116
+Timestep: 15, error: 0.0582438
+Timestep: 16, error: 0.0549849
+Timestep: 17, error: 0.0520701
+Timestep: 18, error: 0.0494478
+Timestep: 19, error: 0.0470761
+Simulation run time (milliseconds) 266
+Total run time (milliseconds) 32342
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=14, Grid Initialization=true, Nx=512 [SUCCESS][0m
+Running with OpenMP threads=14, MultiGrid=true, Nx=256
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 14 true 256
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 18688
+Initializing...
+Timestep: 0, error: 0.502283
+Timestep: 1, error: 0.33447
+Timestep: 2, error: 0.249902
+Timestep: 3, error: 0.199367
+Timestep: 4, error: 0.165748
+Timestep: 5, error: 0.141796
+Timestep: 6, error: 0.123863
+Timestep: 7, error: 0.109936
+Timestep: 8, error: 0.0988078
+Timestep: 9, error: 0.089712
+Timestep: 10, error: 0.0821393
+Timestep: 11, error: 0.0757372
+Timestep: 12, error: 0.0702542
+Timestep: 13, error: 0.0655062
+Timestep: 14, error: 0.0613549
+Timestep: 15, error: 0.0576947
+Timestep: 16, error: 0.0544437
+Timestep: 17, error: 0.051537
+Timestep: 18, error: 0.0489228
+Timestep: 19, error: 0.0465592
+Simulation run time (milliseconds) 81
+Total run time (milliseconds) 3144
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=14, Grid Initialization=true, Nx=256 [SUCCESS][0m
+Running with OpenMP threads=14, MultiGrid=true, Nx=128
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 14 true 128
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 5248
+Initializing...
+Timestep: 0, error: 0.504283
+Timestep: 1, error: 0.335474
+Timestep: 2, error: 0.249823
+Timestep: 3, error: 0.198819
+Timestep: 4, error: 0.164946
+Timestep: 5, error: 0.140867
+Timestep: 6, error: 0.122865
+Timestep: 7, error: 0.108902
+Timestep: 8, error: 0.0977549
+Timestep: 9, error: 0.0886519
+Timestep: 10, error: 0.0810791
+Timestep: 11, error: 0.0746815
+Timestep: 12, error: 0.0692062
+Timestep: 13, error: 0.0644679
+Timestep: 14, error: 0.0603278
+Timestep: 15, error: 0.0566798
+Timestep: 16, error: 0.0534417
+Timestep: 17, error: 0.0505482
+Timestep: 18, error: 0.0479476
+Timestep: 19, error: 0.0455976
+Simulation run time (milliseconds) 39
+Total run time (milliseconds) 551
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=14, Grid Initialization=true, Nx=128 [SUCCESS][0m
+Running with OpenMP threads=14, MultiGrid=true, Nx=64
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 14 true 64
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 1600
+Initializing...
+Timestep: 0, error: 0.507618
+Timestep: 1, error: 0.337168
+Timestep: 2, error: 0.249705
+Timestep: 3, error: 0.19792
+Timestep: 4, error: 0.16362
+Timestep: 5, error: 0.139324
+Timestep: 6, error: 0.121201
+Timestep: 7, error: 0.10717
+Timestep: 8, error: 0.0959859
+Timestep: 9, error: 0.0868647
+Timestep: 10, error: 0.0792855
+Timestep: 11, error: 0.0728895
+Timestep: 12, error: 0.0674213
+Timestep: 13, error: 0.0626938
+Timestep: 14, error: 0.0585673
+Timestep: 15, error: 0.0549349
+Timestep: 16, error: 0.0517135
+Timestep: 17, error: 0.0488378
+Timestep: 18, error: 0.0462555
+Timestep: 19, error: 0.0439242
+Simulation run time (milliseconds) 8
+Total run time (milliseconds) 75
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=14, Grid Initialization=true, Nx=64 [SUCCESS][0m
+Running with OpenMP threads=14, MultiGrid=false, Nx=2048
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 14 false 2048
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 4190208
+Initializing...
+Timestep: 0, error: 0.499949
+Timestep: 1, error: 0.333264
+Timestep: 2, error: 0.249926
+Timestep: 3, error: 0.199926
+Timestep: 4, error: 0.166594
+Timestep: 5, error: 0.142787
+Timestep: 6, error: 0.124932
+Timestep: 7, error: 0.111045
+Timestep: 8, error: 0.0999362
+Timestep: 9, error: 0.0908473
+Timestep: 10, error: 0.0832734
+Timestep: 11, error: 0.0768648
+Timestep: 12, error: 0.0713719
+Timestep: 13, error: 0.0666115
+Timestep: 14, error: 0.0624462
+Timestep: 15, error: 0.0587711
+Timestep: 16, error: 0.0555043
+Timestep: 17, error: 0.0525815
+Timestep: 18, error: 0.049951
+Timestep: 19, error: 0.047571
+Simulation run time (milliseconds) 8387
+Total run time (milliseconds) 8951457
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=14, Grid Initialization=false, Nx=2048 [SUCCESS][0m
+Running with OpenMP threads=14, MultiGrid=false, Nx=1024
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 14 false 1024
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 1046528
+Initializing...
+Timestep: 0, error: 0.499899
+Timestep: 1, error: 0.333194
+Timestep: 2, error: 0.249853
+Timestep: 3, error: 0.199852
+Timestep: 4, error: 0.166522
+Timestep: 5, error: 0.142716
+Timestep: 6, error: 0.124864
+Timestep: 7, error: 0.110979
+Timestep: 8, error: 0.0998723
+Timestep: 9, error: 0.0907853
+Timestep: 10, error: 0.0832132
+Timestep: 11, error: 0.0768064
+Timestep: 12, error: 0.0713151
+Timestep: 13, error: 0.0665562
+Timestep: 14, error: 0.0623923
+Timestep: 15, error: 0.0587184
+Timestep: 16, error: 0.0554529
+Timestep: 17, error: 0.0525312
+Timestep: 18, error: 0.0499017
+Timestep: 19, error: 0.0475228
+Simulation run time (milliseconds) 2359
+Total run time (milliseconds) 410208
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=14, Grid Initialization=false, Nx=1024 [SUCCESS][0m
+Running with OpenMP threads=14, MultiGrid=false, Nx=512
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 14 false 512
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 261120
+Initializing...
+Timestep: 0, error: 0.499797
+Timestep: 1, error: 0.333054
+Timestep: 2, error: 0.249704
+Timestep: 3, error: 0.199704
+Timestep: 4, error: 0.166376
+Timestep: 5, error: 0.142575
+Timestep: 6, error: 0.124727
+Timestep: 7, error: 0.110847
+Timestep: 8, error: 0.0997438
+Timestep: 9, error: 0.0906608
+Timestep: 10, error: 0.0830924
+Timestep: 11, error: 0.076689
+Timestep: 12, error: 0.0712009
+Timestep: 13, error: 0.0664449
+Timestep: 14, error: 0.0622838
+Timestep: 15, error: 0.0586125
+Timestep: 16, error: 0.0553494
+Timestep: 17, error: 0.05243
+Timestep: 18, error: 0.0498027
+Timestep: 19, error: 0.0474258
+Simulation run time (milliseconds) 495
+Total run time (milliseconds) 28670
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=14, Grid Initialization=false, Nx=512 [SUCCESS][0m
+Running with OpenMP threads=14, MultiGrid=false, Nx=256
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 14 false 256
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 65024
+Initializing...
+Timestep: 0, error: 0.499593
+Timestep: 1, error: 0.332773
+Timestep: 2, error: 0.249406
+Timestep: 3, error: 0.199405
+Timestep: 4, error: 0.166083
+Timestep: 5, error: 0.14229
+Timestep: 6, error: 0.124451
+Timestep: 7, error: 0.110579
+Timestep: 8, error: 0.0994847
+Timestep: 9, error: 0.0904095
+Timestep: 10, error: 0.0828484
+Timestep: 11, error: 0.0764519
+Timestep: 12, error: 0.0709701
+Timestep: 13, error: 0.0662201
+Timestep: 14, error: 0.0620645
+Timestep: 15, error: 0.0583984
+Timestep: 16, error: 0.0551401
+Timestep: 17, error: 0.0522252
+Timestep: 18, error: 0.0496022
+Timestep: 19, error: 0.0472293
+Simulation run time (milliseconds) 137
+Total run time (milliseconds) 2152
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=14, Grid Initialization=false, Nx=256 [SUCCESS][0m
+Running with OpenMP threads=14, MultiGrid=false, Nx=128
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 14 false 128
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 16128
+Initializing...
+Timestep: 0, error: 0.499179
+Timestep: 1, error: 0.332203
+Timestep: 2, error: 0.248802
+Timestep: 3, error: 0.198799
+Timestep: 4, error: 0.165489
+Timestep: 5, error: 0.141712
+Timestep: 6, error: 0.123889
+Timestep: 7, error: 0.110035
+Timestep: 8, error: 0.0989572
+Timestep: 9, error: 0.0898975
+Timestep: 10, error: 0.0823511
+Timestep: 11, error: 0.0759681
+Timestep: 12, error: 0.070499
+Timestep: 13, error: 0.0657608
+Timestep: 14, error: 0.0616162
+Timestep: 15, error: 0.0579604
+Timestep: 16, error: 0.0547118
+Timestep: 17, error: 0.0518059
+Timestep: 18, error: 0.0491914
+Timestep: 19, error: 0.0468265
+Simulation run time (milliseconds) 29
+Total run time (milliseconds) 291
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=14, Grid Initialization=false, Nx=128 [SUCCESS][0m
+Running with OpenMP threads=14, MultiGrid=false, Nx=64
+Current directory: /home/nrustamo/projects/multigrid
+Running command: main 14 false 64
+Processing Grid...
+Rebuilding Grid...
+Looking for Maximum Grid Level... 
+Linearizing Indices... 
+Mapping the Domain
+Determining Buffer
+Allocating Memory ....
+Recreating Grid ...
+Calcualting Properties...
+Building Connections...
+Determining Parent-Child...
+Looking for Buffer...
+Calculating boundary types ... 
+The number of active cells: 3968
+Initializing...
+Timestep: 0, error: 0.498328
+Timestep: 1, error: 0.331033
+Timestep: 2, error: 0.24756
+Timestep: 3, error: 0.197552
+Timestep: 4, error: 0.164264
+Timestep: 5, error: 0.140517
+Timestep: 6, error: 0.122729
+Timestep: 7, error: 0.108909
+Timestep: 8, error: 0.0978636
+Timestep: 9, error: 0.0888347
+Timestep: 10, error: 0.081317
+Timestep: 11, error: 0.0749609
+Timestep: 12, error: 0.0695167
+Timestep: 13, error: 0.0648018
+Timestep: 14, error: 0.0606789
+Timestep: 15, error: 0.0570434
+Timestep: 16, error: 0.0538138
+Timestep: 17, error: 0.0509257
+Timestep: 18, error: 0.0483279
+Timestep: 19, error: 0.0459788
+Simulation run time (milliseconds) 7
+Total run time (milliseconds) 56
+Exit status: 0
+[0;32m[SUCCESS][0m
+[0;32m[SUCCESS][0m
+[0;32mCompleted run with OpenMP threads=14, Grid Initialization=false, Nx=64 [SUCCESS][0m
