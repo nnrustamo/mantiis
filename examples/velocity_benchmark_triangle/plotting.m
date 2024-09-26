@@ -1,6 +1,5 @@
-clear; % close all;
+clear; close all;
 %% Load Data
-nx = 1024; ny = 1024;
 file_md = "md/";
 % Load MD data
 % md_0 = readmatrix(strcat(file_md, "md_0.csv"));
@@ -13,10 +12,12 @@ load("md.mat");
 
 % Load LBM Data
 folder_sm = ["single_grid_results/", "multi_grid_results/"];
-x_norm = linspace(0, 1, ny - 2)';
+
 legends = ["single-grid", "multi-grid"];
 
 %%  Load
+nx = 256; ny = 256;
+x_norm_single = linspace(0, 1, ny - 2)';
 filename = strcat(folder_sm(1) + "ux.txt");
 ux_single = loadTxtFile(filename);
 ux_single = reshape(ux_single, [ny, nx])';
@@ -28,6 +29,8 @@ ux_single_05 = flipud(ux_single(2:end-1, nx/2)); % reverse the order of values
 ux_single_05_norm = ux_single_05./mean(ux_single_05);
 
 % 
+nx = 1024; ny = 1024;
+x_norm_multi = linspace(0, 1, ny - 2)';
 filename = strcat(folder_sm(2) + "ux.txt");
 ux_multi = loadTxtFile(filename);
 ux_multi = reshape(ux_multi, [ny, nx])';
@@ -42,8 +45,8 @@ figure;
 subplot(1, 2, 1);
 plot(md_0(:, 1), md_0(:, 2), 'o', 'DisplayName', 'MD', 'LineWidth', 1.5, 'MarkerSize', 7);
 hold on;
-plot(x_norm, ux_single_0_norm, 'DisplayName', legends(1), 'LineWidth', 1.5, 'Color', 'r');
-plot(x_norm, ux_multi_0_norm, 'DisplayName', legends(2), 'LineWidth', 1.5, 'Color', 'k');
+plot(x_norm_single, ux_single_0_norm, 'DisplayName', legends(1), 'LineWidth', 1.5, 'Color', 'r');
+plot(x_norm_multi, ux_multi_0_norm, 'DisplayName', legends(2), 'LineWidth', 1.5, 'Color', 'k');
 xlabel("Normalized Position", 'FontSize', 12, 'FontName', 'Palatino Linotype');
 ylabel("Normalized Velocity", 'FontSize', 12, 'FontName', 'Palatino Linotype');
 ylim([0, 2]);
@@ -55,8 +58,8 @@ set(gca, 'FontSize', 12, 'FontName', 'Palatino Linotype');
 subplot(1, 2, 2);
 plot(md_05(:, 1), md_05(:, 2), 'o', 'DisplayName', 'MD', 'LineWidth', 1.5, 'MarkerSize', 7);
 hold on;
-plot(x_norm, ux_single_05_norm, 'DisplayName', legends(1), 'LineWidth', 1.5, 'Color', 'r');
-plot(x_norm, ux_multi_05_norm, 'DisplayName', legends(2), 'LineWidth', 1.5, 'Color', 'k');
+plot(x_norm_single, ux_single_05_norm, 'DisplayName', legends(1), 'LineWidth', 1.5, 'Color', 'r');
+plot(x_norm_multi, ux_multi_05_norm, 'DisplayName', legends(2), 'LineWidth', 1.5, 'Color', 'k');
 xlabel("Normalized Position", 'FontSize', 12, 'FontName', 'Palatino Linotype');
 ylabel("Normalized Velocity", 'FontSize', 12, 'FontName', 'Palatino Linotype');
 ylim([0, 2]);
@@ -64,4 +67,16 @@ xlim([0, 1]);
 legend('Location', 'northwest', 'Box', 'off', 'FontSize', 12, 'FontName', 'Palatino Linotype');
 title('x/H = 0.5');
 
+set(gca, 'FontSize', 12, 'FontName', 'Palatino Linotype');
+
+figure;
+plot(md_0(:, 1), md_0(:, 2), 'o', 'DisplayName', 'MD', 'LineWidth', 1.5, 'MarkerSize', 7);
+hold on;
+plot(x_norm_single, ux_single_0_norm, 'DisplayName', legends(1), 'LineWidth', 1.5, 'Color', 'r');
+plot(x_norm_multi, ux_multi_0_norm, 'DisplayName', legends(2), 'LineWidth', 1.5, 'Color', 'k');
+xlabel("Normalized Position", 'FontSize', 12, 'FontName', 'Palatino Linotype');
+ylabel("Normalized Velocity", 'FontSize', 12, 'FontName', 'Palatino Linotype');
+ylim([0, 2]);
+xlim([0, 1]);
+legend('Location', 'northwest', 'Box', 'off', 'FontSize', 12, 'FontName', 'Palatino Linotype');
 set(gca, 'FontSize', 12, 'FontName', 'Palatino Linotype');

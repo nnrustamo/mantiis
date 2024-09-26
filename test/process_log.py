@@ -52,7 +52,7 @@ def process_run_log(file_path):
                 line = lines[i]
             
         if active_cells and simulation_time and total_run_time:
-            time_per_iteration = float(total_run_time) / 20
+            time_per_iteration = float(simulation_time) / 100
             
             results.append({
                 'threads': int(threads),

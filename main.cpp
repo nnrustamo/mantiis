@@ -7,7 +7,7 @@ using namespace std::chrono;
 int main(int argc, char* argv[])
 {
     if (argc < 5) {
-        std::cerr << "Usage: " << argv[0] << " <num_threads> <grid_type> <Nx> <Nt> <input_folder/>\n";
+        std::cerr << "Usage: " << argv[0] << " <num_threads> <grid_type> <Nx> <input_folder/> <Nt> \n";
         std::cerr << "  <num_threads> : Number of OpenMP threads (e.g., 14)\n";
         std::cerr << "  <grid_type> : true or false (e.g., true)\n";
         std::cerr << "  <Nx> : Size of the grid in x-direction (e.g., 512)\n";
@@ -25,9 +25,9 @@ int main(int argc, char* argv[])
     
     // Simulation conditions
     _GLOBAL_::T_phy = 300.0; // physical temperature, K;
-    _GLOBAL_::P_phy = 0.1e6; // physical pressure, Pa;
-    _GLOBAL_::Cl = 5.0e-8;
-    _GLOBAL_::Fbody = 1.0e-11;
+    _GLOBAL_::P_phy = 2.0e6; // physical pressure, Pa;
+    _GLOBAL_::Cl = 1.0e-9;
+    _GLOBAL_::Fbody = 1.0e-10;
     // _GLOBAL_::mfp  = 7.7308e-10;
     std::cout<<"Mean free path: "<<_GLOBAL_::mfp<<std::endl;
     std::cout<<"Cl: "<<_GLOBAL_::Cl<<std::endl;
@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     // shape.addHorizontalBoundary(0);
     // shape.addHorizontalBoundary(Ny - 1);
     // shape.addRectangle(400, 600, 400, 600);
-    // shape.addCircle(1, 31, 31);
+    // shape.addCircle(Nx/8, Nx/2, Ny/2);
     // shape.calculateProperties(_GLOBAL_::Cl, _GLOBAL_::mfp);
     // shape.writeToText(folder);
 
@@ -52,14 +52,14 @@ int main(int argc, char* argv[])
 
     // LB
     std::cout << "The number of active cells: " << G.gridSize << std::endl;
-    std::cout << "Initializing..." << std::endl;
+    std::cout << "Initializing Simulation..." << std::endl;
     LB2D lb(Nx, Ny, latt, G, shape);
     lb.setCollision(&LB2D::MRTCollisionRegularized);
     lb.setOpenBoundary(&LB2D::periodicBoundary);
     lb.setWallBoundary(&LB2D::SRBBWall);
 
     double tol = 1.0e-6;
-    int iter = std::stoi(argv[5]);;
+    int iter = std::stoi(argv[5]);
     int verbose = 1;
 
     auto start_sim = high_resolution_clock::now();

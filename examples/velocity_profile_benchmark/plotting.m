@@ -1,7 +1,7 @@
 % load('data.mat')
 %% Load Data
 ny = 64; nx = 64;
-folder_sm = ["single_grid", "multi_grid"];
+folder_sm = ["single_grid_1024", "multi_grid"];
 folder_kn = ["kn = 0.01", "kn = 0.1", "kn = 1", "kn = 10"];
 
 lbm = zeros(ny -2, length(folder_kn) * length(folder_sm) + 1);

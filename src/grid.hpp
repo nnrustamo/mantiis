@@ -229,7 +229,7 @@ public:
                                         const std::vector<std::vector<double>> &,
                                         double &, int, int &, int &, double &);
 
-    // Function to traverse quad tree
+    // Function to traverse quadtree
     std::vector<std::vector<int64_t>> backwardsQuadTree(const QuadTreeNode<int> &,
                                                         std::vector<std::vector<int64_t>>, int64_t &);
 
@@ -571,7 +571,7 @@ void Grid2D::rebuildGrid(const std::vector<std::vector<int64_t>> &matrix,
     cellsCounted.clear();
     cellsCounted.shrink_to_fit();
 
-    std::cout<<"Mapping the Domain"<<std::endl;
+    std::cout<<"Mapping the Domain..."<<std::endl;
     // ------------------------------------------------------------------------- Create Distant Neighbor Map
     std::unordered_map<int64_t, std::vector<int64_t>> DistantNeighborMap;
     std::unordered_map<int64_t, std::vector<int64_t>> MissingKeysMap;
@@ -632,7 +632,7 @@ void Grid2D::rebuildGrid(const std::vector<std::vector<int64_t>> &matrix,
     }
 
     // ------------------------------------------------------------------------- Determine Buffer
-    std::cout<<"Determining Buffer"<<std::endl;
+    std::cout<<"Determining Buffer..."<<std::endl;
     //  Construct Distant Neighbor
     std::vector<int64_t> bufferIDS;
     std::vector<std::vector<int>> bufferIJ;

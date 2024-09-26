@@ -1,23 +1,24 @@
 close all; clear;
 %% Define domain parameters
 % dimensions
-ny  = 1024;
-nx = 1024;
+ny  = 2048;
+nx = 2048;
 % write to this folder
-output_folder = '../input_output_single/';
+output_folder = '../large_media/';
 
 % physical conditions
-Pressure = 0.1e6; % Pa
+Pressure = 2.0e6; % Pa
 Temperature = 300; % K
-Resolution = 5.0e-8; % m
+Resolution = 1.0e-9; % m
 [~, ~, mean_free_path] = thermodynamicProperties(Pressure, Temperature);
 
-% create a domain or load existing onee 
-% pore = randomGaussianDomain(ny, nx);
+% create a domain or load existing one
+pore = randomGaussianDomain(ny, nx);
 % pore = simplePore(ny, nx);
 % pore = narrowing_tube(nx, 500, 10);
 % pore = createRectangleObstacleFlowGeom(nx);
-pore = createTriangularFlowGeom(nx);
+% pore = createTriangularFlowGeom(nx);
+% pore = porous_media_circles(nx, 50, [10, 100]);
 
 % clean boundaries
 % pore = clean_boundaries(pore);
@@ -27,10 +28,10 @@ pore = createTriangularFlowGeom(nx);
 [kn, localpore, pore] = poreProperties(pore, mean_free_path, Resolution);
 
 % manual treatment for some validation cases only.
-kn_man = 0.15;
-locpore_man = mean_free_path/kn_man/Resolution;
-kn(kn~=0) = kn_man;
-localpore(localpore~=0) = locpore_man;
+% kn_man = 0.15;
+% locpore_man = mean_free_path/kn_man/Resolution;
+% kn(kn~=0) = kn_man;
+% localpore(localpore~=0) = locpore_man;
 
 %% Save
 figure(); imagesc(pore); colormap gray;
