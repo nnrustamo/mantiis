@@ -1142,7 +1142,7 @@ QuadTreeNode<int> Grid2D::quadtreeDecompose(const std::vector<std::vector<int>> 
     double dx_prime = 0;
     bool division_flag = false;
     int maxAllowedLevel = 2, lvl;
-    int minDist = ceil(pow(2, maxAllowedLevel - 1))*sqrt(3);
+    int minDist = ceil(pow(2, maxAllowedLevel - 1)*sqrt(2));
 
     // Loop over each matrix (quadrant)
     for (int i = 0; i < 4; i++)

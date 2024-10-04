@@ -1,8 +1,8 @@
 close all; clear;
 %% Define domain parameters
 % dimensions
-ny  = 2048;
-nx = 2048;
+ny  = 1024;
+nx = 1024;
 % write to this folder
 output_folder = '../large_media/';
 

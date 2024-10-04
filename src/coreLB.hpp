@@ -19,6 +19,7 @@
 /*
     Core Lattice Boltzmann Method
 */
+
 #pragma once
 
 #include <vector>
