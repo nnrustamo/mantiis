@@ -34,10 +34,10 @@ namespace _GLOBAL_
     std::string system_directory = "";
     // ================================================= Simulation Conditions
     // these parameters can be modified from elsewhere
-    double Cl = 1.0e-10;     // resolution
-    double Fbody = 1e-11;  // body force for transport
+    double Cl = 1.0e-9;     // resolution
+    double Fbody = 1e-10;  // body force for transport
     double T_phy = 300.0; // physical temperature, K;
-    double P_phy = 2.0e6; // physical pressure, Pa;
+    double P_phy = 0.5e6; // physical pressure, Pa;
 
     // ================================================= Fluid specific parameters
     // methane case, these parameters can be modified from elsewhere
@@ -97,7 +97,8 @@ namespace _GLOBAL_
     const double Crho = Cm / (Cl * Cl * Cl); // conversion factor of density, kg/m3
     const double Cn = Cm / C_Mw;             // conversion factor of amount, mol/mol_lu
     const double Cu = Cl / Ct;               // conversion factor of velocity, m/s
-
+    const double Cf = Cm / (pow(Ct, 2) * pow(Cl, 2));               // conversion factor of force per unit volume, kg/s2/m2
+    
     const double Crho_mol = Cn / pow(Cl, 3); // conversion factor of mole density, mol/m3
     const double rhoin = rho_phy / Crho;
 

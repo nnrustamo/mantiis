@@ -14,7 +14,7 @@ This project implements a geometric multigrid method for the Lattice Boltzmann M
    ```bash
    git clone git@github.com:nnrustamo/multigrid.git
 
-3. **Build ALGLIB**
+2. **Build ALGLIB**
 
     Copy the following and create a Makefile for ALGLIB
     ```bash
@@ -52,10 +52,13 @@ This project implements a geometric multigrid method for the Lattice Boltzmann M
     ```bash
     make -j <n_jobs>
 
-2. **Make sure directories in Makefile are correct**
+3. **Make sure directories in Makefile are correct**
 
     Compile
     ```bash
     make -j <n_jobs>
 
+## Execute
 
+    ```bash
+    ./main <num_threads> <grid_type> <Nx> <input_folder/> <Nt>

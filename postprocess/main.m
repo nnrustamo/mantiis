@@ -1,10 +1,10 @@
 close all; clear;
 %% Define domain parameters
 % dimensions
-ny  = 64;
-nx = 64;
+ny  = 1024;
+nx = 1024;
 % write to this folder
-output_folder = '../';
+output_folder = '../large_media/';
 
 % load files
 ux = loadTxtFile(strcat(output_folder, 'ux.txt'));

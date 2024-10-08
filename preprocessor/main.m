@@ -1,19 +1,21 @@
 close all; clear;
 %% Define domain parameters
 % dimensions
-ny  = 1024;
-nx = 1024;
+ny  = 512;
+nx = 512;
 % write to this folder
 output_folder = '../large_media/';
 
 % physical conditions
-Pressure = 2.0e6; % Pa
+Pressure = 0.5e6; % Pa
 Temperature = 300; % K
-Resolution = 1.0e-9; % m
+Resolution = 1.0e-10; % m
 [~, ~, mean_free_path] = thermodynamicProperties(Pressure, Temperature);
 
 % create a domain or load existing one
-pore = randomGaussianDomain(ny, nx);
+pore = loadTxtFile("../pore_raw.txt");
+pore = reshape(pore, [ny, nx]);
+% pore = randomGaussianDomain(ny, nx);
 % pore = simplePore(ny, nx);
 % pore = narrowing_tube(nx, 500, 10);
 % pore = createRectangleObstacleFlowGeom(nx);
@@ -34,12 +36,12 @@ pore = randomGaussianDomain(ny, nx);
 % localpore(localpore~=0) = locpore_man;
 
 %% Save
-figure(); imagesc(pore); colormap gray;
-saveas(gcf, strcat(output_folder, 'domain.png'))
-figure(); imagesc(kn); colormap jet; colorbar;
-saveas(gcf, strcat(output_folder, 'kn.png'))
-figure(); imagesc(localpore); colormap jet; colorbar;
-saveas(gcf, strcat(output_folder, 'localpore.png'))
+% figure(); imagesc(pore); colormap gray;
+% saveas(gcf, strcat(output_folder, 'domain.png'))
+% figure(); imagesc(kn); colormap jet; colorbar;
+% saveas(gcf, strcat(output_folder, 'kn.png'))
+% figure(); imagesc(localpore); colormap jet; colorbar;
+% saveas(gcf, strcat(output_folder, 'localpore.png'))
 
 savetoFile(kn, strcat(output_folder ,'Kn.txt'))
 savetoFile(localpore, strcat(output_folder ,'localporesize.txt'))

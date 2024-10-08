@@ -24,14 +24,16 @@ int main(int argc, char* argv[])
     auto start = high_resolution_clock::now();
     
     // Simulation conditions
-    _GLOBAL_::T_phy = 300.0; // physical temperature, K;
-    _GLOBAL_::P_phy = 2.0e6; // physical pressure, Pa;
-    _GLOBAL_::Cl = 1.0e-9;
+    // _GLOBAL_::T_phy = 300.0; // physical temperature, K;
+    //_GLOBAL_::P_phy = 2.0e6; // physical pressure, Pa;
+    _GLOBAL_::Cl = 1.0e-8;
     _GLOBAL_::Fbody = 1.0e-10;
     // _GLOBAL_::mfp  = 7.7308e-10;
     std::cout<<"Mean free path: "<<_GLOBAL_::mfp<<std::endl;
     std::cout<<"Cl: "<<_GLOBAL_::Cl<<std::endl;
     std::cout<<"Fbody: "<<_GLOBAL_::Fbody<<std::endl;
+    std::cout<<"Focre conversion factor: "<<std::setprecision(15)<<_GLOBAL_::Cf<<std::endl;
+    std::cout<<"Input density: "<<std::setprecision(15)<<_GLOBAL_::rhoin<<std::endl;
 
     // Shape
     int Nx = std::stoi(argv[3]);
@@ -92,26 +94,26 @@ int main(int argc, char* argv[])
     std::cout << "Total run time (milliseconds) " << std::setprecision(15) << duration.count() << std::endl;
 
     // Write domain and run details
-    std::string fName = folder + "SimulationDetails.txt";
-    std::ofstream simulationDetails(fName);
-    simulationDetails << "Domain dimension: " << shape.Nx << " x " << shape.Ny << std::endl;
-    simulationDetails << "Simulation run time in seconds: " << duration_sim.count() / 1000.0 << std::endl;
-    simulationDetails << "Total run time in seconds: " << duration.count() / 1000.0 << std::endl;
-    simulationDetails << "Tolerance was set to " << tol << std::endl;
-    simulationDetails << "Number timesteps to converge: " << lb.t << std::endl;
-    simulationDetails << "The number of active cells: " << G.gridSize << std::endl;
+    // std::string fName = folder + "SimulationDetails.txt";
+    // std::ofstream simulationDetails(fName);
+    // simulationDetails << "Domain dimension: " << shape.Nx << " x " << shape.Ny << std::endl;
+    // simulationDetails << "Simulation run time in seconds: " << duration_sim.count() / 1000.0 << std::endl;
+    // simulationDetails << "Total run time in seconds: " << duration.count() / 1000.0 << std::endl;
+    // simulationDetails << "Tolerance was set to " << tol << std::endl;
+    // simulationDetails << "Number timesteps to converge: " << lb.t << std::endl;
+    // simulationDetails << "The number of active cells: " << G.gridSize << std::endl;
 
     // Dump results
-    lb.convertToPhysicalUnits();
-    lb.ReconstructOriginalGrid();
-    fName = folder + "ux.txt";
-    IO::writeVectorToFile(fName, lb.ux);
-    fName = folder + "uy.txt";
-    IO::writeVectorToFile(fName, lb.uy);
-    fName = folder + "rho.txt";
-    IO::writeVectorToFile(fName, lb.rho);
-    fName = folder + "convergence.txt";
-    IO::writeVectorToFile(fName, lb.diff_over_time);
+    // lb.convertToPhysicalUnits();
+    // lb.ReconstructOriginalGrid();
+    // fName = folder + "ux.txt";
+    // IO::writeVectorToFile(fName, lb.ux);
+    // fName = folder + "uy.txt";
+    // IO::writeVectorToFile(fName, lb.uy);
+    // fName = folder + "rho.txt";
+    // IO::writeVectorToFile(fName, lb.rho);
+    // fName = folder + "convergence.txt";
+    // IO::writeVectorToFile(fName, lb.diff_over_time);
 
     return 0;
 }
