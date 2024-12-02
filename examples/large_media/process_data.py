@@ -15,43 +15,87 @@ ux_mg_2mpa = np.loadtxt("mg/large_media_2MPa/ux.txt")
 ux_mg_2mpa =ux_mg_2mpa.reshape(nx, ny)
 uy_mg_2mpa = np.loadtxt("mg/large_media_2MPa/uy.txt")
 uy_mg_2mpa = uy_mg_2mpa.reshape(nx, ny)
-u_mg_2mpa = np.sqrt(np.power(ux_mg_2mpa, 2) + np.power(uy_mg_2mpa, 2))
 
 ux_sg_2mpa = np.loadtxt("sg/large_media_2MPa/ux.txt")
 ux_sg_2mpa =ux_sg_2mpa.reshape(nx, ny)
 uy_sg_2mpa = np.loadtxt("sg/large_media_2MPa/uy.txt")
 uy_sg_2mpa = uy_sg_2mpa.reshape(nx, ny)
-u_sg_2mpa = np.sqrt(np.power(ux_sg_2mpa, 2) + np.power(uy_sg_2mpa, 2))
 
 # u_sg_2mpa_safe = np.where(u_sg_2mpa == 0, np.finfo(float).eps, u_sg_2mpa)
 # u_mg_2mpa_safe = np.where(u_mg_2mpa == 0, np.finfo(float).eps, u_mg_2mpa)
-diff = abs(u_mg_2mpa - u_sg_2mpa)
+# diff = abs(u_mg_2mpa - u_sg_2mpa)
 # diff = abs(u_mg_2mpa_safe - u_sg_2mpa_safe)/u_sg_2mpa_safe * 100
 # diff = np.where(diff > 100, 0, diff)
 
-plt.figure()
-plt.imshow(u_sg_2mpa, cmap='jet', origin='lower')
-cbar = plt.colorbar()
-cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%.1e'))
-plt.tight_layout()
-# plt.show()
-plt.savefig("u_sg_2MPa.png")
+# plt.figure()
+# plt.imshow(u_sg_2mpa, cmap='jet', origin='lower')
+# cbar = plt.colorbar()
+# cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%.1e'))
+# plt.tight_layout()
+# # plt.show()
+# plt.savefig("u_sg_2MPa.png")
+
+# plt.figure()
+# plt.imshow(u_mg_2mpa, cmap='jet', origin='lower')
+# cbar = plt.colorbar()
+# cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%.1e'))
+# plt.tight_layout()
+# # plt.show()
+# plt.savefig("u_mg_2MPa.png")
+
+# plt.figure()
+# plt.imshow(diff, cmap='jet', origin='lower')
+# cbar = plt.colorbar()
+# cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%.1e'))
+# plt.tight_layout()
+# # plt.show()
+# plt.savefig("u_diff_2MPa.png")
+
+# Contour plot for multigrid
+x = np.linspace(0, 1024, 1024)
+y = np.linspace(0, 1024, 1024)
+X, Y = np.meshgrid(x, y)
+U = ux_mg_2mpa
+V = uy_mg_2mpa
+
+# Calculate the magnitude of the velocity
+velocity_magnitude = np.sqrt(U**2 + V**2)
+velocity_magnitude_filtered = np.where(velocity_magnitude < 6.0e-6, np.nan, velocity_magnitude)
 
 plt.figure()
-plt.imshow(u_mg_2mpa, cmap='jet', origin='lower')
-cbar = plt.colorbar()
+contour = plt.contourf(X, Y, velocity_magnitude, 1000, cmap='jet') # this is practically heatmap now
+cbar = plt.colorbar(contour, label='Magnitude of velocity (m/s)')
 cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%.1e'))
-plt.tight_layout()
-# plt.show()
-plt.savefig("u_mg_2MPa.png")
+plt.savefig("ux_mg_2mpa_contour.png")
 
 plt.figure()
-plt.imshow(diff, cmap='jet', origin='lower')
-cbar = plt.colorbar()
+contour = plt.contourf(X, Y, velocity_magnitude_filtered, 1000, cmap='jet')
+cbar = plt.colorbar(contour, label='Magnitude of velocity (m/s)')
 cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%.1e'))
+plt.savefig("ux_mg_2mpa_contour_filtered.png")
+
+# Error Distribution
+u_mg_2mpa = np.sqrt(np.power(ux_mg_2mpa, 2) + np.power(uy_mg_2mpa, 2))
+u_sg_2mpa = np.sqrt(np.power(ux_sg_2mpa, 2) + np.power(uy_sg_2mpa, 2))
+u_mg_2mpa_safe = np.where(u_mg_2mpa == 0, np.finfo(float).eps, u_mg_2mpa)
+u_sg_2mpa_safe = np.where(u_sg_2mpa == 0, np.finfo(float).eps, u_sg_2mpa)
+diff = abs(u_mg_2mpa_safe - u_sg_2mpa_safe)/u_sg_2mpa_safe * 100
+diff = diff.reshape(nx*ny, 1)
+# diff = diff[np.where(diff>1.0e-1)]
+
+plt.figure()
+plt.hist(diff, bins=1000, color='steelblue', edgecolor='black', alpha=0.75)
+plt.xlabel('Error (%)', fontsize=14)
+plt.xscale('log')
+plt.yscale('log')
+plt.ylabel('Frequency', fontsize=14)
+# plt.grid(True, linestyle='--', alpha=0.6)
+mean_error = np.mean(diff)
+plt.axvline(mean_error, color='red', linestyle='dashed', linewidth=2, label=f'Mean = {round(mean_error, 2)} %')
+plt.legend()
 plt.tight_layout()
-# plt.show()
-plt.savefig("u_diff_2MPa.png")
+plt.savefig("Errors.png")
+
 
 # ========================================================= Load and plot convergence profiles
 conv_mg_2mpa = np.loadtxt("mg/large_media_2MPa/convergence.txt")
@@ -167,14 +211,10 @@ ax1.set_ylim([min(min(k_sg), min(k_mg)) * 0.95, max(max(k_sg), max(k_mg)) * 1.05
 ax1.xaxis.set_major_formatter(ticker.LogFormatterSciNotation())
 ax1.yaxis.set_major_formatter(ticker.LogFormatterSciNotation())
 
-ax2 = ax1.twinx()
-line3, = ax2.plot(inv_P, diff, linestyle='--', color='blue', label='error')
-ax2.set_ylabel(r"Error (%)", fontsize=12)
-ax2.set_ylim([0, max(diff) * 1.1])
-lines = [line1, line2, line3]
+lines = [line1, line2]
 labels = [line.get_label() for line in lines]
 plt.legend(lines, labels, loc='upper center')
-ax1.grid(True, which='both', axis='both')
+# ax1.grid(True, which='both', axis='both')
 plt.tight_layout()
 plt.rc('font', family='serif')
 plt.savefig("permeability.png")

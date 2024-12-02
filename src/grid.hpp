@@ -1100,7 +1100,8 @@ void Grid2D::getBoundaryTypes()
                     break;
                 }
             }
-            // convert to decimal
+            // convert to decimalmatlab
+            
             std::bitset<32> binary(binaryString);
             int decimalNumber = binary.to_ulong();
             // decimalNumber will be equal to 511 where there is no boundary pixel in the connections

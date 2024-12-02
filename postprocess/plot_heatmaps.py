@@ -48,7 +48,7 @@ def plot_imgs(array_2d, color_map='turbo', name=''):
     plt.xlim(0, array_2d.shape[0]) 
     plt.ylim(0, array_2d.shape[1]) 
     tick_positions = np.linspace(0, array_2d.shape[0], 9)
-    plt.xticks(ticks=tick_positions, labels=[f'{int(x)}' for x in tick_positions])
+    # plt.xticks(ticks=tick_positions, labels=[f'{int(x)}' for x in tick_positions])
     plt.yticks(ticks=tick_positions, labels=[f'{int(y)}' for y in tick_positions])
     plt.savefig(name + ".png", bbox_inches='tight', pad_inches=0.1)
     plt.close()

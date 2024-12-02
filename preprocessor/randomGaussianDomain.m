@@ -6,7 +6,15 @@ function pore = randomGaussianDomain(NY, NX, windowSize, scalingFactor)
     noisyImage = randn(NY, NX);
     % filter with Gaussian
     windowSize = 8;
-    blurredImage = imgaussfilt(noisyImage, windowSize);
+    blurredImage1 = imgaussfilt(noisyImage, 5);
+    % blurredImage2 = imgaussfilt(noisyImage, 20);
+    % blurredImage3 = imgaussfilt(noisyImage, 40);
+    % blurredImage4 = imgaussfilt(noisyImage, 60);
+    blurredImage = blurredImage1;
+    %                0.25 * blurredImage2 + ...
+    %                0.25 * blurredImage3 + ...
+    %                0.25 * blurredImage4;  % Combine different scales
+    
     blurredImage = mat2gray(blurredImage);
     % binarize image
     scalingFactor = 0.95;

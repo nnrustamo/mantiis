@@ -35,9 +35,9 @@ namespace _GLOBAL_
     // ================================================= Simulation Conditions
     // these parameters can be modified from elsewhere
     double Cl = 1.0e-9;     // resolution
-    double Fbody = 1e-10;  // body force for transport
+    double Fbody = 1e-8;  // body force for transport
     double T_phy = 300.0; // physical temperature, K;
-    double P_phy = 0.5e6; // physical pressure, Pa;
+    double P_phy = 2.0e6; // physical pressure, Pa;
 
     // ================================================= Fluid specific parameters
     // methane case, these parameters can be modified from elsewhere

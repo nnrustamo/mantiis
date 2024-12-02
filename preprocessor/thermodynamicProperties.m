@@ -71,7 +71,7 @@ C_Mw = Mw/Mw_lu;              % (kg/mol)/(kg_lu/mol_lu)           = Cm/Cn       
 Crho_mol = 1 / (C_bs * C_Mw);         % conversion factor of mole density, mol/m3         = [-3, 0, 0, 0, 1]
 
 % Density of components ( mass of component / volume of mixture) -- cell-volume densities,
-rhoG_lu = rhoG_phy/Crho;            % kg/m^3
+rhoG_lu = rhoG_phy/Crho            % kg/m^3
 
 % 
 r_mole = d_mole/2;
