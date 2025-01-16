@@ -69,7 +69,7 @@ Shape::Shape(int x, int y, double res) : Nx(x), Ny(y), resolution(res)
     LocPore.resize(Ny, std::vector<double>(Nx, 0));
     Kn.resize(Ny, std::vector<double>(Nx, 0));
 
-    utils::load_system_files(_GLOBAL_::ifStream, _GLOBAL_::icsr, _GLOBAL_::xy_norm_template, _GLOBAL_::bnd_types);
+    utils::load_system_files(_GLOBAL_::ifStream, _GLOBAL_::icsr, _GLOBAL_::xy_norm, _GLOBAL_::bnd_types);
 }
 
 // Add horizontal boundaries

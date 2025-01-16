@@ -13,9 +13,9 @@ md_075 = pd.read_csv(file_md + "md_075.csv", header=None).values
 # Load LBM Data
 folder_sm = ["single_grid_results/", "multi_grid_results/"]
 
-legends = ["single-grid", "multi-grid"]
+legends = ["Single-block", "Multi-block"]
 
-# Load single-grid LBM data
+# Load Single-block LBM data
 nx, ny = 1024, 1024
 x_norm_single = np.linspace(0, 1, ny - 2)
 ux_single = np.loadtxt(folder_sm[0] + "ux.txt").reshape((ny, nx))
@@ -26,7 +26,7 @@ ux_single_0_norm = ux_single_0 / np.mean(ux_single_0)
 ux_single_05 = np.flipud(ux_single[1:-1, nx//2])  # Reverse the order of values
 ux_single_05_norm = ux_single_05 / np.mean(ux_single_05)
 
-# Load multi-grid LBM data
+# Load Multi-block LBM data
 nx, ny = 1024, 1024
 x_norm_multi = np.linspace(0, 1, ny - 2)
 ux_multi = np.loadtxt(folder_sm[1] + "ux.txt").reshape((ny, nx))

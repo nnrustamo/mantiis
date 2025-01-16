@@ -128,46 +128,46 @@ for i = 1:length(nonRemovedTypes)
         subplot_counter = subplot_counter + 1;
     end
 end
-% 
-% 
-% % filter
-% vid = figure;
-% writerObj = VideoWriter('boundary_types.avi');
-% open(writerObj);
-% for i = 1:length(nonRemovedTypes)
-%     ifStream_new(i, :) = ifStream(nonRemovedTypes(i), :);
-%     xy_norm_new(i, :) = xy_norm(nonRemovedTypes(i), :);
-%     % calcualte specular reflection direction
-%     icsr(i, 1) = 1;
-%     for ic = 2:9
-%         if ~ifStream_new(i, ic)
-%             ei_x = round(Cx(ic) - 2 * (Cx(ic) * xy_norm_new(i, 1) + Cy(ic) * xy_norm_new(i, 2)) * xy_norm_new(i, 1));
-%             ei_y = round(Cy(ic) - 2 * (Cx(ic) * xy_norm_new(i, 1) + Cy(ic) * xy_norm_new(i, 2)) * xy_norm_new(i, 2));
-%             ei_SR = find(Cx == ei_x & Cy == ei_y);
-%             if ~isempty(ei_SR)
-%                 icsr(i, ic) = ei_SR;
-%             else
-%                 icsr(i, ic) = ic;
-%             end
-%         else
-%             icsr(i, ic) = ic;
-%         end 
-%     end
-% 
-%     % Write the current frame to the video
-%     imagesc(binaryMatrix);
-%     colormap(gray);
-%     title(['Boundary Number: ', num2str(remaining_boundary_ids(i))]);
-%     axis off;
-%     % drawnow;
-%     pause(0.3);
-%     writeVideo(writerObj, getframe(vid));
-% 
-%     binaryMatrix = boundary_sim(:, :, nonRemovedTypes(i));
-%     bndmat = reshape(binaryMatrix, [1, 9]);
-%     decimals = bin2dec(num2str(bndmat));
-% end
-% remaining_boundary_ids = remaining_boundary_ids';
+
+
+% filter
+vid = figure;
+writerObj = VideoWriter('boundary_types.avi');
+open(writerObj);
+for i = 1:length(nonRemovedTypes)
+    ifStream_new(i, :) = ifStream(nonRemovedTypes(i), :);
+    xy_norm_new(i, :) = xy_norm(nonRemovedTypes(i), :);
+    % calcualte specular reflection direction
+    icsr(i, 1) = 1;
+    for ic = 2:9
+        if ~ifStream_new(i, ic)
+            ei_x = round(Cx(ic) - 2 * (Cx(ic) * xy_norm_new(i, 1) + Cy(ic) * xy_norm_new(i, 2)) * xy_norm_new(i, 1));
+            ei_y = round(Cy(ic) - 2 * (Cx(ic) * xy_norm_new(i, 1) + Cy(ic) * xy_norm_new(i, 2)) * xy_norm_new(i, 2));
+            ei_SR = find(Cx == ei_x & Cy == ei_y);
+            if ~isempty(ei_SR)
+                icsr(i, ic) = ei_SR;
+            else
+                icsr(i, ic) = ic;
+            end
+        else
+            icsr(i, ic) = ic;
+        end 
+    end
+
+    % Write the current frame to the video
+    imagesc(binaryMatrix);
+    colormap(gray);
+    title(['Boundary Number: ', num2str(remaining_boundary_ids(i))]);
+    axis off;
+    % drawnow;
+    pause(0.3);
+    writeVideo(writerObj, getframe(vid));
+
+    binaryMatrix = boundary_sim(:, :, nonRemovedTypes(i));
+    bndmat = reshape(binaryMatrix, [1, 9]);
+    decimals = bin2dec(num2str(bndmat));
+end
+remaining_boundary_ids = remaining_boundary_ids';
 % %% Save
 % % Note these files are the same as in ../src/system_files
 % close(writerObj);

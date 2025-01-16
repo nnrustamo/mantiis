@@ -713,7 +713,7 @@ namespace utils
 
     void load_system_files(std::vector<std::vector<bool>> &ifStream,
                     std::vector<std::vector<int>> &icsr,
-                    std::vector<std::vector<double>> &xy_norm_template,
+                    std::vector<std::vector<double>> &xy_norm,
                     std::vector<int> &bnd_types)
     {
         using namespace IO;
@@ -742,7 +742,7 @@ namespace utils
                 icsr[j][i] = static_cast<int>(data[i * numberOfTypes + j]) - 1;
             }
         }
-        // xy_norm_template
+        // xy_norm
         numberOfDirections = 2; // as in 2D x and y
         totalentries = numberOfTypes*numberOfDirections;
         data.resize(totalentries);
@@ -754,7 +754,7 @@ namespace utils
         {
             for (int j = 0; j < numberOfTypes; j++) // column ID, x axis
             {
-                xy_norm_template[j][i] = static_cast<double>(data[i * numberOfTypes + j]);
+                xy_norm[j][i] = static_cast<double>(data[i * numberOfTypes + j]);
             }
         }
 

@@ -164,13 +164,13 @@ public:
 
     void SRBBWall(int);
 
-    void MDBBWall();
+    void MDBBWall(int);
 
     void periodicBoundary(int);
 
-    void pressureBoundary();
+    void pressureBoundary(int);
 
-    void generalizedPeriodicBoundary();
+    void generalizedPeriodicBoundary(int);
 
     void applyBoundaryConditions(int);
 
@@ -799,28 +799,33 @@ void LB2D::SRBBWall(int lvl = 1)
 }
 
 // Maxwellian diffusion + bounce back wall boundary
-void LB2D::MDBBWall()
+void LB2D::MDBBWall(int lvl = 1)
 {
     int64_t k1, k2;
-    double Kno, Kdeno;
+    double Kno, Kdeno, normal_y, normal_x;
     for (int64_t i = 0; i < boundaryID.size(); i++)
-    {
-        k1 = boundaryID[i];
-        k2 = boundaryIC[i];
-        Kdeno = 0.0;
-        Kno = 0.0;
-        for (int ic = 0; ic < NC; ic++)
+    {   
+        if (grid.gridLevel[boundaryID[i]] == lvl)
         {
-            if ((latt.e_y[ic] * normal_y[k1] + latt.e_x[ic] * normal_x[k1]) > 0)
+            k1 = boundaryID[i];
+            k2 = boundaryIC[i];
+            Kdeno = 0.0;
+            Kno = 0.0;
+            normal_x = xy_norm[grid.bndTypes[boundaryID[i]]][0];
+            normal_y = xy_norm[grid.bndTypes[boundaryID[i]]][1];
+            for (int ic = 0; ic < NC; ic++)
             {
-                Kdeno += feq[k1 * NC + k2];
+                if ((latt.e_y[ic] * normal_y + latt.e_x[ic] * normal_x) > 0)
+                {
+                    Kdeno += feq[k1 * NC + ic];
+                }
+                else if ((latt.e_y[ic] * normal_y + latt.e_x[ic] * normal_x) < 0)
+                {
+                    Kno += fb[k1 * NC + ic];
+                }
             }
-            else if ((latt.e_y[ic] * normal_y[k1] + latt.e_x[ic] * normal_x[k1]) < 0)
-            {
-                Kno += fb[k1 * NC + k2];
-            }
+            f[k1 * NC + latt.icOpp[k2]] = r * ftemp[k1 * NC + k2] + (1 - r) * Kno / Kdeno * feq[k1 * NC + latt.icOpp[k2]];
         }
-        f[k1 * NC + k2] = r * ftemp[k1 * NC + latt.icOpp[k2]] + (1 - r) * Kno / Kdeno * ftemp[k1 * NC + latt.icOpp[k2]];
     }
 }
 
@@ -835,12 +840,12 @@ void LB2D::periodicBoundary(int lvl)
 }
 
 // TBD
-void LB2D::pressureBoundary()
+void LB2D::pressureBoundary(int lvl = 1)
 {
 }
 
 // TBD
-void LB2D::generalizedPeriodicBoundary()
+void LB2D::generalizedPeriodicBoundary(int lvl = 1)
 {
 }
 
@@ -1075,9 +1080,10 @@ void LB2D::evolutionStepOfMultiBlock(int lvl) // initial value of lvl (level) is
     // collide & stream as many times as the cells size
     int rep = pow(2, grid.maxLevel - lvl);
     for (int i = 0; i < rep; i++)
-    {
+    {   
+        fb = f; // save pre-collision
         collide(lvl);
-        ftemp = f;
+        ftemp = f;  // save pre-streaming
         zeroDown(lvl);
         stream(lvl);
         applyBoundaryConditions(lvl);

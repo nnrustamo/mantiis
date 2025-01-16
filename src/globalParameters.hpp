@@ -119,7 +119,7 @@ namespace _GLOBAL_
     int N_bnd_types = 52;
     std::vector<std::vector<int>> icsr(N_bnd_types, std::vector<int>(9, 0));
     std::vector<std::vector<bool>> ifStream(N_bnd_types, std::vector<bool>(9, false));
-    std::vector<std::vector<double>> xy_norm_template(N_bnd_types, std::vector<double>(2, 0.0));
+    std::vector<std::vector<double>> xy_norm(N_bnd_types, std::vector<double>(2, 0.0));
     std::vector<int> bnd_types(N_bnd_types, 0);
     
     // ================================================= Collision parameters
