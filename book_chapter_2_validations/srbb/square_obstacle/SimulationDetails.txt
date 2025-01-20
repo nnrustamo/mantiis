@@ -1,6 +1,0 @@
-Domain dimension: 500 x 500
-Simulation run time in seconds: 143.358
-Total run time in seconds: 160.141
-Tolerance was set to 1e-06
-Number timesteps to converge: 6133
-The number of active cells: 238799
