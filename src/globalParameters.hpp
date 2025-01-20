@@ -111,9 +111,9 @@ namespace _GLOBAL_
     double mfp = 1.0 / (sqrt(2.0) * Crho_mol * rhoin / Mw_lu * NA * M_PI * (2 * d_mol / 2.0 + 2 * d_mol / 2.0) * (2 * d_mol / 2.0 + 2 * d_mol / 2.0));
 
     // ================================================= Boundary parameters
-    const double A1 = 1 - 0.1817; // half-way bounce-back C1
-    double r = 0.2;        // 2.0 * A1 / (sqrt(6.0 / M_PI) + A1);
-    const double A2 = 0.6;        // 1.0 / M_PI + 0.5 * pow(A1, 2); //
+    const double A1 = 1.2; // half-way bounce-back C1
+    double r = 0.4; //2.0 * A1 / (sqrt(6.0 / M_PI) + A1);
+    const double A2 = 0.9;        // 1.0 / M_PI + 0.5 * pow(A1, 2); //
 
     // Specular reflection boundary files
     int N_bnd_types = 52;

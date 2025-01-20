@@ -649,7 +649,7 @@ void LB2D::MRTCollisionRegularized(int lvl = 1)
             k_ic = k * NC;
             // relaxation parameters
             double tau_q = 0.5 + (3.0 + M_PI * (2.0 * taus[k] - 1.0) * (2.0 * taus[k] - 1.0) * A2) / (8.0 * (2.0 * taus[k] - 1.0));
-            double tau_d = 0.5 + (3.0 / 2.0) * sqrt((double)3.0) * 1.0 / pow((double)(1.0 / sqrt((double)(mfp / Cl * 1.0 / (1.0 + 2.0 * grid.kn[k]))) * 2.0), (double)2.0);
+            double tau_d = 1.0; //0.5 + (3.0 / 2.0) * sqrt((double)3.0) * 1.0 / pow((double)(1.0 / sqrt((double)(mfp / Cl * 1.0 / (1.0 + 2.0 * grid.kn[k]))) * 2.0), (double)2.0);
 
             R = {
                 1.0 / 1.0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -790,7 +790,11 @@ void LB2D::SRBBWall(int lvl = 1)
     for (int64_t i = 0; i < boundaryID.size(); i++)
     {
         if (grid.gridLevel[boundaryID[i]] == lvl)
-        {
+        {   
+            // r = 0.4987*pow(grid.kn[boundaryID[i]], -0.131) - 0.25;
+            // r = 2.0 * A1 / (sqrt(6.0 / M_PI) + A1);
+            r = 1/(1 + sqrt(M_PI/6.0) * A1 + (taus[boundaryID[i]] - 0.5) / (8 * pow(taus[boundaryID[i]] - 0.5, 2.0)));
+            // std::cout<<"r value: "<<r<<std::endl;
             srOpp = icsr[grid.bndTypes[boundaryID[i]]][boundaryIC[i]];
             f[boundaryID[i] * NC + latt.icOpp[boundaryIC[i]]] += r * ftemp[boundaryID[i] * NC + boundaryIC[i]];
             f[boundaryID[i] * NC + srOpp] += (1 - r) * ftemp[boundaryID[i] * NC + boundaryIC[i]];
@@ -824,6 +828,9 @@ void LB2D::MDBBWall(int lvl = 1)
                     Kno += fb[k1 * NC + ic];
                 }
             }
+            // r = 0.3222*pow(grid.kn[boundaryID[i]], -0.217) - 0.25;
+            r = 1/(1 + sqrt(M_PI/6.0) * A1 + (taus[boundaryID[i]] - 0.5) / (8 * pow(taus[boundaryID[i]] - 0.5, 2.0)));
+            //std::cout<<"r value: "<<r<<std::endl;
             f[k1 * NC + latt.icOpp[k2]] = r * ftemp[k1 * NC + k2] + (1 - r) * Kno / Kdeno * feq[k1 * NC + latt.icOpp[k2]];
         }
     }

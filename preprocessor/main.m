@@ -1,10 +1,10 @@
 close all; clear;
 %% Define domain parameters
 % dimensions
-ny  = 500;
-nx = 500;
+ny  = 1000;
+nx = 1000;
 % write to this folder
-output_folder = '../slit_pore/';
+output_folder = '../porous_media/';
 
 % physical conditions
 Pressure = 2.0e6; % Pa
@@ -13,9 +13,9 @@ Resolution = 1.0e-9; % m
 [~, ~, mean_free_path] = thermodynamicProperties(Pressure, Temperature);
 
 % create a domain or load existing one
-% pore = loadTxtFile("../pore_raw.txt");
+pore = loadTxtFile("../pore_raw.txt");
 % pore = reshape(pore, [ny, nx]);
-pore = randomGaussianDomain(ny, nx);
+% pore = randomGaussianDomain(ny, nx);
 % pore = randomDomain(ny, nx);
 % pore = simplePore(ny, nx);
 % pore = narrowing_tube(nx, 500, 10);
