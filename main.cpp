@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
     simulationDetails << "The number of active cells: " << G.gridSize << std::endl;
 
     // Dump results
-    // lb.convertToPhysicalUnits();
+    lb.convertToPhysicalUnits();
     lb.ReconstructOriginalGrid();
     fName = folder + "ux.txt";
     IO::writeVectorToFile(fName, lb.ux);

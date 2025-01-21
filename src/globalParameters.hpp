@@ -112,7 +112,7 @@ namespace _GLOBAL_
 
     // ================================================= Boundary parameters
     const double A1 = 1.2; // half-way bounce-back C1
-    double r = 0.4; //2.0 * A1 / (sqrt(6.0 / M_PI) + A1);
+    double r = 0.5; //2.0 * A1 / (sqrt(6.0 / M_PI) + A1);
     const double A2 = 0.9;        // 1.0 / M_PI + 0.5 * pow(A1, 2); //
 
     // Specular reflection boundary files

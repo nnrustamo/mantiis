@@ -215,6 +215,8 @@ public:
 
     void getProperties(Shape &);
 
+    void checkProperties(Shape &);
+
     void buildConnections(const std::vector<int64_t> &);
 
     void determineParentChild();
@@ -275,6 +277,7 @@ Grid2D::Grid2D(Shape &ShapeObject, lattice &latt, bool isMultigrid = false)
     rebuildGrid(reconstructedImage,linInd, gLvl, pore);
 
     std::cout << "Calcualting Properties..." << std::endl;
+    checkProperties(ShapeObject);
     getProperties(ShapeObject);
     std::cout << "Building Connections..." << std::endl;
     buildConnections(linInd);
@@ -880,6 +883,21 @@ void Grid2D::getProperties(Shape &ShapeObject)
     }
 }
 
+void Grid2D::checkProperties(Shape & ShapeObject)
+{
+    for (int64_t i = 0; i< gridSize; i++)
+    {
+        const double H = ShapeObject.LocPore[gridIJ[i][1]][gridIJ[i][0]];
+        const double Kn = ShapeObject.Kn[gridIJ[i][1]][gridIJ[i][0]];
+        const double critical_dx = 9.56 * std::pow(10.0, -3.0) * 1 / Kn;
+        if (ShapeObject.resolution >=critical_dx)
+        {
+            std::cout<<"[WARNING] Domain dx is larger than critical dx. This may lead to unstable or inacurate  results.\n";
+            break;
+        }
+    }
+}
+
 void Grid2D::buildConnections(const std::vector<int64_t> &linInd)
 {   
     
@@ -1159,7 +1177,7 @@ QuadTreeNode<int> Grid2D::quadtreeDecompose(const std::vector<std::vector<int>> 
         beta = utils::calculateRatio(q, solids);
 
         // Kn based decision
-        // division_flag = (dx_prime >= cond) ? true : false;
+        division_flag = (dx_prime >= cond) ? true : false;
 
         // Distance to wall based decision
         if (q.size() > 1 && utils::findMinValue(q_dwall) < minDist * q_dwall.size())

@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import sys
 
-def plot_imgs(array_2d, color_map='turbo', name=''):
+def plot_imgs(array_2d, color_map='turbo', cbar_title = None, name=''):
     """
     Plot an image from a 2D numpy array and add a colorbar with the specified colormap.
 
@@ -40,7 +40,8 @@ def plot_imgs(array_2d, color_map='turbo', name=''):
     plt.figure(figsize=(8, 6))
     img = plt.imshow(array_2d, cmap=color_map, origin='lower')
     cbar = plt.colorbar(img, orientation='vertical', shrink=0.8, aspect=10)
-    
+    cbar.set_label(cbar_title)
+
     # cbar_ticks = np.linspace(array_2d.min(), array_2d.max(), 10)
     # rounded_ticks = np.round(cbar_ticks, 2)   
     # cbar.set_ticks(rounded_ticks)
@@ -65,7 +66,7 @@ if __name__ == "__main__":
     ny = int(sys.argv[2])
     nx = int(sys.argv[3])
 
-    output_path = ''
+    output_path = file_path
     if len(sys.argv) == 5:
         output_path = sys.argv[4]
 
@@ -73,8 +74,19 @@ if __name__ == "__main__":
      Each file contains linearized 2D array in column first order
     """
     ux = np.loadtxt(file_path + 'ux.txt').reshape((ny, nx))
-    plot_imgs(ux, "turbo", output_path + 'ux')
+    plot_imgs(ux, "turbo", cbar_title="Streamwise velocity (m/s)", name = output_path + 'ux')
+
     uy = np.loadtxt(file_path + 'uy.txt').reshape((ny, nx))
-    plot_imgs(uy, "turbo", output_path + 'uy')
+    plot_imgs(uy, "turbo", "Y-dir velocity (m/s)", output_path + 'uy')
+
+    speed = np.sqrt(ux**2 + uy**2)
+    plot_imgs(speed, "turbo", "Velocity magnitude (m/s)", output_path + 'speed')
+
     rho = np.loadtxt(file_path + 'rho.txt').reshape((ny, nx))
-    plot_imgs(rho, "turbo", output_path + 'rho')
+    plot_imgs(rho, "turbo", "Density (km/m3)", output_path + 'rho')
+
+    kn = np.loadtxt(file_path + 'Kn.txt').reshape((ny, nx)).transpose()
+    plot_imgs(kn, "turbo", "Knudsen number", output_path + 'kn')
+
+    poresize = np.loadtxt(file_path + 'localporesize.txt').reshape((ny, nx)).transpose()
+    plot_imgs(poresize, "turbo", "Local characteristic length", output_path + 'localpore')

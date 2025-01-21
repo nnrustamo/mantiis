@@ -791,9 +791,9 @@ void LB2D::SRBBWall(int lvl = 1)
     {
         if (grid.gridLevel[boundaryID[i]] == lvl)
         {   
-            // r = 0.4987*pow(grid.kn[boundaryID[i]], -0.131) - 0.25;
+            r = 0.4987*pow(grid.kn[boundaryID[i]], -0.131) - 0.25;
             // r = 2.0 * A1 / (sqrt(6.0 / M_PI) + A1);
-            r = 1/(1 + sqrt(M_PI/6.0) * A1 + (taus[boundaryID[i]] - 0.5) / (8 * pow(taus[boundaryID[i]] - 0.5, 2.0)));
+            // r = 1/(1 + sqrt(M_PI/6.0) * A1 + (taus[boundaryID[i]] - 0.5) / (8 * pow(taus[boundaryID[i]] - 0.5, 2.0)));
             // std::cout<<"r value: "<<r<<std::endl;
             srOpp = icsr[grid.bndTypes[boundaryID[i]]][boundaryIC[i]];
             f[boundaryID[i] * NC + latt.icOpp[boundaryIC[i]]] += r * ftemp[boundaryID[i] * NC + boundaryIC[i]];
@@ -828,8 +828,8 @@ void LB2D::MDBBWall(int lvl = 1)
                     Kno += fb[k1 * NC + ic];
                 }
             }
-            // r = 0.3222*pow(grid.kn[boundaryID[i]], -0.217) - 0.25;
-            r = 1/(1 + sqrt(M_PI/6.0) * A1 + (taus[boundaryID[i]] - 0.5) / (8 * pow(taus[boundaryID[i]] - 0.5, 2.0)));
+            r = 0.3222*pow(grid.kn[boundaryID[i]], -0.217) - 0.25;
+            // r = 1/(1 + sqrt(M_PI/6.0) * A1 + (taus[boundaryID[i]] - 0.5) / (8 * pow(taus[boundaryID[i]] - 0.5, 2.0)));
             //std::cout<<"r value: "<<r<<std::endl;
             f[k1 * NC + latt.icOpp[k2]] = r * ftemp[k1 * NC + k2] + (1 - r) * Kno / Kdeno * feq[k1 * NC + latt.icOpp[k2]];
         }
