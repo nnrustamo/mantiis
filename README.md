@@ -1,6 +1,6 @@
-# Geometric Multigrid for Lattice Boltzmann Method
+# Multi-block Lattice Boltzmann Method
 
-This project implements a geometric multigrid method for the Lattice Boltzmann Method (LBM) to simulate high Knudsen transport. The geometric multigrid approach aims to enhance the performance and accuracy of the LBM simulations.
+This project implements a grid refinement method for the Lattice Boltzmann Method (LBM) to simulate high Knudsen transport. The multi-block approach aims to enhance the performance of the LBM simulations.
 
 ## External Dependencies
 
@@ -61,4 +61,4 @@ This project implements a geometric multigrid method for the Lattice Boltzmann M
 ## Execute
 
     ```bash
-    ./main <num_threads> <grid_type> <Nx> <input_folder/> <Nt>
+    ./main <num_threads> <is_multiblock> <Nx> <input_folder/> <Nt>
