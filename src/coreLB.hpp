@@ -188,12 +188,17 @@ public:
 
     void convertToPhysicalUnits();
 
-    // bring back the solid points in simulation domain
-    // this function should only be called at the end of the simulation
-    // the data will be modified beyond repair
-    void completeSingleGridDomain();
+    // functions to prepare variables to save
+    std::vector<double> prepareUx();
+    std::vector<double> prepareUy();
+    std::vector<double> prepareRho();
+    std::vector<double> prepareDistributions();
 
+    // bring back the solid points in simulation domain
+    // these functions should only be called at the end of the simulation
+    void completeSingleGridDomain();
     void ReconstructOriginalGrid();
+
 };
 
 // ========================================================================================
@@ -1317,14 +1322,67 @@ void LB2D::ReconstructOriginalGrid()
             {
                 for (int chj = j; chj < j + num_child_cells; chj++)
                 {
-                    interpolated = spline2dcalc(s1, chj + 1, chi + 1);
-                    ux[chi * NX + chj] = interpolated;
-                    interpolated = spline2dcalc(s2, chj + 1, chi + 1);
-                    uy[chi * NX + chj] = interpolated;
-                    interpolated = spline2dcalc(s3, chj + 1, chi + 1);
-                    rho[chi * NX + chj] = interpolated;
+                    // interpolated = spline2dcalc(s1, chj + 1, chi + 1);
+                    // ux[chi * NX + chj] = interpolated;
+                    // interpolated = spline2dcalc(s2, chj + 1, chi + 1);
+                    // uy[chi * NX + chj] = interpolated;
+                    // interpolated = spline2dcalc(s3, chj + 1, chi + 1);
+                    // rho[chi * NX + chj] = interpolated;
+
+                    ux[chi * NX + chj] = ux_copy[l];
+                    uy[chi * NX + chj] = uy_copy[l];
+                    rho[chi * NX + chj] = rho_copy[l];
                 }
             }
         }
     }
+}
+
+std::vector<double> LB2D::prepareUx()
+{
+    std::vector<double> ux_copy(NX*NY, 0.0);
+
+    // fill in
+    #pragma omp parallel for default(shared)
+    for (int64_t i = 0; i < grid.gridID.size(); i++)
+        ux_copy[grid.gridID[i]] = ux[i];
+
+    return ux_copy;
+}
+
+std::vector<double> LB2D::prepareUy()
+{
+    std::vector<double> uy_copy(NX*NY, 0.0);
+
+    // fill in
+    #pragma omp parallel for default(shared)
+    for (int64_t i = 0; i < grid.gridID.size(); i++)
+        uy_copy[grid.gridID[i]] = uy[i];
+
+    return uy_copy;
+}
+
+std::vector<double> LB2D::prepareRho()
+{
+    std::vector<double> rho_copy(NX*NY, 0.0);
+
+    // fill in
+    #pragma omp parallel for default(shared)
+    for (int64_t i = 0; i < grid.gridID.size(); i++)
+        rho_copy[grid.gridID[i]] = rho[i];
+
+    return rho_copy;
+}
+
+std::vector<double> LB2D::prepareDistributions()
+{
+    std::vector<double> f_copy(NX*NY*NC, 0.0);
+    
+    // fill in
+#pragma omp parallel for default(shared)
+    for (int64_t i = 0; i < grid.gridID.size(); i++)
+        for (int64_t ic = 0; ic < NC; ic ++)
+            f_copy[grid.gridID[i] * NC + ic] = f[i * NC + ic];
+
+    return f_copy;
 }

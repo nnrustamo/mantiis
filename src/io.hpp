@@ -61,7 +61,6 @@ namespace IO
     template <typename T>
     void writeVectorToFile(const std::string &fileName, const std::vector<T> &data)
     {
-        // Open the file for writing
         std::ofstream file(fileName);
 
         if (!file.is_open())
@@ -70,13 +69,11 @@ namespace IO
             throw std::runtime_error("[ERROR]: Unable to open file for writing.");
         }
 
-        // Write data to the file
         for (auto k = data.begin(); k != data.end(); k++)
         {
             file << std::setprecision(15) << *k << '\n';
         }
 
-        // Close the file
         file.close();
     }
 }

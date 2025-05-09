@@ -364,7 +364,7 @@ void Shape::writeToText(std::string& folder)
     IO::writeVectorToFile(fName, domainInfo);
 
     // Domain
-    fName = folder + "domain.txt";
+    fName = folder + "pore.txt";
     std::vector<bool> linDomain(Nx * Ny);
     for (int i = 0; i < Ny; i++)
     {
@@ -376,7 +376,7 @@ void Shape::writeToText(std::string& folder)
     IO::writeVectorToFile(fName, linDomain);
 
     // Pore Size
-    fName = folder + "locpore.txt";
+    fName = folder + "localporesize.txt";
     std::vector<double> linLocPore(Nx * Ny);
     for (int i = 0; i < Ny; i++)
     {
@@ -388,7 +388,7 @@ void Shape::writeToText(std::string& folder)
     IO::writeVectorToFile(fName, linLocPore);
 
     // Kn
-    fName = folder + "kn.txt";
+    fName = folder + "Kn.txt";
     std::vector<double> linKn(Nx * Ny);
     for (int i = 0; i < Ny; i++)
     {

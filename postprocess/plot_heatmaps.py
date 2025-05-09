@@ -39,21 +39,56 @@ def plot_imgs(array_2d, color_map='turbo', cbar_title = None, name=''):
 
     plt.figure(figsize=(8, 6))
     img = plt.imshow(array_2d, cmap=color_map, origin='lower')
-    cbar = plt.colorbar(img, orientation='vertical', shrink=0.8, aspect=10)
+    cbar = plt.colorbar(img, orientation='vertical')
     cbar.set_label(cbar_title)
 
     # cbar_ticks = np.linspace(array_2d.min(), array_2d.max(), 10)
     # rounded_ticks = np.round(cbar_ticks, 2)   
     # cbar.set_ticks(rounded_ticks)
 
+    plt.ylim(0, array_2d.shape[0]) 
     plt.xlim(0, array_2d.shape[0]) 
-    plt.ylim(0, array_2d.shape[1]) 
     tick_positions = np.linspace(0, array_2d.shape[0], 9)
     # plt.xticks(ticks=tick_positions, labels=[f'{int(x)}' for x in tick_positions])
     plt.yticks(ticks=tick_positions, labels=[f'{int(y)}' for y in tick_positions])
-    plt.savefig(name + ".png", bbox_inches='tight', pad_inches=0.1)
+    plt.xticks(ticks=tick_positions, labels=[f'{int(y)}' for y in tick_positions])
+    plt.savefig(name + ".svg", bbox_inches='tight', pad_inches=0.1)
     plt.close()
 
+def plot_contour(array_2d, color_map='turbo', cbar_title=None, name=''):
+    """
+    Plot a contour plot from a 2D numpy array and add a colorbar with the specified colormap.
+
+    Parameters:
+    - array_2d: 2D numpy array representing the image data.
+    - color_map: Colormap to use for the contour plot. Default is 'turbo'.
+    - cbar_title: Title for the colorbar. Default is None.
+    - name: Name of the PNG file to save to.
+
+    Returns:
+    - None
+    """
+    if array_2d.ndim != 2:
+        raise ValueError("Input array must be 2D.")
+
+    plt.figure(figsize=(8, 6))
+
+    # Create the contour plot
+    contour = plt.contourf(array_2d, cmap=color_map, levels=20)
+
+    # Add colorbar
+    cbar = plt.colorbar(contour, orientation='vertical')
+    cbar.set_label(cbar_title)
+
+    # Set axis limits and labels
+    plt.xlim(0, array_2d.shape[1])
+    plt.ylim(0, array_2d.shape[0])
+    
+    tick_positions = np.linspace(0, array_2d.shape[0], 9)
+    plt.yticks(ticks=tick_positions, labels=[f'{int(y)}' for y in tick_positions])
+    
+    plt.savefig(name + ".svg", bbox_inches='tight', pad_inches=0.1)
+    plt.close()
 
 if __name__ == "__main__":
     # Ensure enough arguments are provided
@@ -85,8 +120,8 @@ if __name__ == "__main__":
     rho = np.loadtxt(file_path + 'rho.txt').reshape((ny, nx))
     plot_imgs(rho, "turbo", "Density (km/m3)", output_path + 'rho')
 
-    kn = np.loadtxt(file_path + 'Kn.txt').reshape((ny, nx)).transpose()
-    plot_imgs(kn, "turbo", "Knudsen number", output_path + 'kn')
+    # kn = np.loadtxt(file_path + 'Kn.txt').reshape((ny, nx)).transpose()
+    # plot_imgs(kn, "turbo", "Knudsen number", output_path + 'kn')
 
-    poresize = np.loadtxt(file_path + 'localporesize.txt').reshape((ny, nx)).transpose()
-    plot_imgs(poresize, "turbo", "Local characteristic length", output_path + 'localpore')
+    # poresize = np.loadtxt(file_path + 'localporesize.txt').reshape((ny, nx)).transpose()
+    # plot_imgs(poresize, "turbo", "Local characteristic length", output_path + 'localpore')

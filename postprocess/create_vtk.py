@@ -78,7 +78,7 @@ if __name__ == "__main__":
   """
   Each file contains linearized 2D array in column first order
   """
-  pore_image = np.loadtxt(file_path + 'pore.txt').reshape((ny, nx))
+  pore_image = np.loadtxt(file_path + 'domain.txt').reshape((ny, nx))
   kn = np.loadtxt(file_path + 'Kn.txt').reshape((ny, nx))
   local_pore_sizes = np.loadtxt(file_path + 'localporesize.txt').reshape((ny, nx))
 

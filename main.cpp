@@ -7,9 +7,9 @@ using namespace std::chrono;
 int main(int argc, char* argv[])
 {
     if (argc < 5) {
-        std::cerr << "Usage: " << argv[0] << " <num_threads> <grid_type> <Nx> <input_folder/> <Nt> \n";
+        std::cerr << "Usage: " << argv[0] << " <num_threads> <is_multiblock> <Nx> <input_folder/> <Nt> \n";
         std::cerr << "  <num_threads> : Number of OpenMP threads (e.g., 14)\n";
-        std::cerr << "  <grid_type> : true or false (e.g., true)\n";
+        std::cerr << "  <is_multiblock> : true or false (e.g., true)\n";
         std::cerr << "  <Nx> : Size of the grid in x-direction (e.g., 512)\n";
         std::cerr << "  <input_folder/> : Directory to read and write\n";
         std::cerr << "  <Nt> : Number of iterations\n";
@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 
     // Parse command-line arguments
     int num_threads = std::stoi(argv[1]);
-    bool initialize_grid = (std::string(argv[2]) == "true");
+    bool is_multiblock = (std::string(argv[2]) == "true");
 
     omp_set_num_threads(num_threads);
     auto start = high_resolution_clock::now();
@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
     // _GLOBAL_::T_phy = 300.0; // physical temperature, K;
     //_GLOBAL_::P_phy = 2.0e6; // physical pressure, Pa;
     _GLOBAL_::Cl = 1.0e-9;
-    _GLOBAL_::Fbody = 1.0e-8;
+    _GLOBAL_::Fbody = 1.0e-9;
     // _GLOBAL_::mfp  = 7.7308e-10;
     std::cout<<"Mean free path: "<<_GLOBAL_::mfp<<std::endl;
     std::cout<<"Cl: "<<_GLOBAL_::Cl<<std::endl;
@@ -44,13 +44,13 @@ int main(int argc, char* argv[])
     // shape.addHorizontalBoundary(0);
     // shape.addHorizontalBoundary(Ny - 1);
     // shape.addRectangle(400, 600, 400, 600);
-    // shape.addCircle(Nx/8, Nx/2, Ny/2);
+    // shape.addCircle(Nx/6, Nx/2, Ny/2);
     // shape.calculateProperties(_GLOBAL_::Cl, _GLOBAL_::mfp);
     // shape.writeToText(folder);
 
     // Grid
     lattice latt;
-    Grid2D G(shape, latt, initialize_grid);
+    Grid2D G(shape, latt, is_multiblock);
 
     // LB
     std::cout << "The number of active cells: " << G.gridSize << std::endl;
@@ -63,10 +63,29 @@ int main(int argc, char* argv[])
     double tol = 1.0e-6;
     int iter = std::stoi(argv[5]);
     int verbose = 1;
+    int dump_every_timestep = 1;
 
     auto start_sim = high_resolution_clock::now();
 
     lb.initialize();
+    std::string fName;
+    // write intial timestep
+    fName = folder + "t_" + std::to_string(lb.t) + "_f.txt";
+    std::vector<double> f_copy = lb.prepareDistributions();
+    IO::writeVectorToFile(fName, f_copy);
+
+    // fName = folder + "t_" + std::to_string(lb.t) + "_ux.txt";
+    // std::vector<double> ux_copy = lb.prepareUx();
+    // IO::writeVectorToFile(fName, ux_copy);
+
+    // fName = folder + "t_" + std::to_string(lb.t) + "_uy.txt";
+    // std::vector<double> uy_copy = lb.prepareUy();
+    // IO::writeVectorToFile(fName, uy_copy);
+
+    // fName = folder + "t_" + std::to_string(lb.t) + "_rho.txt";
+    // std::vector<double> rho_copy = lb.prepareRho();
+    // IO::writeVectorToFile(fName, rho_copy);
+
     for (int i = 0; i < iter; i++)
     {   
         lb.usq_old = lb.usq;
@@ -75,14 +94,29 @@ int main(int argc, char* argv[])
         lb.calculateMacroscopicPorperties();
         lb.calculateVelocityDifference();
         if (verbose == 1)
-        {
             std::cout << "Timestep: " << lb.t << ", error: " << lb.diff << std::endl;
-        }
         if (lb.diff < tol)
-        {
             break;
-        }
         lb.t++;
+
+        if (lb.t <= 100)
+        {   
+        // fName = folder + "t_" + std::to_string(lb.t) + "_ux.txt";
+        // std::vector<double> ux_copy = lb.prepareUx();
+        // IO::writeVectorToFile(fName, ux_copy);
+
+        // fName = folder + "t_" + std::to_string(lb.t) + "_uy.txt";
+        // std::vector<double> uy_copy = lb.prepareUy();
+        // IO::writeVectorToFile(fName, uy_copy);
+
+        // fName = folder + "t_" + std::to_string(lb.t) + "_rho.txt";
+        // std::vector<double> rho_copy = lb.prepareRho();
+        // IO::writeVectorToFile(fName, rho_copy);
+
+        fName = folder + "t_" + std::to_string(lb.t) + "_f.txt";
+        std::vector<double> f_copy = lb.prepareDistributions();
+        IO::writeVectorToFile(fName, f_copy);
+        }
     }
 
     auto end_sim = high_resolution_clock::now();
@@ -94,7 +128,7 @@ int main(int argc, char* argv[])
     std::cout << "Total run time (milliseconds) " << std::setprecision(15) << duration.count() << std::endl;
 
     // Write domain and run details
-    std::string fName = folder + "SimulationDetails.txt";
+    fName = folder + "SimulationDetails.txt";
     std::ofstream simulationDetails(fName);
     simulationDetails << "Domain dimension: " << shape.Nx << " x " << shape.Ny << std::endl;
     simulationDetails << "Simulation run time in seconds: " << duration_sim.count() / 1000.0 << std::endl;
@@ -104,7 +138,10 @@ int main(int argc, char* argv[])
     simulationDetails << "The number of active cells: " << G.gridSize << std::endl;
 
     // Dump results
-    lb.convertToPhysicalUnits();
+    fName = folder + "f.txt";
+    f_copy = lb.prepareDistributions();
+    IO::writeVectorToFile(fName, f_copy);
+    // lb.convertToPhysicalUnits();
     lb.ReconstructOriginalGrid();
     fName = folder + "ux.txt";
     IO::writeVectorToFile(fName, lb.ux);
@@ -114,7 +151,6 @@ int main(int argc, char* argv[])
     IO::writeVectorToFile(fName, lb.rho);
     fName = folder + "convergence.txt";
     IO::writeVectorToFile(fName, lb.diff_over_time);
-
     return 0;
 }
 

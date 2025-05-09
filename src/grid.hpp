@@ -1173,16 +1173,17 @@ QuadTreeNode<int> Grid2D::quadtreeDecompose(const std::vector<std::vector<int>> 
 
         // Calculate thresholds
         dx_prime = dx * q.size(); // 9.56 * std::pow(10.0, -3.0) * 1 / calculateMean(q_kn); // correlation
-        cond = static_cast<double>(2*9.56e-3 * (1.0 / utils::calculateMean(q_kn)));
+        cond = static_cast<double>(2.0*9.56e-3 * (1.0 / utils::calculateMean(q_kn)));
         beta = utils::calculateRatio(q, solids);
 
         // Kn based decision
-        division_flag = (dx_prime >= cond) ? true : false;
+        //division_flag = (dx_prime >= cond) ? true : false;
 
         // Distance to wall based decision
         if (q.size() > 1 && utils::findMinValue(q_dwall) < minDist * q_dwall.size())
             division_flag = true;
-
+        else if (q.size() == 1)
+            division_flag = false;
         /*
         else if (q.size() == 1)
             division_flag = false;

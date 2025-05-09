@@ -1,4 +1,4 @@
-function [Kn, locporesize, pore] = poreProperties(pore, lamb, Cl)
+function [Kn, locporesize, pore, BW3] = poreProperties(pore, lamb, Cl)
     %% Initialization   
     [ny, nx] = size(pore);
     diff = 1.0;
