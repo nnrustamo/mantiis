@@ -65,8 +65,7 @@ This project implements a grid refinement method for the Lattice Boltzmann Metho
     make debug
 
 ## Execute
-    Run
-    ```bash
+
     ./main <num_threads> <is_multiblock> <Nx> <input_folder/> <Nt>
 
 ## Cite our work

@@ -36,6 +36,7 @@
 
 #include "globalParameters.hpp"
 #include "grid.hpp"
+#include "comm.hpp"
 
 using namespace _GLOBAL_; // not the best way
 

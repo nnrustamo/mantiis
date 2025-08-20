@@ -16,7 +16,9 @@
 #  * or any portion of it is prohibited
 #  */
 
-CXX := g++
+CXX := mpic++
+
+# Compiler flags
 CXXFLAGS := -std=c++17
 LDFLAGS := 
 
@@ -25,6 +27,10 @@ OPENCV_DIR=/usr/local
 OPENCV_INCLUDE:=-I $(OPENCV_DIR)/include/opencv4 
 OPENCV_LIBS_DIR:=-L $(OPENCV_DIR)/lib
 OPENCV_LIBS=-lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_ximgproc
+
+OPENMPI_INCLUDE := -I /usr/local/include
+OPENMPI_LIBS_DIR := -L /usr/local/lib
+OPENMPI_LIBS := -lmpi
 
 # Default to release build
 BUILD_TYPE := release
@@ -36,15 +42,15 @@ ifeq ($(MAKECMDGOALS),debug)
     BUILD_TYPE := debug
 endif
 
-TARGET := main
-SRC := main.cpp $(wildcard $(ALGLIB_DIR)/*.cpp)
-OBJ := $(filter-out main.o, $(SRC:.cpp=.o))
+TARGET := mantiis
+SRC := mantiis.cpp $(wildcard $(ALGLIB_DIR)/*.cpp)
+OBJ := $(filter-out mantiis.o, $(SRC:.cpp=.o))
 
-$(TARGET): $(OBJ) main.cpp
-	@$(CXX) $(CXXFLAGS) $(OPENCV_INCLUDE) main.cpp $(OBJ) -o $@ $(LDFLAGS) $(OPENCV_LIBS_DIR) $(OPENCV_LIBS)
+$(TARGET): $(OBJ) mantiis.cpp
+	@$(CXX) $(CXXFLAGS) $(OPENCV_INCLUDE) $(OPENMPI_INCLUDE) mantiis.cpp $(OBJ) -o $@ $(LDFLAGS) $(OPENCV_LIBS_DIR) $(OPENCV_LIBS) $(OPENMPI_LIBS_DIR) $(OPENMPI_LIBS)
 
 %.o: %.cpp
-	@$(CXX) $(CXXFLAGS) $(OPENCV_INCLUDE) -c $< -o $@
+	@$(CXX) $(CXXFLAGS) $(OPENCV_INCLUDE) $(OPENMPI_INCLUDE) -c $< -o $@
 
 clean:
 	@rm -f $(TARGET)
@@ -56,4 +62,3 @@ debug: $(TARGET)
 	@echo "Compiled in debug mode."
 
 .PHONY: clean debug
-
