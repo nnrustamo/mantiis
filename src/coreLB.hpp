@@ -575,7 +575,7 @@ void LB2D::regularize()
 void LB2D::SRTCollision(int lvl = 1)
 {
     int64_t k_ic;
-#pragma ompomp parallel for default(shared) private(k_ic)
+#pragma omp parallel for default(shared) private(k_ic)
     for (int64_t i = 0; i < grid.gridSize; i++)
     {
         if (grid.gridLevel[i] == lvl)

@@ -190,7 +190,7 @@ namespace utils
         return minValue;
     }
 
-    // Overlaod function to find the minimum value in a 1sD vector
+    // Overlaod function to find the minimum value in a 1D vector
     template <typename T>
     T findMinValue(const std::vector<T> &vec)
     {
@@ -553,7 +553,6 @@ namespace utils
     }
 
     // Function to solve cubic equation using Cardano's method
-    // Function to solve cubic equation
     std::vector<double> solveCubic(double a, double b, double c, double d)
     {
         // ax^3 + bx^2 + cx + 1 = 0

@@ -8,3 +8,6 @@
 *.xlsx
 *.avi
 *.asv
+*.out
+*.log
+main

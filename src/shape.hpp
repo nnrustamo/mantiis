@@ -315,7 +315,7 @@ void Shape::loadExistingModel(std::string &f)
 
     // domain
     std::string fName = f;
-    fName.append("pore.txt");
+    fName.append("pore.dat");
     IO::loadDataFromFile(fName, data);
     
     for (int i = 0; i < Ny; i++) // row ID, y axis
@@ -328,7 +328,7 @@ void Shape::loadExistingModel(std::string &f)
 
     // kn
     fName = f;
-    fName.append("Kn.txt");
+    fName.append("Kn.dat");
     std::fill(data.begin(), data.end(), 0.0);
     IO::loadDataFromFile(fName, data);
 
@@ -342,7 +342,7 @@ void Shape::loadExistingModel(std::string &f)
 
     // localporesize
     fName = f;
-    fName.append("localporesize.txt");
+    fName.append("localporesize.dat");
     std::fill(data.begin(), data.end(), 0.0);
     IO::loadDataFromFile(fName, data);
     for (int i = 0; i < Ny; i++) // row ID, y axis
@@ -358,13 +358,13 @@ void Shape::writeToText(std::string& folder)
 {
 
     std::string fName;
-    fName = folder + "dimensions.txt";
+    fName = folder + "dimensions.dat";
     // File Dimensions
     std::vector<int> domainInfo = {Ny, Nx};
     IO::writeVectorToFile(fName, domainInfo);
 
     // Domain
-    fName = folder + "pore.txt";
+    fName = folder + "pore.dat";
     std::vector<bool> linDomain(Nx * Ny);
     for (int i = 0; i < Ny; i++)
     {
@@ -376,7 +376,7 @@ void Shape::writeToText(std::string& folder)
     IO::writeVectorToFile(fName, linDomain);
 
     // Pore Size
-    fName = folder + "localporesize.txt";
+    fName = folder + "localporesize.dat";
     std::vector<double> linLocPore(Nx * Ny);
     for (int i = 0; i < Ny; i++)
     {
@@ -388,7 +388,7 @@ void Shape::writeToText(std::string& folder)
     IO::writeVectorToFile(fName, linLocPore);
 
     // Kn
-    fName = folder + "Kn.txt";
+    fName = folder + "Kn.dat";
     std::vector<double> linKn(Nx * Ny);
     for (int i = 0; i < Ny; i++)
     {

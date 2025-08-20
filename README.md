@@ -1,4 +1,4 @@
-# Multi-block Lattice Boltzmann Method
+# MANTIIS - Multiscale Adaptive Numerical Transport & Inter-molecular Interaction Solver
 
 This project implements a grid refinement method for the Lattice Boltzmann Method (LBM) to simulate high Knudsen transport. The multi-block approach aims to enhance the performance of the LBM simulations.
 
@@ -54,11 +54,21 @@ This project implements a grid refinement method for the Lattice Boltzmann Metho
 
 3. **Make sure directories in Makefile are correct**
 
-    Compile
+    Compile in release
     ```bash
     make -j <n_jobs>
 
-## Execute
+4. **Debugging**
 
+    Compile in debug
+    ```bash
+    make debug
+
+## Execute
+    Run
     ```bash
     ./main <num_threads> <is_multiblock> <Nx> <input_folder/> <Nt>
+
+## Cite our work
+
+ Rustamov, N., Mostaghimi, P., Aryana, S. A. On multi-block lattice Boltzmann method for high Knudsen number flows. Advances in Geo-Energy Research, 2025, 16(2): 143-157. https://doi.org/10.46690/ager.2025.05.06

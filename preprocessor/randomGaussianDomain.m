@@ -17,7 +17,7 @@ function pore = randomGaussianDomain(NY, NX, windowSize, scalingFactor)
     
     blurredImage = mat2gray(blurredImage);
     % binarize image
-    scalingFactor = 0.94;
+    scalingFactor = 0.99;
     threshold = scalingFactor * mean2(blurredImage);
     pore = blurredImage < threshold;
     % invert the image

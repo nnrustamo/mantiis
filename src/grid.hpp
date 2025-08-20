@@ -28,6 +28,7 @@
 #include <cmath>
 #include <typeinfo>
 #include <unordered_map>
+#include <unordered_set>
 #include <map>
 #include <bitset>
 
@@ -586,11 +587,11 @@ void Grid2D::rebuildGrid(const std::vector<std::vector<int64_t>> &matrix,
     {       
         std::vector<int64_t> missing_keys;
         std::vector<double> missing_keys_distance_map;
-        float shift  = pow(2, gLvl[i] - 2) - 0.5; // coordinate centralizer
+        float shift = pow(2, gLvl[i] - 2) - 0.5; // coordinate centralizer
         // retrieve subscripts
         if (ij_to_index_map.count(linInd[i]) > 0)
         {   
-            int discreteJump =  pow(2, gLvl[i] - 1);
+            int discreteJump = pow(2, gLvl[i] - 1);
             std::vector<int64_t> NeighborMap;
             std::vector<int> sbs = ij_to_index_map[linInd[i]];
             std::vector<float> subscript = {static_cast<float>(sbs[0] + shift), static_cast<float>(sbs[1] + shift)};
@@ -914,6 +915,9 @@ void Grid2D::buildConnections(const std::vector<int64_t> &linInd)
         indices[gridID[c]] = c;
     }
 
+    // Convert linInd to unordered_set for faster lookup
+    std::unordered_set<int64_t> linIndSet(linInd.begin(), linInd.end());
+
 #pragma omp parallel for default(shared) private(i, j, dim, jump, i_prev, j_prev, ng)
     for (int64_t c = 0; c < gridSize; c++)
     {
@@ -939,12 +943,12 @@ void Grid2D::buildConnections(const std::vector<int64_t> &linInd)
             ng = utils::sub2ind(vecSize, std::vector<int>{i_prev, j_prev, dim - 1});
 
             // if the ng exists at the same dim
-            if (std::count(gridID.begin(), gridID.end(), ng) != 0)
+            if (indices.find(ng) != indices.end())
                 gridConnect[c][ngi] = indices[ng];
             else // if the ng does not exist
             {
                 // it could be a boundary
-                if (std::count(linInd.begin(), linInd.end(), ng) != 0)
+                if (linIndSet.find(ng) != linIndSet.end())
                     gridConnect[c][ngi] = -1; // marked (-1) indicates boundary hit, boundary treatment will be required
                 else
                     gridConnect[c][ngi] = -2; // marked (-2) indicates no neighbor, interpolation will be required

@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
     int num_threads = std::stoi(argv[1]);
     bool is_multiblock = (std::string(argv[2]) == "true");
 
-    omp_set_num_threads(num_threads);
+    // omp_set_num_threads(num_threads);
     auto start = high_resolution_clock::now();
     
     // Simulation conditions
@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
     lb.setOpenBoundary(&LB2D::periodicBoundary);
     lb.setWallBoundary(&LB2D::SRBBWall);
 
-    double tol = 1.0e-6;
+    double tol = 1.0e-10;
     int iter = std::stoi(argv[5]);
     int verbose = 1;
     int dump_every_timestep = 1;
@@ -113,9 +113,9 @@ int main(int argc, char* argv[])
         // std::vector<double> rho_copy = lb.prepareRho();
         // IO::writeVectorToFile(fName, rho_copy);
 
-        fName = folder + "t_" + std::to_string(lb.t) + "_f.txt";
-        std::vector<double> f_copy = lb.prepareDistributions();
-        IO::writeVectorToFile(fName, f_copy);
+        // fName = folder + "t_" + std::to_string(lb.t) + "_f.txt";
+        // std::vector<double> f_copy = lb.prepareDistributions();
+        // IO::writeVectorToFile(fName, f_copy);
         }
     }
 

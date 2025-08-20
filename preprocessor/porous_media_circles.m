@@ -14,7 +14,7 @@ function img = porous_media_circles(N, num_circles, radius_range)
     max_attempts = 10000;
     attempts = 0;
     
-    while num_circles > 0 && attempts < max_attempts
+    while num_circles > 0 || attempts < max_attempts
         % Randomly choose a radius within the specified range.
         radius = randi(radius_range);
 
@@ -33,6 +33,8 @@ function img = porous_media_circles(N, num_circles, radius_range)
         end
         
         attempts = attempts + 1;
+        fprintf('circles left %d\n', num_circles);
+        fprintf('number of attempts %d\n', attempts);
     end
     
     img(obstacle_mask) = 0;
