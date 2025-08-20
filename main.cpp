@@ -70,9 +70,9 @@ int main(int argc, char* argv[])
     lb.initialize();
     std::string fName;
     // write intial timestep
-    fName = folder + "t_" + std::to_string(lb.t) + "_f.txt";
-    std::vector<double> f_copy = lb.prepareDistributions();
-    IO::writeVectorToFile(fName, f_copy);
+    // fName = folder + "t_" + std::to_string(lb.t) + "_f.txt";
+    // std::vector<double> f_copy = lb.prepareDistributions();
+    // IO::writeVectorToFile(fName, f_copy);
 
     // fName = folder + "t_" + std::to_string(lb.t) + "_ux.txt";
     // std::vector<double> ux_copy = lb.prepareUx();
