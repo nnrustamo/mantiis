@@ -1,3 +1,27 @@
+/*
+ * Copyright (c) January 2024
+ *
+ * Author: Nijat Rustamov
+ * Email: nrustamo@uwyo.edu
+ * Organization: University of Wyoming
+ *
+ * Academic Supervisor: Saman Aryana
+ * Email: saryana@uwyo.edu
+ * Organization: University of Wyoming
+ *
+ * This file is a part of Lattice Boltzmann Simulation Software
+ * Proprietary Software - All Rights Reserved
+ *
+ * Unauthorized copying, modification, or distribution of this software,
+ * or any portion of it is prohibited
+ */
+
+/*
+    Main application class for Mantiis
+*/
+
+#pragma once
+
 #include <omp.h>
 #include <memory>
 
@@ -42,6 +66,7 @@ public:
 
         mantiis_parallel::launchMPI(proc_id, num_procs, num_threads);
         std::cout << "Process " << proc_id << " /" << num_procs << " launched\n";
+
         MPI_Barrier(MPI_COMM_WORLD);
 
         if (proc_id == 0) 
@@ -56,21 +81,26 @@ public:
 
     void init() 
     {
+        shape = std::make_unique<Shape>(Nx, Ny, _GLOBAL_::Cl);
+        shape->loadExistingModel(folder);
+        grid = std::make_unique<Grid2D>(*shape, latt, is_multiblock);
+    
         if (proc_id == 0) 
         {
-            shape = std::make_unique<Shape>(Nx, Ny, _GLOBAL_::Cl);
-            shape->loadExistingModel(folder);
-
-            grid = std::make_unique<Grid2D>(*shape, latt, is_multiblock);
             std::cout << "The number of active cells: " << grid->gridSize << "\n";
             std::cout << "Initializing Simulation...\n";
-
-            lb = std::make_unique<LB2D>(Nx, Ny, latt, *grid, *shape);
-            lb->setCollision(&LB2D::MRTCollisionRegularized);
-            lb->setOpenBoundary(&LB2D::periodicBoundary);
-            lb->setWallBoundary(&LB2D::SRBBWall);
-            lb->initialize();
         }
+
+        grid->MPI_distributeGridData();
+        // grid->debugPrintVectors();
+
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        lb = std::make_unique<LB2D>(Nx, Ny, latt, *grid, *shape);
+        lb->setCollision(&LB2D::MRTCollisionRegularized);
+        lb->setOpenBoundary(&LB2D::periodicBoundary);
+        lb->setWallBoundary(&LB2D::SRBBWall);
+        lb->initialize();
     }
 
     void run() 
@@ -109,4 +139,10 @@ public:
         IO::writeVectorToFile(folder + "rho.txt", lb->rho);
         IO::writeVectorToFile(folder + "convergence.txt", lb->diff_over_time);
     }
+
+    ~MantiisApp()
+    {
+        MPI_Finalize();
+    }
+
 };

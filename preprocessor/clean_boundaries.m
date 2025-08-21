@@ -1,5 +1,5 @@
 function pore = clean_boundaries(pore)
-    boundary_file = "../src/system_files/bnd_types.txt";
+    boundary_file = "../include/system_files/bnd_types.txt";
     bnd_types = loadTxtFile(boundary_file);
     
     % add periodic ghost layers

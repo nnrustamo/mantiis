@@ -18,8 +18,7 @@
 
 CXX := mpic++
 
-# Compiler flags
-CXXFLAGS := -std=c++17
+CXXFLAGS := -std=c++17 -MMD -MP
 LDFLAGS := 
 
 ALGLIB_DIR:=$(HOME)/Programs/alglib/alg/src
@@ -32,19 +31,18 @@ OPENMPI_INCLUDE := -I /usr/local/include
 OPENMPI_LIBS_DIR := -L /usr/local/lib
 OPENMPI_LIBS := -lmpi
 
-# Default to release build
 BUILD_TYPE := release
 CXXFLAGS += -Ofast -fopenmp
 
-# If debug is specified, adjust flags (no optimization, no OpenMP)
 ifeq ($(MAKECMDGOALS),debug)
-    CXXFLAGS := -std=c++17 -g -O0
+    CXXFLAGS := -std=c++17 -g -O0 -MMD -MP
     BUILD_TYPE := debug
 endif
 
 TARGET := mantiis
 SRC := mantiis.cpp $(wildcard $(ALGLIB_DIR)/*.cpp)
 OBJ := $(filter-out mantiis.o, $(SRC:.cpp=.o))
+DEP := $(OBJ:.o=.d)
 
 $(TARGET): $(OBJ) mantiis.cpp
 	@$(CXX) $(CXXFLAGS) $(OPENCV_INCLUDE) $(OPENMPI_INCLUDE) mantiis.cpp $(OBJ) -o $@ $(LDFLAGS) $(OPENCV_LIBS_DIR) $(OPENCV_LIBS) $(OPENMPI_LIBS_DIR) $(OPENMPI_LIBS)
@@ -53,12 +51,13 @@ $(TARGET): $(OBJ) mantiis.cpp
 	@$(CXX) $(CXXFLAGS) $(OPENCV_INCLUDE) $(OPENMPI_INCLUDE) -c $< -o $@
 
 clean:
-	@rm -f $(TARGET)
+	@rm -f $(TARGET) $(OBJ) $(DEP)
 
 CXXFLAGS += -I$(ALGLIB_DIR)
 
-# Add a debug target
 debug: $(TARGET)
 	@echo "Compiled in debug mode."
+
+-include $(DEP)
 
 .PHONY: clean debug

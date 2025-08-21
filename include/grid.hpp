@@ -31,9 +31,11 @@
 #include <unordered_set>
 #include <map>
 #include <bitset>
+#include <algorithm>
 
 #include "utils.hpp"
 #include "shape.hpp"
+#include "comm.hpp"
 
 // Quad-data structure
 template <typename T>
@@ -243,6 +245,9 @@ public:
                                                     const std::vector<std::vector<T>> &,
                                                     const std::vector<std::vector<T>> &,
                                                     const std::vector<std::vector<T>> &);
+    
+    void MPI_distributeGridData();
+    void debugPrintVectors() const;
 };
 
 Grid2D::Grid2D(Shape &ShapeObject, lattice &latt, bool isMultigrid = false)
@@ -1091,7 +1096,6 @@ void Grid2D::orderBufferIndex()
     }
 }
 
-
 // Function to set up bounday types
 void Grid2D::getBoundaryTypes()
 {
@@ -1319,4 +1323,82 @@ std::vector<std::vector<T>> Grid2D::concatenateMatrices(const std::vector<std::v
             result[i + vec4.size()][j + +vec4[0].size()] = vec4[i][j];
 
     return result;
+}
+
+void Grid2D::MPI_distributeGridData()
+{   
+    int numProcs, rank;
+    MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    auto [startIdx, endIdx, localGridSize] = mantiis_parallel::calculateMPIGridPartition(gridSize);
+    
+    gridSize = localGridSize;
+
+    // Distribute 1D vectors
+    gridID = mantiis_parallel::getSubDomainVector(gridID, startIdx, endIdx);
+    gridType = mantiis_parallel::getSubDomainVector(gridType, startIdx, endIdx);
+    gridLevel = mantiis_parallel::getSubDomainVector(gridLevel, startIdx, endIdx);
+    gridBoundaryType = mantiis_parallel::getSubDomainVector(gridBoundaryType, startIdx, endIdx);
+    gridIsBuffer = mantiis_parallel::getSubDomainVector(gridIsBuffer, startIdx, endIdx);
+    locpore = mantiis_parallel::getSubDomainVector(locpore, startIdx, endIdx);
+    kn = mantiis_parallel::getSubDomainVector(kn, startIdx, endIdx);
+    bndTypes = mantiis_parallel::getSubDomainVector(bndTypes, startIdx, endIdx);
+
+    // Distribute 2D vectors
+    gridIJ = mantiis_parallel::getSubDomainVector(gridIJ, startIdx, endIdx);
+    gridConnect = mantiis_parallel::getSubDomainVector(gridConnect, startIdx, endIdx);
+
+    std::cout << "[INFO] Rank " << rank << " has " << localGridSize << " cells." 
+              << " Start ID: " << startIdx << ", End ID: " << endIdx << std::endl;
+
+}
+
+void Grid2D::debugPrintVectors() const
+{   
+    int numProcs, rank;
+    MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    
+    auto print1DVector = [](const auto &vec, const std::string &name) {
+        std::cout << name << " (size: " << vec.size() << "): ";
+        for (const auto &val : vec)
+        {
+            std::cout << val << " ";
+        }
+        std::cout << std::endl;
+    };
+
+    auto print2DVector = [](const auto &vec, const std::string &name) {
+        std::cout << name << " (size: " << vec.size() << " x ";
+        if (!vec.empty())
+            std::cout << vec[0].size();
+        else
+            std::cout << "0";
+        std::cout << "):" << std::endl;
+        for (const auto &row : vec)
+        {
+            for (const auto &val : row)
+            {
+                std::cout << val << " ";
+            }
+            std::cout << std::endl;
+        }
+    };
+
+    std::cout << "Debugging Grid2D Vectors:" << std::endl;
+
+    // Print 1D vectors
+    print1DVector(gridID, "gridID");
+    print1DVector(gridType, "gridType");
+    print1DVector(gridLevel, "gridLevel");
+    print1DVector(gridBoundaryType, "gridBoundaryType");
+    print1DVector(gridIsBuffer, "gridIsBuffer");
+    print1DVector(locpore, "locpore");
+    print1DVector(kn, "kn");
+    print1DVector(bndTypes, "bndTypes");
+
+    // Print 2D vectors
+    print2DVector(gridIJ, "gridIJ");
+    print2DVector(gridConnect, "gridConnect");
 }
