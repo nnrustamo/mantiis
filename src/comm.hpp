@@ -9,5 +9,4 @@ namespace mantiis_parallel
         MPI_Comm_rank(MPI_COMM_WORLD, &proc_id);    
         MPI_Comm_size(MPI_COMM_WORLD, &num_of_proc);
     }
-
 }

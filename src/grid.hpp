@@ -32,10 +32,8 @@
 #include <map>
 #include <bitset>
 
-
 #include "utils.hpp"
 #include "shape.hpp"
-
 
 // Quad-data structure
 template <typename T>
