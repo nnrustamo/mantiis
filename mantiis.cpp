@@ -1,6 +1,6 @@
 #include <chrono>
 
-#include "src/mantiisapp.hpp"
+#include "include/mantiisapp.hpp"
 
 using namespace std::chrono;
 
