@@ -92,21 +92,14 @@ public:
         }
 
         grid->MPI_distributeGridData();
-        // grid->debugPrintVectors();
+        grid->debugPrintVectors();
 
         MPI_Barrier(MPI_COMM_WORLD);
-        std::cout<<"Checkpoint 0\n";
         lb = std::make_unique<LB2D>(Nx, Ny, latt, *grid, *shape);
-        std::cout<<"Checkpoint 1\n";
-        std::cout<<"LB2D initialized with grid size: " << lb->grid.localGridSize << "\n";
         lb->setCollision(&LB2D::MRTCollisionRegularized);
-        std::cout<<"Checkpoint 2\n";
         lb->setOpenBoundary(&LB2D::periodicBoundary);
-        std::cout<<"Checkpoint 3\n";
         lb->setWallBoundary(&LB2D::SRBBWall);
-        std::cout<<"Checkpoint 4\n";
         lb->initialize();
-        std::cout<<"Checkpoint 5\n";
     }
 
     void run() 

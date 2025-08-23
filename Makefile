@@ -41,14 +41,15 @@ endif
 
 TARGET := mantiis
 SRC := mantiis.cpp $(wildcard $(ALGLIB_DIR)/*.cpp)
-OBJ := $(filter-out mantiis.o, $(SRC:.cpp=.o))
+OBJ := $(SRC:.cpp=.o)
 DEP := $(OBJ:.o=.d)
 
-$(TARGET): $(OBJ) mantiis.cpp
-	@$(CXX) $(CXXFLAGS) $(OPENCV_INCLUDE) $(OPENMPI_INCLUDE) mantiis.cpp $(OBJ) -o $@ $(LDFLAGS) $(OPENCV_LIBS_DIR) $(OPENCV_LIBS) $(OPENMPI_LIBS_DIR) $(OPENMPI_LIBS)
+$(TARGET): $(OBJ)
+	@$(CXX) $(CXXFLAGS) $(OPENCV_INCLUDE) $(OPENMPI_INCLUDE) $(OBJ) -o $@ $(LDFLAGS) $(OPENCV_LIBS_DIR) $(OPENCV_LIBS) $(OPENMPI_LIBS_DIR) $(OPENMPI_LIBS)
 
 %.o: %.cpp
 	@$(CXX) $(CXXFLAGS) $(OPENCV_INCLUDE) $(OPENMPI_INCLUDE) -c $< -o $@
+
 
 clean:
 	@rm -f $(TARGET) $(OBJ) $(DEP)

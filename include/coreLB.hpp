@@ -218,7 +218,8 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
         comm_ids, comm_ids_ic, comm_ids_ng, comm_rank);
     
     MPI_Barrier(MPI_COMM_WORLD);
-
+    
+    // for debugging
     // mantiis_parallel::printMPICommunicationIDs(comm_ids, comm_ids_ic, 
     //     comm_ids_ng, comm_rank);
 
@@ -226,8 +227,6 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
         calculateMultigridTauS(shape);
     else
         calculateSingleGridTaus(shape);
-
-    std::cout<< "went past calculateMultigridTauS(shape); "<<std::endl;
 
     // Extract indices
     streamingForceIC.resize(grid.localGridSize);
@@ -238,25 +237,29 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
     std::vector<int> vtemp1;
     std::vector<int> vtemp2;
     std::vector<int64_t> vtemp3;
+
     for (int64_t i = 0; i < grid.localGridSize; i++)
     {
         for (int ic = 0; ic < NC; ic++)
-        {
-            // ignore periodicity in streaming
-            if (grid.gridConnect[i][ic] >= 0 && !(grid.gridConnect[i][ic] >= grid.endID || 
-                                                                            grid.gridConnect[i][ic] < grid.startID) &&
-                abs(grid.gridIJ[i][0] - grid.gridIJ[grid.gridConnect[i][ic] - grid.startID][0]) <= pow(2, grid.maxLevel - 1) &&
-                abs(grid.gridIJ[i][1] - grid.gridIJ[grid.gridConnect[i][ic] - grid.startID][1]) <= pow(2, grid.maxLevel - 1))
-            {
-                if (grid.bndTypes[i] != -1) // do not remove, (-1) represents no boundary connections
-                {
-                    if (ifStream[grid.bndTypes[i]][ic])
+        {   
+            // check process bounds
+            if (grid.gridConnect[i][ic] >= grid.startID && grid.gridConnect[i][ic] < grid.endID)
+            {   
+                int64_t neighbor = grid.gridConnect[i][ic] - grid.startID;
+                bool is_x_periodic = (abs(grid.gridIJ[i][0] - grid.gridIJ[neighbor][0]) > static_cast<int>(pow(2, grid.maxLevel - 1)));
+                bool is_y_periodic = (abs(grid.gridIJ[i][1] - grid.gridIJ[neighbor][1]) > static_cast<int>(pow(2, grid.maxLevel - 1)));
+
+                if (!is_x_periodic && !is_y_periodic)
+                {    
+                    bool isBoundary = (grid.bndTypes[i] != -1); // has at least 1 boundary connection
+                    bool isStream  = !isBoundary || ifStream[grid.bndTypes[i]][ic];
+                    if (isStream) // (-1) represents no boundary connections
                     {
                         streamID.push_back(i);
                         streamIC.push_back(ic);
-                        streamLOC.push_back(grid.gridConnect[i][ic]);
+                        streamLOC.push_back(neighbor);
                         vtemp1.push_back(ic);
-                        vtemp3.push_back(grid.gridConnect[i][ic]);
+                        vtemp3.push_back(neighbor);
                     }
                     else
                     {
@@ -265,31 +268,18 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
                         vtemp2.push_back(ic);
                     }
                 }
-                else // do not remove
+                else if (is_x_periodic)
                 {
-                    streamID.push_back(i);
-                    streamIC.push_back(ic);
-                    streamLOC.push_back(grid.gridConnect[i][ic]);
-                    vtemp1.push_back(ic);
-                    vtemp3.push_back(grid.gridConnect[i][ic]);
+                    periodicID.push_back(i);
+                    periodicI2.push_back(neighbor);
+                    periodicIC.push_back(ic);
                 }
             }
-            // boundary operations
-            else if (grid.gridConnect[i][ic] == -1 && grid.bndTypes[i] != -1)
+            else if (grid.gridConnect[i][ic] == -1 && !ifStream[grid.bndTypes[i]][ic])
             {
-                if (~ifStream[grid.bndTypes[i]][ic])
-                {
-                    boundaryID.push_back(i);
-                    boundaryIC.push_back(ic);
-                    vtemp2.push_back(ic);
-                }
-            }
-            // periodicity is only considered in x direction (flow direction)
-            else if (grid.gridConnect[i][ic] >= 0 && abs(grid.gridIJ[i][0] - grid.gridIJ[grid.gridConnect[i][ic] - grid.startID][0]) > pow(2, grid.maxLevel - 1))
-            {
-                periodicID.push_back(i);
-                periodicI2.push_back(grid.gridConnect[i][ic]);
-                periodicIC.push_back(ic);
+                boundaryID.push_back(i);
+                boundaryIC.push_back(ic);
+                vtemp2.push_back(ic);
             }
         }
         streamingForceIC[i] = vtemp1;

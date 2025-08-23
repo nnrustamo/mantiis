@@ -99,7 +99,7 @@ namespace mantiis_parallel
                     comm_rank.push_back(gridConnect[i][ic] < startID ? (rank - 1 + numProcs) % numProcs : (rank + 1) % numProcs);
                 }
     }
-
+    
     void printMPICommunicationIDs(const std::vector<int64_t> &comm_ids,
                                   const std::vector<int64_t> &comm_ids_ic,
                                   const std::vector<int64_t> &comm_ids_ng,
