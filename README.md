@@ -66,7 +66,9 @@ This project implements a grid refinement method for the Lattice Boltzmann Metho
 
 ## Execute
 
-    ./main <num_threads> <is_multiblock> <Nx> <input_folder/> <Nt>
+    mpirun -np <n> ./mantiis <num_threads> <is_multiblock> <Nx> <input_folder/> <Nt>
+
+ MPI is still under development.
 
 ## Cite our work
 

@@ -113,6 +113,12 @@ public:
     std::vector<std::vector<int64_t>> streamingForceI2;
     std::vector<std::vector<int>> bouncingForceIC;
 
+    // MPI communication IDS
+    std::vector<int64_t> comm_ids;
+    std::vector<int64_t> comm_ids_ng;
+    std::vector<int64_t> comm_ids_ic;
+    std::vector<int64_t> comm_rank;
+
     //
     double diff = 1.0;
     std::vector<double> diff_over_time;
@@ -205,30 +211,43 @@ public:
 // ========================================================================================
 // Constructor
 LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y), latt(latt), grid(G)
-{
+{   
+    // set up MPI communication indices
+    mantiis_parallel::getMPICommunicationIDS(grid.startID, grid.endID,  grid.cellsPerProc,
+        grid.gridConnect, 
+        comm_ids, comm_ids_ic, comm_ids_ng, comm_rank);
+    
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    // mantiis_parallel::printMPICommunicationIDs(comm_ids, comm_ids_ic, 
+    //     comm_ids_ng, comm_rank);
+
     if (grid.isMultigrid)
         calculateMultigridTauS(shape);
     else
         calculateSingleGridTaus(shape);
+
+    std::cout<< "went past calculateMultigridTauS(shape); "<<std::endl;
+
     // Extract indices
-    streamingForceIC.resize(grid.gridSize);
-    streamingForceI2.resize(grid.gridSize);
-    bouncingForceIC.resize(grid.gridSize);
+    streamingForceIC.resize(grid.localGridSize);
+    streamingForceI2.resize(grid.localGridSize);
+    bouncingForceIC.resize(grid.localGridSize);
 
     // temporary vectors
     std::vector<int> vtemp1;
     std::vector<int> vtemp2;
     std::vector<int64_t> vtemp3;
-    for (int64_t i = 0; i < grid.gridSize; i++)
+    for (int64_t i = 0; i < grid.localGridSize; i++)
     {
         for (int ic = 0; ic < NC; ic++)
         {
             // ignore periodicity in streaming
-            if (grid.gridConnect[i][ic] >= 0 &&
-                abs(grid.gridIJ[i][0] - grid.gridIJ[grid.gridConnect[i][ic]][0]) <= pow(2, grid.maxLevel - 1) &&
-                abs(grid.gridIJ[i][1] - grid.gridIJ[grid.gridConnect[i][ic]][1]) <= pow(2, grid.maxLevel - 1))
+            if (grid.gridConnect[i][ic] >= 0 && !(grid.gridConnect[i][ic] >= grid.endID || 
+                                                                            grid.gridConnect[i][ic] < grid.startID) &&
+                abs(grid.gridIJ[i][0] - grid.gridIJ[grid.gridConnect[i][ic] - grid.startID][0]) <= pow(2, grid.maxLevel - 1) &&
+                abs(grid.gridIJ[i][1] - grid.gridIJ[grid.gridConnect[i][ic] - grid.startID][1]) <= pow(2, grid.maxLevel - 1))
             {
-
                 if (grid.bndTypes[i] != -1) // do not remove, (-1) represents no boundary connections
                 {
                     if (ifStream[grid.bndTypes[i]][ic])
@@ -258,7 +277,6 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
             // boundary operations
             else if (grid.gridConnect[i][ic] == -1 && grid.bndTypes[i] != -1)
             {
-
                 if (~ifStream[grid.bndTypes[i]][ic])
                 {
                     boundaryID.push_back(i);
@@ -267,7 +285,7 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
                 }
             }
             // periodicity is only considered in x direction (flow direction)
-            else if (grid.gridConnect[i][ic] >= 0 && abs(grid.gridIJ[i][0] - grid.gridIJ[grid.gridConnect[i][ic]][0]) > pow(2, grid.maxLevel - 1))
+            else if (grid.gridConnect[i][ic] >= 0 && abs(grid.gridIJ[i][0] - grid.gridIJ[grid.gridConnect[i][ic] - grid.startID][0]) > pow(2, grid.maxLevel - 1))
             {
                 periodicID.push_back(i);
                 periodicI2.push_back(grid.gridConnect[i][ic]);
@@ -287,19 +305,19 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
 void LB2D::initialize()
 {
     // Initialize distributions and other variables
-    rho.resize(grid.gridSize);
-    ux.resize(grid.gridSize);
-    uy.resize(grid.gridSize);
-    uxsq.resize(grid.gridSize);
-    uysq.resize(grid.gridSize);
-    usq.resize(grid.gridSize);
-    usq_old.resize(grid.gridSize);
-    usqMinusOld.resize(grid.gridSize);
-    f.resize(grid.gridSize * NC);
-    feq.resize(grid.gridSize * NC);
-    fb.resize(grid.gridSize * NC);
-    ftemp.resize(grid.gridSize * NC);
-    fneq.resize(grid.gridSize * NC);
+    rho.resize(grid.localGridSize);
+    ux.resize(grid.localGridSize);
+    uy.resize(grid.localGridSize);
+    uxsq.resize(grid.localGridSize);
+    uysq.resize(grid.localGridSize);
+    usq.resize(grid.localGridSize);
+    usq_old.resize(grid.localGridSize);
+    usqMinusOld.resize(grid.localGridSize);
+    f.resize(grid.localGridSize * NC);
+    feq.resize(grid.localGridSize * NC);
+    fb.resize(grid.localGridSize * NC);
+    ftemp.resize(grid.localGridSize * NC);
+    fneq.resize(grid.localGridSize * NC);
     std::fill(rho.begin(), rho.end(), rhoin);
     std::fill(ux.begin(), ux.end(), 0.0);
     std::fill(uy.begin(), uy.end(), 0.0);
@@ -307,7 +325,7 @@ void LB2D::initialize()
 
     int64_t k_ic;
 #pragma omp parallel for default(shared) private(k_ic)
-    for (int64_t k = 0; k < grid.gridSize; k++)
+    for (int64_t k = 0; k < grid.localGridSize; k++)
     {
         k_ic = k * NC;
         for (int ic = 0; ic < NC; ic++)
@@ -323,7 +341,7 @@ void LB2D::equilibrium()
 {
     int64_t k_ic;
 #pragma ompomp parallel for default(shared) private(k_ic)
-    for (int64_t k = 0; k < grid.gridSize; k++)
+    for (int64_t k = 0; k < grid.localGridSize; k++)
     {
         k_ic = k * NC;
         for (int ic = 0; ic < NC; ic++)
@@ -336,7 +354,7 @@ void LB2D::equilibrium()
 void LB2D::calculateMultigridTauS(Shape &shape)
 {
     // Calculate tau_s for each level
-    taus.resize(grid.gridSize);
+    taus.resize(grid.localGridSize);
     std::map<int, std::vector<std::vector<double>>> tauMap;
     for (int lvl = 0; lvl < grid.maxLevel; lvl++)
     {
@@ -372,36 +390,40 @@ void LB2D::calculateMultigridTauS(Shape &shape)
     }
     //
     int lvl, factor;
-    for (int64_t i = 0; i < grid.gridSize; i++)
+    std::vector<double> taus_temp(grid.globalGridSize);
+    for (int64_t i = 0; i < grid.globalGridSize; i++)
     {
         lvl = grid.gridLevel[i];
         factor = pow(2, lvl - 1);
         std::vector<std::vector<double>> tau_level = tauMap[lvl - 1];
-        taus[i] = tau_level[grid.gridIJ[i][1] / factor][grid.gridIJ[i][0] / factor];
+        taus_temp[i] = tau_level[grid.gridIJ[i][1] / factor][grid.gridIJ[i][0] / factor];
     }
+    taus = mantiis_parallel::getSubDomainVector(taus_temp, grid.startID, grid.endID);
 }
 
 void LB2D::calculateSingleGridTaus(Shape &shape)
 {
     int64_t count = 0;
-    taus.resize(grid.gridSize);
+    taus.resize(grid.localGridSize);
+    std::vector<double> taus_temp(grid.globalGridSize);
     for (int i = 0; i < shape.domain.size(); i++)
     {
         for (int j = 0; j < shape.domain[0].size(); j++)
         {
             if (shape.domain[i][j] == 1)
             {
-                taus[count] = 0.5 + sqrt(6.0 / M_PI) * shape.LocPore[i][j] * shape.Kn[i][j] / (1 + 2 * shape.Kn[i][j]);
+                taus_temp[count] = 0.5 + sqrt(6.0 / M_PI) * shape.LocPore[i][j] * shape.Kn[i][j] / (1 + 2 * shape.Kn[i][j]);
                 count++;
             }
         }
     }
+    taus = mantiis_parallel::getSubDomainVector(taus_temp, grid.startID, grid.endID);
 }
 
 // local mean free path
 void LB2D::getLocalMFP()
 {
-    for (int64_t i = 0; i < grid.gridSize; i++)
+    for (int64_t i = 0; i < grid.localGridSize; i++)
     {
         mfp = 1.0 / (sqrt(2.0) * Crho_mol * rho[i] / Mw_lu * NA * M_PI * (2 * d_mol / 2.0 + 2 * d_mol / 2.0) * (2 * d_mol / 2.0 + 2 * d_mol / 2.0)); // pow(d_mol, (double)2.0));
         grid.kn[i] = mfp / (grid.locpore[i] * Cl);
@@ -412,7 +434,7 @@ void LB2D::getLocalMFP()
 void LB2D::getPseudoPotential()
 {
     double acc;
-    for (int64_t i = 0; i < grid.gridSize; i++)
+    for (int64_t i = 0; i < grid.localGridSize; i++)
     {
         acc = (rho[i] / Mw_lu * R_lu * T_lu / (1 - b_lu * rho[i] / Mw_lu) - a_alpha_lu * rho[i] / Mw_lu * rho[i] / Mw_lu / (1 + 2 * b_lu * rho[i] / Mw_lu - b_lu * b_lu * rho[i] / Mw_lu * rho[i] / Mw_lu) - (1.0 / 3.0) * rho[i]) / (3.0 * Gff);
         if (acc < 0)
@@ -431,7 +453,7 @@ void LB2D::calculateForces()
 
     int64_t ic_curr, i_nex;
     double Fx_ff, Fy_ff, Fx_fw, Fy_fw;
-    for (int64_t i = 0; i < grid.gridSize; i++)
+    for (int64_t i = 0; i < grid.localGridSize; i++)
     {
         Fx_ff = 0;
         Fy_ff = 0;
@@ -473,7 +495,7 @@ void LB2D::ApplySourceTerm()
     std::vector<double> tempMat2(NC);
     std::vector<double> tempMat3(NC);
     std::vector<double> tempMat4(NC);
-    for (int64_t k = 0; k < grid.gridSize; k++)
+    for (int64_t k = 0; k < grid.localGridSize; k++)
     {
         k_ic = k * NC;
         uF = {ux[k] * Fx[k], ux[k] * Fy[k],
@@ -548,7 +570,7 @@ void LB2D::regularize()
     std::vector<double> ccr(4, 0);
     int64_t k_ic;
 #pragma omp parallel for default(shared) private(k_ic) firstprivate(ccr, fneqtimescc, H2)
-    for (int64_t k = 0; k < grid.gridSize; k++)
+    for (int64_t k = 0; k < grid.localGridSize; k++)
     {
         std::fill(fneqtimescc.begin(), fneqtimescc.end(), 0);
         std::fill(H2.begin(), H2.end(), 0);
@@ -577,7 +599,7 @@ void LB2D::SRTCollision(int lvl = 1)
 {
     int64_t k_ic;
 #pragma omp parallel for default(shared) private(k_ic)
-    for (int64_t i = 0; i < grid.gridSize; i++)
+    for (int64_t i = 0; i < grid.localGridSize; i++)
     {
         if (grid.gridLevel[i] == lvl)
         {
@@ -597,7 +619,7 @@ void LB2D::MRTCollisionNonRegularized(int lvl = 1)
     std::vector<double> tempMat4(NC, 0);
     int64_t k_ic;
     #pragma omp parallel for default(shared) private(k_ic) firstprivate(R, tempMat1, tempMat2, tempMat3, tempMat4)
-    for (int64_t k = 0; k < grid.gridSize; k++)
+    for (int64_t k = 0; k < grid.localGridSize; k++)
     {
         if (grid.gridLevel[k] == lvl)
         {
@@ -648,7 +670,7 @@ void LB2D::MRTCollisionRegularized(int lvl = 1)
     std::vector<double> tempMat4(NC);
     int64_t k_ic;
 #pragma omp parallel for default(shared) private(k_ic) firstprivate(R, tempMat1, tempMat2, tempMat3, tempMat4)
-    for (int64_t k = 0; k < grid.gridSize; k++)
+    for (int64_t k = 0; k < grid.localGridSize; k++)
     {
         if (grid.gridLevel[k] == lvl)
         {
@@ -868,7 +890,7 @@ void LB2D::calculateMacroscopicPorperties()
     double jx = 0, jy = 0;
     int64_t k_ic;
 #pragma omp parallel for default(shared) reduction(+ : jx, jy) private(k_ic)
-    for (int64_t i = 0; i < grid.gridSize; i++)
+    for (int64_t i = 0; i < grid.localGridSize; i++)
     {
         jx = 0, jy = 0;
 
@@ -1036,7 +1058,7 @@ void LB2D::interpolateBlockInterface(int l1, int l2)
 void LB2D::zeroDown(int lvl = 1)
 {
 #pragma ompomp parallel for default(shared)
-    for (int64_t i = 0; i < grid.gridSize; i++)
+    for (int64_t i = 0; i < grid.localGridSize; i++)
     {
         if (grid.gridLevel[i] == lvl)
         {
@@ -1053,7 +1075,7 @@ void LB2D::calculateVelocityDifference()
     double sum1 = 0;
     double sum2 = 0;
 #pragma omp parallel for default(shared) reduction(+ : sum1, sum2)
-    for (int64_t i = 0; i < grid.gridSize; i++)
+    for (int64_t i = 0; i < grid.localGridSize; i++)
     {
         usqMinusOld[i] = abs(sqrt(usq[i]) - sqrt(usq_old[i]));
         sum1 += usqMinusOld[i];
@@ -1116,7 +1138,7 @@ void LB2D::evolutionStepOfMultiBlock(int lvl) // initial value of lvl (level) is
 void LB2D::convertToPhysicalUnits()
 {
     #pragma ompomp parallel for default(shared)
-    for (int64_t i = 0; i < grid.gridSize; i++)
+    for (int64_t i = 0; i < grid.localGridSize; i++)
     {
         ux[i] = ux[i] * Cu;
         uy[i] = uy[i] * Cu;
@@ -1127,12 +1149,12 @@ void LB2D::convertToPhysicalUnits()
 void LB2D::completeSingleGridDomain()
 {
     // Copy data
-    std::vector<double> ux_copy(grid.gridSize);
-    std::vector<double> uy_copy(grid.gridSize);
-    std::vector<double> rho_copy(grid.gridSize);
+    std::vector<double> ux_copy(grid.localGridSize);
+    std::vector<double> uy_copy(grid.localGridSize);
+    std::vector<double> rho_copy(grid.localGridSize);
 
     #pragma ompomp parallel for default(shared)
-    for (int64_t i = 0; i < grid.gridSize; i++)
+    for (int64_t i = 0; i < grid.localGridSize; i++)
     {
         ux_copy[i] = ux[i];
         uy_copy[i] = uy[i];
@@ -1175,11 +1197,11 @@ void LB2D::completeSingleGridDomain()
 void LB2D::ReconstructOriginalGrid()
 {
     // Copy data
-    std::vector<double> ux_copy(grid.gridSize);
-    std::vector<double> uy_copy(grid.gridSize);
-    std::vector<double> rho_copy(grid.gridSize);
+    std::vector<double> ux_copy(grid.localGridSize);
+    std::vector<double> uy_copy(grid.localGridSize);
+    std::vector<double> rho_copy(grid.localGridSize);
 
-    for (int64_t i = 0; i < grid.gridSize; i++)
+    for (int64_t i = 0; i < grid.localGridSize; i++)
     {
         ux_copy[i] = ux[i];
         uy_copy[i] = uy[i];
@@ -1219,7 +1241,7 @@ void LB2D::ReconstructOriginalGrid()
     std::vector<int> bottom_order = {6, 2, 5, 3, 0, 1, 7, 4, 8};
 
     // Lowest level cells
-    for (int64_t l = 0; l < grid.gridSize; l++)
+    for (int64_t l = 0; l < grid.localGridSize; l++)
     {
         if (grid.gridLevel[l] == 1 && grid.gridIsBuffer[l] == false)
         {
@@ -1232,7 +1254,7 @@ void LB2D::ReconstructOriginalGrid()
     }
 
     // interpolate higher level cells
-    for (int64_t l = 0; l < grid.gridSize; l++)
+    for (int64_t l = 0; l < grid.localGridSize; l++)
     {
         if (grid.gridLevel[l] > 1 && grid.gridIsBuffer[l] == false)
         {

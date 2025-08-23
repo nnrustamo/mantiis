@@ -177,7 +177,6 @@ public:
     std::vector<double> kn;
     std::vector<int> bndTypes;
 
-    int64_t gridSize;
     int ny;
     int nx;
     int maxLevel;
@@ -186,6 +185,12 @@ public:
     bufferData fineBuffer;
     bool isMultigrid;
 
+    int64_t globalGridSize;
+    int64_t localGridSize;
+    int64_t startID;
+    int64_t endID;
+    int64_t cellsPerProc;
+   
 public:
     Grid2D(Shape &, lattice &, bool);
 
@@ -251,7 +256,7 @@ public:
 };
 
 Grid2D::Grid2D(Shape &ShapeObject, lattice &latt, bool isMultigrid = false)
-    : ny(ShapeObject.Ny), nx(ShapeObject.Nx), gridSize(ny * nx), maxLevel(0), latt(latt), isMultigrid(isMultigrid)
+    : ny(ShapeObject.Ny), nx(ShapeObject.Nx), globalGridSize(ny * nx), maxLevel(0), latt(latt), isMultigrid(isMultigrid)
 {
 
     std::vector<std::vector<int64_t>> reconstructedImage;
@@ -796,51 +801,51 @@ void Grid2D::rebuildGrid(const std::vector<std::vector<int64_t>> &matrix,
     std::cout<<"Allocating Memory ...."<<std::endl;
     // ------------------------------------------------------------------------- Allocation and Initialization
     int64_t poreCellCount = std::count(pore.begin(), pore.end(), true);
-    this->gridSize = poreCellCount + bufferCount;
+    this->globalGridSize = poreCellCount + bufferCount;
 
-    this->gridID.reserve(this->gridSize);
-    this->gridID.resize(this->gridSize);
+    this->gridID.reserve(this->globalGridSize);
+    this->gridID.resize(this->globalGridSize);
     std::fill(this->gridID.begin(), this->gridID.end(), 0);
 
-    this->gridType.reserve(this->gridSize);
-    this->gridType.resize(this->gridSize);
+    this->gridType.reserve(this->globalGridSize);
+    this->gridType.resize(this->globalGridSize);
     std::fill(this->gridType.begin(), this->gridType.end(), 0);
     
-    this->gridLevel.reserve(this->gridSize);
-    this->gridLevel.resize(this->gridSize);
+    this->gridLevel.reserve(this->globalGridSize);
+    this->gridLevel.resize(this->globalGridSize);
     std::fill(this->gridLevel.begin(), this->gridLevel.end(), 0);
 
-    this->gridBoundaryType.reserve(this->gridSize);
-    this->gridBoundaryType.resize(this->gridSize);
+    this->gridBoundaryType.reserve(this->globalGridSize);
+    this->gridBoundaryType.resize(this->globalGridSize);
     std::fill(this->gridBoundaryType.begin(), this->gridBoundaryType.end(), 0);
 
-    this->gridIsBuffer.reserve(this->gridSize);
-    this->gridIsBuffer.resize(this->gridSize);
+    this->gridIsBuffer.reserve(this->globalGridSize);
+    this->gridIsBuffer.resize(this->globalGridSize);
     std::fill(this->gridIsBuffer.begin(), this->gridIsBuffer.end(), 0);
 
-    this->gridIJ.reserve(this->gridSize);
-    this->gridIJ.resize(this->gridSize);
-    for (int64_t i = 0; i < this->gridSize; i++)
+    this->gridIJ.reserve(this->globalGridSize);
+    this->gridIJ.resize(this->globalGridSize);
+    for (int64_t i = 0; i < this->globalGridSize; i++)
     {
         this->gridIJ[i].reserve(2);
         this->gridIJ[i].resize(2);
     }
 
-    this->gridConnect.reserve(this->gridSize);
-    this->gridConnect.resize(this->gridSize);
-    for (int64_t i = 0; i < this->gridSize; i++)
+    this->gridConnect.reserve(this->globalGridSize);
+    this->gridConnect.resize(this->globalGridSize);
+    for (int64_t i = 0; i < this->globalGridSize; i++)
     {
         this->gridConnect[i].reserve(latt.e_x.size());
         this->gridConnect[i].resize(latt.e_x.size());
 
     }
 
-    this->locpore.reserve(this->gridSize);
-    this->locpore.resize(this->gridSize);
+    this->locpore.reserve(this->globalGridSize);
+    this->locpore.resize(this->globalGridSize);
     std::fill(this->locpore.begin(), this->locpore.end(), 0);
 
-    this->kn.reserve(this->gridSize);
-    this->kn.resize(this->gridSize);
+    this->kn.reserve(this->globalGridSize);
+    this->kn.resize(this->globalGridSize);
     std::fill(this->kn.begin(), this->kn.end(), 0);
 
     std::cout<<"Recreating Grid ..."<<std::endl;
@@ -860,7 +865,7 @@ void Grid2D::rebuildGrid(const std::vector<std::vector<int64_t>> &matrix,
             counter_cell ++;
         }
     }
-    for (int64_t i = counter_cell; i < this->gridSize; i++)
+    for (int64_t i = counter_cell; i < this->globalGridSize; i++)
     {
         // Buffer cells
         if (new_ids.size() > 0)
@@ -880,7 +885,7 @@ void Grid2D::rebuildGrid(const std::vector<std::vector<int64_t>> &matrix,
 void Grid2D::getProperties(Shape &ShapeObject)
 {
 
-    for (int64_t i = 0; i < gridSize; i++)
+    for (int64_t i = 0; i < globalGridSize; i++)
     {
         locpore[i] = ShapeObject.LocPore[gridIJ[i][1]][gridIJ[i][0]];
         kn[i] = ShapeObject.Kn[gridIJ[i][1]][gridIJ[i][0]];
@@ -889,7 +894,7 @@ void Grid2D::getProperties(Shape &ShapeObject)
 
 void Grid2D::checkProperties(Shape & ShapeObject)
 {
-    for (int64_t i = 0; i< gridSize; i++)
+    for (int64_t i = 0; i< globalGridSize; i++)
     {
         const double H = ShapeObject.LocPore[gridIJ[i][1]][gridIJ[i][0]];
         const double Kn = ShapeObject.Kn[gridIJ[i][1]][gridIJ[i][0]];
@@ -913,7 +918,7 @@ void Grid2D::buildConnections(const std::vector<int64_t> &linInd)
 
     // Unordered map for fast index search
     std::unordered_map<int64_t, int64_t> indices;
-    for (int64_t c = 0; c < gridSize; c++)
+    for (int64_t c = 0; c < globalGridSize; c++)
     {
         indices[gridID[c]] = c;
     }
@@ -922,7 +927,7 @@ void Grid2D::buildConnections(const std::vector<int64_t> &linInd)
     std::unordered_set<int64_t> linIndSet(linInd.begin(), linInd.end());
 
 #pragma omp parallel for default(shared) private(i, j, dim, jump, i_prev, j_prev, ng)
-    for (int64_t c = 0; c < gridSize; c++)
+    for (int64_t c = 0; c < globalGridSize; c++)
     {
         i = gridIJ[c][0];
         j = gridIJ[c][1];
@@ -965,7 +970,7 @@ void Grid2D::determineParentChild()
     // determine the number of cells that require parent-child
     std::vector<int> vecSize = {ny, nx, maxLevel};
     int64_t counter = 0;
-    for (int64_t c = 0; c < gridSize; c++)
+    for (int64_t c = 0; c < globalGridSize; c++)
     {
         if (gridLevel[c] > 1)
         {
@@ -980,7 +985,7 @@ void Grid2D::determineParentChild()
     counter = 0;
     int i, j, i_prev, j_prev, jump, dim;
     int64_t c_id, c_ng;
-    for (int64_t c = 0; c < gridSize; c++)
+    for (int64_t c = 0; c < globalGridSize; c++)
     {
         if (gridLevel[c] > 1)
         {
@@ -1100,11 +1105,11 @@ void Grid2D::orderBufferIndex()
 void Grid2D::getBoundaryTypes()
 {
     std::vector<int> d2q9_order_to_new_order{7, 3, 6, 4, 0, 2, 8, 1, 5};
-    bndTypes.reserve(gridSize);
-    bndTypes.resize(gridSize);
+    bndTypes.reserve(globalGridSize);
+    bndTypes.resize(globalGridSize);
     std::fill(bndTypes.begin(), bndTypes.end(), -1);
 
-    for (int64_t i = 0; i < gridSize; i++)
+    for (int64_t i = 0; i < globalGridSize; i++)
     {
         if (!gridIsBuffer[i])
         {   
@@ -1331,9 +1336,12 @@ void Grid2D::MPI_distributeGridData()
     MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    auto [startIdx, endIdx, localGridSize] = mantiis_parallel::calculateMPIGridPartition(gridSize);
+    auto [startIdx, endIdx, local_GridSize, cellsPerProc] = mantiis_parallel::calculateMPIGridPartition(globalGridSize);
     
-    gridSize = localGridSize;
+    this->localGridSize = local_GridSize;
+    this->startID= startIdx;
+    this->endID = endIdx;
+    this->cellsPerProc = cellsPerProc;
 
     // Distribute 1D vectors
     gridID = mantiis_parallel::getSubDomainVector(gridID, startIdx, endIdx);
@@ -1349,18 +1357,20 @@ void Grid2D::MPI_distributeGridData()
     gridIJ = mantiis_parallel::getSubDomainVector(gridIJ, startIdx, endIdx);
     gridConnect = mantiis_parallel::getSubDomainVector(gridConnect, startIdx, endIdx);
 
-    std::cout << "[INFO] Rank " << rank << " has " << localGridSize << " cells." 
-              << " Start ID: " << startIdx << ", End ID: " << endIdx << std::endl;
+    std::cout << "[INFO] Rank " << rank << " has " << localGridSize << " cells"<<" out of " << globalGridSize
+              << ". Start ID: " << startID << ", End ID: " << endID << std::endl;
 
 }
 
 void Grid2D::debugPrintVectors() const
 {   
+
     int numProcs, rank;
     MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    
-    auto print1DVector = [](const auto &vec, const std::string &name) {
+
+    auto print1DVector = [](const auto &vec, const std::string &name) 
+    {
         std::cout << name << " (size: " << vec.size() << "): ";
         for (const auto &val : vec)
         {
@@ -1369,7 +1379,8 @@ void Grid2D::debugPrintVectors() const
         std::cout << std::endl;
     };
 
-    auto print2DVector = [](const auto &vec, const std::string &name) {
+    auto print2DVector = [](const auto &vec, const std::string &name) 
+    {
         std::cout << name << " (size: " << vec.size() << " x ";
         if (!vec.empty())
             std::cout << vec[0].size();
@@ -1386,19 +1397,24 @@ void Grid2D::debugPrintVectors() const
         }
     };
 
-    std::cout << "Debugging Grid2D Vectors:" << std::endl;
-
-    // Print 1D vectors
-    print1DVector(gridID, "gridID");
-    print1DVector(gridType, "gridType");
-    print1DVector(gridLevel, "gridLevel");
-    print1DVector(gridBoundaryType, "gridBoundaryType");
-    print1DVector(gridIsBuffer, "gridIsBuffer");
-    print1DVector(locpore, "locpore");
-    print1DVector(kn, "kn");
-    print1DVector(bndTypes, "bndTypes");
-
-    // Print 2D vectors
-    print2DVector(gridIJ, "gridIJ");
-    print2DVector(gridConnect, "gridConnect");
+    for (int proc = 0; proc < numProcs; ++proc)
+    {
+        MPI_Barrier(MPI_COMM_WORLD);
+        if (rank == proc)
+        {
+            std::cout << "Debugging Grid2D Vectors (Rank " << rank << "):" << std::endl;
+            print1DVector(gridID, "gridID");
+            print1DVector(gridType, "gridType");
+            print1DVector(gridLevel, "gridLevel");
+            print1DVector(gridBoundaryType, "gridBoundaryType");
+            print1DVector(gridIsBuffer, "gridIsBuffer");
+            print1DVector(locpore, "locpore");
+            print1DVector(kn, "kn");
+            print1DVector(bndTypes, "bndTypes");
+            print2DVector(gridIJ, "gridIJ");
+            print2DVector(gridConnect, "gridConnect");
+            std::cout << std::flush;
+        }
+    }
+    MPI_Barrier(MPI_COMM_WORLD);
 }

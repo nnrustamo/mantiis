@@ -1,8 +1,8 @@
 close all; clear; clc
 %% Define domain parameters
 % dimensions
-ny = 128;
-nx = 128;
+ny = 16;
+nx = 16;
 % write to this folder
 output_folder = '../large_domain/';
 
@@ -23,11 +23,11 @@ Resolution = 1.0e-9; % m
 % pore = randomGaussianDomain(ny, nx);
 
 % pore = randomDomain(ny, nx);
-% pore = simplePore(ny, nx);
+pore = simplePore(ny, nx);
 % pore = narrowing_tube(nx, 500, 10);
 % pore = createRectangleObstacleFlowGeom(nx);
 % pore = createTriangularFlowGeom(nx);
-pore = porous_media_circles(nx, 10, [5, 20]);
+% pore = porous_media_circles(nx, 10, [5, 20]);
 
 figure(); imagesc(pore); colormap gray;
 saveas(gcf, strcat(output_folder, 'domain.png'))
