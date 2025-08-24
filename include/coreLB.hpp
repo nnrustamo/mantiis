@@ -124,7 +124,7 @@ public:
     std::vector<double> diff_over_time;
 
     // grid
-    Grid2D grid;
+    Grid2D& grid;
 
 public:
     LB2D(int &, int &, lattice &, Grid2D &, Shape &);
@@ -216,9 +216,7 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
     mantiis_parallel::getMPICommunicationIDS(grid.startID, grid.endID,  grid.cellsPerProc,
         grid.gridConnect, 
         comm_ids, comm_ids_ic, comm_ids_ng, comm_rank);
-    
-    MPI_Barrier(MPI_COMM_WORLD);
-    
+        
     // for debugging
     // mantiis_parallel::printMPICommunicationIDs(comm_ids, comm_ids_ic, 
     //     comm_ids_ng, comm_rank);
@@ -350,7 +348,7 @@ void LB2D::calculateMultigridTauS(Shape &shape)
     {
         // Resize image
         double resizingFactor = pow(0.5, lvl);
-        std::vector<std::vector<bool>> resizedBinaryImage;
+        std::vector<std::vector<int>> resizedBinaryImage;
         utils::resizeBinaryImage(shape.domain, resizedBinaryImage, shape.Nx * resizingFactor, shape.Ny * resizingFactor);
         // Make a new shape
         Shape resizedShape(shape.Nx * resizingFactor, shape.Ny * resizingFactor, resolution / resizingFactor);
@@ -393,6 +391,9 @@ void LB2D::calculateMultigridTauS(Shape &shape)
 
 void LB2D::calculateSingleGridTaus(Shape &shape)
 {
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
     int64_t count = 0;
     taus.resize(grid.localGridSize);
     std::vector<double> taus_temp(grid.globalGridSize);
@@ -1233,7 +1234,7 @@ void LB2D::ReconstructOriginalGrid()
     // Lowest level cells
     for (int64_t l = 0; l < grid.localGridSize; l++)
     {
-        if (grid.gridLevel[l] == 1 && grid.gridIsBuffer[l] == false)
+        if (grid.gridLevel[l] == 1 && grid.gridIsBuffer[l] == 0)
         {
             i = grid.gridIJ[l][1];
             j = grid.gridIJ[l][0];
@@ -1246,7 +1247,7 @@ void LB2D::ReconstructOriginalGrid()
     // interpolate higher level cells
     for (int64_t l = 0; l < grid.localGridSize; l++)
     {
-        if (grid.gridLevel[l] > 1 && grid.gridIsBuffer[l] == false)
+        if (grid.gridLevel[l] > 1 && grid.gridIsBuffer[l] == 0)
         {
             // gather data for interpolation
             i = grid.gridIJ[l][1];

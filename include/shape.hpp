@@ -29,6 +29,7 @@
 
 #include "io.hpp"
 #include "utils.hpp"
+#include "comm.hpp"
 
 class Shape
 {
@@ -36,7 +37,7 @@ public:
     int Nx;
     int Ny;
     double resolution; // meters
-    std::vector<std::vector<bool>> domain;
+    std::vector<std::vector<int>> domain;
     std::vector<std::vector<double>> Kn;
     std::vector<std::vector<double>> LocPore;
 
@@ -58,14 +59,14 @@ public:
 
     void loadExistingModel(std::string &);
 
-    ~Shape();
+    void MPI_broadcast(int root);
 };
 
 // initiate empty shape
 Shape::Shape(int x, int y, double res) : Nx(x), Ny(y), resolution(res)
 {
     // resize vectors and fill with ones
-    domain.resize(Ny, std::vector<bool>(Nx, true));
+    domain.resize(Ny, std::vector<int>(Nx, true));
     LocPore.resize(Ny, std::vector<double>(Nx, 0));
     Kn.resize(Ny, std::vector<double>(Nx, 0));
 
@@ -85,41 +86,25 @@ void Shape::addHorizontalBoundary(int h)
 void Shape::addCircle(int R, int Centerx, int Centery)
 {
     for (int i = 0; i < Ny; i++)
-    {
         for (int j = 0; j < Nx; j++)
-        {
             if (sqrt(pow(static_cast<double>(i - Centery), 2) + pow(static_cast<double>(j - Centerx), 2)) <= static_cast<double>(R))
-            {
                 domain[i][j] = 0;
-            }
-        }
-    }
 }
 
 void Shape::addRectangle(int Xst, int Xe, int Yst, int Ye)
 {
     for (int i = 0; i < Ny; i++)
-    {
         for (int j = 0; j < Nx; j++)
-        {
             if (j >= Xst && j <= Xe && i >= Yst && i <= Ye)
-            {
                 domain[i][j] = 0;
-            }
-        }
-    }
 }
 
 // print all, not recommended to use for large domains
 void Shape::displayAll()
 {
     for (int i = 0; i < Ny; i++)
-    {
         for (int j = 0; j < Nx; j++)
-        {
             std::cout << domain[i][j] << std::endl;
-        }
-    }
 }
 
 // Calculate LocalPoreSize and Knudsen number distribution
@@ -127,7 +112,6 @@ void Shape::displayAll()
 // DOMAINS OVER A MILLION CELLS
 void Shape::calculateProperties(double resolution, double mfp, bool dispSkeleton = false)
 {   
-    
     this->resolution = resolution;
     // ================================================================== Prepping
     // Expand shape in both directions to obtain correct skeleton
@@ -138,42 +122,24 @@ void Shape::calculateProperties(double resolution, double mfp, bool dispSkeleton
     int startY = (Ny_exp - Ny) / 2;
 #pragma omp parallel for default(shared)
     for (int i = -startY; i < Ny + startY; i++)
-    {
         for (int j = -startX; j < Nx + startX; j++)
-        {
             if (i >= 0 && i < Ny && j >= 0 && j < Nx)
-            {
-                domain_exp[i + startY][j + startX] = domain[i][j];
-            }
-        }
-    }
+                domain_exp[i + startY][j + startX] = (domain[i][j]==1);
 
-// Complete Expansion
+    // Complete Expansion
 #pragma omp parallel for default(shared)
     for (int i = -startY; i < Ny + startY; i++)
-    {
         for (int j = -startX; j < Nx + startX; j++)
-        {
             if (i >= 1 && i < Ny - 1)
-            {
                 if (j < 0 || j >= Nx)
-                {
                     domain_exp[i + startY][j + startX] = 1;
-                }
-            }
-        }
-    }
 
     // Convert the binary image to a CV_8UC1 Mat
     cv::Mat binaryMat_exp(Ny_exp, Nx_exp, CV_8UC1);
 #pragma omp parallel for default(shared)
     for (int i = 0; i < Ny_exp; i++)
-    {
         for (int j = 0; j < Nx_exp; j++)
-        {
             binaryMat_exp.at<uchar>(i, j) = domain_exp[i][j] ? 255 : 0;
-        }
-    }
 
     // Create a copy of the binary image (thinning modifies the input)
     cv::Mat skeleton = binaryMat_exp.clone();
@@ -185,15 +151,10 @@ void Shape::calculateProperties(double resolution, double mfp, bool dispSkeleton
     std::vector<std::vector<bool>> skeletonVector(Ny, std::vector<bool>(Nx));
 #pragma omp parallel for default(shared)
     for (int i = -startY; i < Ny + startY; i++)
-    {
         for (int j = -startX; j < Nx + startX; j++)
-        {
             if (i >= 0 && i < Ny && j >= 0 && j < Nx)
-            {
                 skeletonVector[i][j] = (skeleton.at<uchar>(i + startY, j + startX) == 255);
-            }
-        }
-    }
+    
     if (dispSkeleton)
     {
         cv::imshow("Skeleton", skeleton);
@@ -212,89 +173,58 @@ void Shape::calculateProperties(double resolution, double mfp, bool dispSkeleton
     cv::Mat binaryMat(Ny, Nx, CV_8UC1);
 #pragma omp parallel for default(shared)
     for (int i = 0; i < Ny; i++)
-    {
         for (int j = 0; j < Nx; j++)
-        {
             binaryMat.at<uchar>(i, j) = domain[i][j] ? 255 : 0;
-        }
-    }
+
     std::vector<std::vector<double>> distanceVector(Ny, std::vector<double>(Nx, 0));
     cv::Mat BW;
     cv::distanceTransform(binaryMat, BW, cv::DIST_L2, cv::DIST_MASK_PRECISE);
 #pragma omp parallel for default(shared)
     for (int i = 0; i < Ny; i++)
-    {
         for (int j = 0; j < Nx; j++)
-        {
-
             distanceVector[i][j] = BW.at<float>(i, j);
-        }
-    }
 
     // Distance to the midaxis
     cv::Mat binSkel(Ny, Nx, CV_8UC1);
 #pragma omp parallel for default(shared)
     for (int i = 0; i < Ny; i++)
-    {
         for (int j = 0; j < Nx; j++)
-        {
             binSkel.at<uchar>(i, j) = skeletonVector[i][j] ? 0 : 255;
-        }
-    }
+
     cv::Mat BWskel;
     cv::distanceTransform(binSkel, BWskel, cv::DIST_L2, cv::DIST_MASK_PRECISE);
     std::vector<std::vector<double>> distanceToMidaxis(Ny, std::vector<double>(Nx, 0));
 #pragma omp parallel for default(shared)
 
     for (int i = 0; i < Ny; i++)
-    {
         for (int j = 0; j < Nx; j++)
-        {
-
             distanceToMidaxis[i][j] = BWskel.at<float>(i, j);
-        }
-    }
-
     //
     std::vector<std::vector<double>> midAxisDistance(Ny, std::vector<double>(Nx, 0));
 #pragma omp parallel for default(shared)
     for (int i = 0; i < Ny; i++)
-    {
         for (int j = 0; j < Nx; j++)
-        {
             if (domain[i][j] == 1)
-            {
                 midAxisDistance[i][j] = static_cast<double>(distanceVector[i][j]) * static_cast<double>(skeletonVector[i][j]);
-            }
-        }
-    }
 
     std::vector<std::vector<int64_t>> distanceIndex(Ny, std::vector<int64_t>(Nx, 0));
 #pragma omp parallel for default(shared)
     for (int i = 0; i < Ny; i++)
-    {
         for (int j = 0; j < Nx; j++)
-        {
             if (domain[i][j] == 1)
             {
                 distanceIndex[i][j] = utils::distanceToNearestWallIndex(skeletonVector, i, j, true, distanceToMidaxis[i][j]);
                 // TODO
                 if (distanceIndex[i][j] == -1)
-                {
                     std::cout<<"distanceToMidaxis[i][j] = "<<distanceToMidaxis[i][j]<<std::endl;
-                }
                 // ENDTODO
             }
-        }
-    }
 
     // ================================================================== Local pore size
     int64_t linInd;
 #pragma omp parallel for default(shared) private(linInd)
     for (int i = 0; i < Ny; i++)
-    {
         for (int j = 0; j < Nx; j++)
-        {
             if (domain[i][j] == 1)
             {
                 linInd = distanceIndex[i][j];
@@ -304,8 +234,6 @@ void Shape::calculateProperties(double resolution, double mfp, bool dispSkeleton
                 // Kn[i][j] = 0.15;
                 // LocPore[i][j] = _GLOBAL_::mfp / Kn[i][j]/this->resolution;
             }
-        }
-    }
 }
 
 void Shape::loadExistingModel(std::string &f)
@@ -319,12 +247,8 @@ void Shape::loadExistingModel(std::string &f)
     IO::loadDataFromFile(fName, data);
     
     for (int i = 0; i < Ny; i++) // row ID, y axis
-    {
         for (int j = 0; j < Nx; j++) // column ID, x axis
-        {
-            domain[i][j] = static_cast<bool>(data[j * Nx + i]);
-        }
-    }
+            domain[i][j] = static_cast<int>(data[j * Nx + i]);
 
     // kn
     fName = f;
@@ -333,12 +257,8 @@ void Shape::loadExistingModel(std::string &f)
     IO::loadDataFromFile(fName, data);
 
     for (int i = 0; i < Ny; i++) // row ID, y axis
-    {
         for (int j = 0; j < Nx; j++) // column ID, x axis
-        {
             Kn[i][j] = static_cast<double>(data[j * Nx + i]);
-        }
-    }
 
     // localporesize
     fName = f;
@@ -346,17 +266,12 @@ void Shape::loadExistingModel(std::string &f)
     std::fill(data.begin(), data.end(), 0.0);
     IO::loadDataFromFile(fName, data);
     for (int i = 0; i < Ny; i++) // row ID, y axis
-    {
         for (int j = 0; j < Nx; j++) // column ID, x axis
-        {
             LocPore[i][j] = static_cast<double>(data[j * Nx + i]);
-        }
-    }
 }
 
 void Shape::writeToText(std::string& folder)
 {
-
     std::string fName;
     fName = folder + "dimensions.dat";
     // File Dimensions
@@ -365,42 +280,39 @@ void Shape::writeToText(std::string& folder)
 
     // Domain
     fName = folder + "pore.dat";
-    std::vector<bool> linDomain(Nx * Ny);
+    std::vector<int> linDomain(Nx * Ny);
     for (int i = 0; i < Ny; i++)
-    {
         for (int j = 0; j < Nx; j++)
-        {
             linDomain[i * Nx + j] = domain[i][j];
-        }
-    }
     IO::writeVectorToFile(fName, linDomain);
 
     // Pore Size
     fName = folder + "localporesize.dat";
     std::vector<double> linLocPore(Nx * Ny);
     for (int i = 0; i < Ny; i++)
-    {
         for (int j = 0; j < Nx; j++)
-        {
             linLocPore[i * Nx + j] = LocPore[i][j];
-        }
-    }
     IO::writeVectorToFile(fName, linLocPore);
 
     // Kn
     fName = folder + "Kn.dat";
     std::vector<double> linKn(Nx * Ny);
     for (int i = 0; i < Ny; i++)
-    {
         for (int j = 0; j < Nx; j++)
-        {
             linKn[i * Nx + j] = Kn[i][j];
-        }
-    }
     IO::writeVectorToFile(fName, linKn);
 }
 
-// Destructor
-Shape::~Shape()
-{
+// Broadcast all relevant member variables to all MPI ranks
+void Shape::MPI_broadcast(int root = 0)
+{   
+    // Broadcast Nx, Ny, resolution
+    MPI_Bcast(&Nx, 1, MPI_INT, root, MPI_COMM_WORLD);
+    MPI_Bcast(&Ny, 1, MPI_INT, root, MPI_COMM_WORLD);
+    MPI_Bcast(&resolution, 1, MPI_DOUBLE, root, MPI_COMM_WORLD);
+
+    // Broadcast vectors
+    mantiis_parallel::broadcast_vector(domain, root);
+    mantiis_parallel::broadcast_vector(Kn, root);
+    mantiis_parallel::broadcast_vector(LocPore, root);
 }

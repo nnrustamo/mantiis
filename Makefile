@@ -35,7 +35,7 @@ BUILD_TYPE := release
 CXXFLAGS += -Ofast -fopenmp
 
 ifeq ($(MAKECMDGOALS),debug)
-    CXXFLAGS := -std=c++17 -g -O0 -MMD -MP
+    CXXFLAGS := -std=c++17 -g -O0 -MMD -MP -I$(ALGLIB_DIR)
     BUILD_TYPE := debug
 endif
 
@@ -45,20 +45,19 @@ OBJ := $(SRC:.cpp=.o)
 DEP := $(OBJ:.o=.d)
 
 $(TARGET): $(OBJ)
-	@$(CXX) $(CXXFLAGS) $(OPENCV_INCLUDE) $(OPENMPI_INCLUDE) $(OBJ) -o $@ $(LDFLAGS) $(OPENCV_LIBS_DIR) $(OPENCV_LIBS) $(OPENMPI_LIBS_DIR) $(OPENMPI_LIBS)
+	$(CXX) $(CXXFLAGS) $(OPENCV_INCLUDE) $(OPENMPI_INCLUDE) $(OBJ) -o $@ $(LDFLAGS) $(OPENCV_LIBS_DIR) $(OPENCV_LIBS) $(OPENMPI_LIBS_DIR) $(OPENMPI_LIBS)
 
 %.o: %.cpp
-	@$(CXX) $(CXXFLAGS) $(OPENCV_INCLUDE) $(OPENMPI_INCLUDE) -c $< -o $@
-
+	$(CXX) $(CXXFLAGS) $(OPENCV_INCLUDE) $(OPENMPI_INCLUDE) -c $< -o $@
 
 clean:
-	@rm -f $(TARGET) $(OBJ) $(DEP)
+	rm -f $(TARGET) $(OBJ) $(DEP)
 
 CXXFLAGS += -I$(ALGLIB_DIR)
 
 debug: $(TARGET)
-	@echo "Compiled in debug mode."
 
 -include $(DEP)
 
 .PHONY: clean debug
+

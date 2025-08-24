@@ -24,15 +24,13 @@
 
 #include <omp.h>
 #include <memory>
+#include <chrono>
 
 #include "lb2d.hpp"
 
 class MantiisApp 
 {
 public:
-    int num_threads;
-    int num_procs;
-    int proc_id;
     bool is_multiblock;
     int Nx;
     int Ny;
@@ -43,6 +41,11 @@ public:
     int verbose = 1;
     int dump_every_timestep = 1;
 
+    int proc_id;
+    int num_procs;
+    int num_threads;
+
+    std::unique_ptr<MpiSession> mpi;
     lattice latt;
     std::unique_ptr<Shape> shape;
     std::unique_ptr<Grid2D> grid;
@@ -65,9 +68,6 @@ public:
         iters = std::stoi(argv[5]);
 
         mantiis_parallel::launchMPI(proc_id, num_procs, num_threads);
-        std::cout << "Process " << proc_id << " /" << num_procs << " launched\n";
-
-        MPI_Barrier(MPI_COMM_WORLD);
 
         if (proc_id == 0) 
         {
@@ -80,30 +80,37 @@ public:
     }
 
     void init() 
-    {
+    {   
         shape = std::make_unique<Shape>(Nx, Ny, _GLOBAL_::Cl);
-        shape->loadExistingModel(folder);
+        if (proc_id == 0) 
+            shape->loadExistingModel(folder);  
+        
+        shape->MPI_broadcast(0);
+
         grid = std::make_unique<Grid2D>(*shape, latt, is_multiblock);
-    
         if (proc_id == 0) 
         {
+            grid->initialize(*shape);
             std::cout << "The number of active cells: " << grid->globalGridSize << "\n";
             std::cout << "Initializing Simulation...\n";
         }
 
+        grid->MPI_broadcast(0);
         grid->MPI_distributeGridData();
-        grid->debugPrintVectors();
+        // grid->debugPrintVectors();
 
-        MPI_Barrier(MPI_COMM_WORLD);
         lb = std::make_unique<LB2D>(Nx, Ny, latt, *grid, *shape);
+        lb->initialize();
         lb->setCollision(&LB2D::MRTCollisionRegularized);
         lb->setOpenBoundary(&LB2D::periodicBoundary);
         lb->setWallBoundary(&LB2D::SRBBWall);
-        lb->initialize();
     }
 
     void run() 
-    {
+    {   
+        using namespace std::chrono;
+        auto start = high_resolution_clock::now();
+
         std::string fName;
         for (int i = 0; i < iters; i++) 
         {
@@ -113,8 +120,9 @@ public:
             lb->calculateMacroscopicPorperties();
             lb->calculateVelocityDifference();
 
-            if (verbose == 1)
+            if (verbose == 1 && proc_id == 0)
                 std::cout << "Timestep: " << lb->t << ", error: " << lb->diff << "\n";
+
             if (lb->diff < tol)
                 break;
             lb->t++;
@@ -125,23 +133,26 @@ public:
             }
         }
 
-        fName = folder + "SimulationDetails.txt";
-        std::ofstream simulationDetails(fName);
-        simulationDetails << "Domain dimension: " << shape->Nx << " x " << shape->Ny << "\n";
-        simulationDetails << "Tolerance was set to " << tol << "\n";
-        simulationDetails << "Number timesteps to converge: " << lb->t << "\n";
-        simulationDetails << "The number of active cells: " << grid->globalGridSize << "\n";
+        // fName = folder + "SimulationDetails.txt";
+        // std::ofstream simulationDetails(fName);
+        // simulationDetails << "Domain dimension: " << shape->Nx << " x " << shape->Ny << "\n";
+        // simulationDetails << "Tolerance was set to " << tol << "\n";
+        // simulationDetails << "Number timesteps to converge: " << lb->t << "\n";
+        // simulationDetails << "The number of active cells: " << grid->globalGridSize << "\n";
 
-        lb->ReconstructOriginalGrid();
-        IO::writeVectorToFile(folder + "ux.txt", lb->ux);
-        IO::writeVectorToFile(folder + "uy.txt", lb->uy);
-        IO::writeVectorToFile(folder + "rho.txt", lb->rho);
-        IO::writeVectorToFile(folder + "convergence.txt", lb->diff_over_time);
+        // lb->ReconstructOriginalGrid();
+        // IO::writeVectorToFile(folder + "ux.txt", lb->ux);
+        // IO::writeVectorToFile(folder + "uy.txt", lb->uy);
+        // IO::writeVectorToFile(folder + "rho.txt", lb->rho);
+        // IO::writeVectorToFile(folder + "convergence.txt", lb->diff_over_time);
+        
+        if (proc_id == 0)
+        {
+            auto end = high_resolution_clock::now();
+            auto duration = duration_cast<milliseconds>(end - start);
+            std::cout << "Total run time (milliseconds) " << std::setprecision(15) << duration.count() << std::endl;
+        }
     }
 
-    ~MantiisApp()
-    {
-        MPI_Finalize();
-    }
-
+    ~MantiisApp(){MPI_Finalize();}
 };

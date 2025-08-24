@@ -61,20 +61,20 @@ struct Quadrant
 
         switch (popCounter)
         {
-        case 1:
-            poppedVector = std::move(vec1);
-            break;
-        case 2:
-            poppedVector = std::move(vec2);
-            break;
-        case 3:
-            poppedVector = std::move(vec3);
-            break;
-        case 4:
-            poppedVector = std::move(vec4);
-            break;
-        default:
-            break;
+            case 1:
+                poppedVector = std::move(vec1);
+                break;
+            case 2:
+                poppedVector = std::move(vec2);
+                break;
+            case 3:
+                poppedVector = std::move(vec3);
+                break;
+            case 4:
+                poppedVector = std::move(vec4);
+                break;
+            default:
+                break;
         }
 
         // Increment the counter, resetting to 1 if it exceeds 4
@@ -103,9 +103,7 @@ struct QuadTreeNode
         {
             leafNode[i].resize(nx);
             for (int j = 0; j < matrix[0].size(); j++)
-            {
                 leafNode[i][j] = matrix[i][j];
-            }
         }
     }
 };
@@ -131,13 +129,9 @@ public:
     {
         auto it = data.find(key);
         if (it != data.end())
-        {
             return it->second;
-        }
         else
-        {
             return std::vector<std::vector<int64_t>>(); // Return an empty 2D vector if key not found
-        }
     }
 
     bool exists(int key)
@@ -149,13 +143,9 @@ public:
     {
         auto it = data.find(key);
         if (it != data.end())
-        {
             data.erase(it);
-        }
         else
-        {
             std::cout << "Key not found, can't remove.\n";
-        }
     }
 };
 
@@ -166,7 +156,7 @@ public:
     std::vector<int> gridType;
     std::vector<int> gridLevel;
     std::vector<int> gridBoundaryType;
-    std::vector<bool> gridIsBuffer;
+    std::vector<int> gridIsBuffer;
 
     std::vector<std::vector<int>> gridIJ;
     std::vector<std::vector<int64_t>> gridConnect;
@@ -192,12 +182,14 @@ public:
     int64_t cellsPerProc;
    
 public:
-    Grid2D(Shape &, lattice &, bool);
+    Grid2D(const Shape &, const lattice &, bool);
 
-    void processMultigrid(Shape &,
+    void initialize(const Shape &);
+
+    void processMultigrid(const Shape &,
                           std::vector<std::vector<int64_t>> &);
 
-    void processSinglegrid(Shape &, std::vector<std::vector<int64_t>> &);
+    void processSinglegrid(const Shape &, std::vector<std::vector<int64_t>> &);
 
     void rebuildGrid(const std::vector<std::vector<int64_t>>&,
                          std::vector<int64_t> &,
@@ -219,9 +211,9 @@ public:
                    const std::vector<int> &);
     */
 
-    void getProperties(Shape &);
+    void getProperties(const Shape &);
 
-    void checkProperties(Shape &);
+    void checkProperties(const Shape &);
 
     void buildConnections(const std::vector<int64_t> &);
 
@@ -252,13 +244,17 @@ public:
                                                     const std::vector<std::vector<T>> &);
     
     void MPI_distributeGridData();
+    void MPI_broadcast(int root);
     void debugPrintVectors() const;
 };
 
-Grid2D::Grid2D(Shape &ShapeObject, lattice &latt, bool isMultigrid = false)
+Grid2D::Grid2D(const Shape &ShapeObject, const lattice &latt, bool isMultigrid = false)
     : ny(ShapeObject.Ny), nx(ShapeObject.Nx), globalGridSize(ny * nx), maxLevel(0), latt(latt), isMultigrid(isMultigrid)
 {
+}
 
+void Grid2D::initialize(const Shape &ShapeObject)
+{
     std::vector<std::vector<int64_t>> reconstructedImage;
     std::cout << "Processing Grid..." << std::endl;
     if (isMultigrid)
@@ -270,12 +266,9 @@ Grid2D::Grid2D(Shape &ShapeObject, lattice &latt, bool isMultigrid = false)
     std::string fName = "reconstructed.dat";
     std::vector<int64_t> linDomain(reconstructedImage.size() * reconstructedImage[0].size());
     for (int i = 0; i < reconstructedImage.size(); i++)
-    {
         for (int j = 0; j < reconstructedImage[0].size(); j++)
-        {
             linDomain[i * reconstructedImage[0].size() + j] = reconstructedImage[i][j];
-        }
-    }
+
     IO::writeVectorToFile(fName, linDomain);
 
     std::vector<int64_t> linInd;
@@ -292,19 +285,17 @@ Grid2D::Grid2D(Shape &ShapeObject, lattice &latt, bool isMultigrid = false)
     buildConnections(linInd);
     std::cout << "Determining Parent-Child..." << std::endl;
     if (isMultigrid)
-    {
         determineParentChild();
-    }
+
     std::cout << "Looking for Buffer..." << std::endl;
     if (isMultigrid)
-    {
         orderBufferIndex();
-    }
+
     std::cout<< "Calculating boundary types ... "<<std::endl;
     getBoundaryTypes();
 }
 
-void Grid2D::processMultigrid(Shape &ShapeObject,
+void Grid2D::processMultigrid(const Shape &ShapeObject,
                               std::vector<std::vector<int64_t>> &reconstructedImage)
 {
     // Parent function to call multigrid functions here
@@ -392,7 +383,7 @@ void Grid2D::processMultigrid(Shape &ShapeObject,
     reconstructedImage = backwardsQuadTree(poreTree, reconstructedImage, cellCount);
 }
 
-void Grid2D::processSinglegrid(Shape &ShapeObject,
+void Grid2D::processSinglegrid(const Shape &ShapeObject,
                                std::vector<std::vector<int64_t>> &reconstructedImage)
 {
 
@@ -861,7 +852,7 @@ void Grid2D::rebuildGrid(const std::vector<std::vector<int64_t>> &matrix,
             this->gridIJ[counter_cell] = {subs[0], subs[1]};
             this->gridLevel[counter_cell] = gLvl[i];
             this->gridType[counter_cell] = 0;
-            this->gridIsBuffer[counter_cell] = false;
+            this->gridIsBuffer[counter_cell] = 0;
             counter_cell ++;
         }
     }
@@ -876,13 +867,13 @@ void Grid2D::rebuildGrid(const std::vector<std::vector<int64_t>> &matrix,
             this->gridIJ[i] = {subs[0], subs[1]};
             this->gridLevel[i] = subs[2] + 1;
             this->gridType[i] = new_types[counter_bufer];
-            this->gridIsBuffer[i] = true;
+            this->gridIsBuffer[i] = 1;
             counter_bufer ++;
         }
     }
 }
 
-void Grid2D::getProperties(Shape &ShapeObject)
+void Grid2D::getProperties(const Shape &ShapeObject)
 {
 
     for (int64_t i = 0; i < globalGridSize; i++)
@@ -892,7 +883,7 @@ void Grid2D::getProperties(Shape &ShapeObject)
     }
 }
 
-void Grid2D::checkProperties(Shape & ShapeObject)
+void Grid2D::checkProperties(const Shape & ShapeObject)
 {
     for (int64_t i = 0; i< globalGridSize; i++)
     {
@@ -1111,7 +1102,7 @@ void Grid2D::getBoundaryTypes()
 
     for (int64_t i = 0; i < globalGridSize; i++)
     {
-        if (!gridIsBuffer[i])
+        if (gridIsBuffer[i] == 0)
         {   
             // assemble binary boundary vector
             std::vector<int64_t> connections = gridConnect[i];
@@ -1360,6 +1351,34 @@ void Grid2D::MPI_distributeGridData()
     std::cout << "[INFO] Rank " << rank << " has " << localGridSize << " cells"<<" out of " << globalGridSize
               << ". Start ID: " << startID << ", End ID: " << endID << std::endl;
 
+}
+
+void Grid2D::MPI_broadcast(int root = 0)
+{   
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    MPI_Bcast(&ny, 1, MPI_INT, root, MPI_COMM_WORLD);
+    MPI_Bcast(&nx, 1, MPI_INT, root, MPI_COMM_WORLD);
+    MPI_Bcast(&maxLevel, 1, MPI_INT, root, MPI_COMM_WORLD);
+    MPI_Bcast(&isMultigrid, 1, MPI_C_BOOL, root, MPI_COMM_WORLD);
+    MPI_Bcast(&globalGridSize, 1, MPI_LONG_LONG, root, MPI_COMM_WORLD);
+
+    mantiis_parallel::broadcast_vector(gridID, root);
+    mantiis_parallel::broadcast_vector(gridType, root);
+    mantiis_parallel::broadcast_vector(gridLevel, root);
+    mantiis_parallel::broadcast_vector(gridBoundaryType, root);
+    mantiis_parallel::broadcast_vector(gridIsBuffer, root);
+    mantiis_parallel::broadcast_vector(gridIJ, root);
+    mantiis_parallel::broadcast_vector(gridConnect, root);
+    mantiis_parallel::broadcast_vector(gridParentChild, root);
+    mantiis_parallel::broadcast_vector(solidID, root);
+    mantiis_parallel::broadcast_vector(locpore, root);
+    mantiis_parallel::broadcast_vector(kn, root);
+    mantiis_parallel::broadcast_vector(bndTypes, root);
+
+    if (isMultigrid && rank != root)
+        orderBufferIndex();
 }
 
 void Grid2D::debugPrintVectors() const

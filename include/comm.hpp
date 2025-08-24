@@ -28,7 +28,7 @@ namespace mantiis_parallel
 {
     void launchMPI(int &proc_id, int &num_of_proc, int &num_thread)
     {
-        // omp_set_num_threads(num_thread);            
+        omp_set_num_threads(num_thread);            
         MPI_Init(NULL, NULL);                       
         MPI_Comm_rank(MPI_COMM_WORLD, &proc_id);    
         MPI_Comm_size(MPI_COMM_WORLD, &num_of_proc);
@@ -86,7 +86,6 @@ namespace mantiis_parallel
         int rank, numProcs;
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
-        MPI_Barrier(MPI_COMM_WORLD);
 
         for (int64_t i = 0; i < gridConnect.size(); i++)
             for (int ic = 0; ic < gridConnect[i].size(); ic++)
@@ -126,6 +125,94 @@ namespace mantiis_parallel
                 std::cout << std::flush;
             }
             MPI_Barrier(MPI_COMM_WORLD);
+        }
+    }
+
+    // Broadcast a 1D vector from root to all processes
+    template <typename T>
+    void broadcast_vector(std::vector<T> &vec, int root = 0)
+    {   
+        int rank;
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+        int64_t size = vec.size();
+
+        MPI_Bcast(&size, 1, MPI_LONG_LONG, root, MPI_COMM_WORLD);
+
+        if (rank != root)
+            vec.resize(size);
+
+        if constexpr (std::is_same_v<T, int>)
+            MPI_Bcast(vec.data(), size, MPI_INT, root, MPI_COMM_WORLD);
+        else if constexpr (std::is_same_v<T, int64_t>) 
+            MPI_Bcast(vec.data(), size, MPI_LONG_LONG, root, MPI_COMM_WORLD);
+        else if constexpr (std::is_same_v<T, double>)
+            MPI_Bcast(vec.data(), size, MPI_DOUBLE, root, MPI_COMM_WORLD);
+        else if constexpr (std::is_same_v<T, bool>)
+        {
+            std::vector<int> temp(size);
+            if (rank == root)
+                for (int64_t i = 0; i < size; i++) temp[i] = vec[i] ? 1 : 0;
+
+            MPI_Bcast(temp.data(), size, MPI_INT, root, MPI_COMM_WORLD);
+
+            if (rank != root)
+                for (int64_t i = 0; i < size; i++) vec[i] = (temp[i] != 0);
+        }
+        else
+            throw std::invalid_argument("Unsupported vector type for broadcast_vectors");
+    }
+
+    // Broadcast a 2D vector from root to all processes
+    template <typename T>
+    void broadcast_vector(std::vector<std::vector<T>> &vec2d, int root = 0)
+    {   
+        int rank;
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+        int rows = vec2d.size();
+        int cols = rows > 0 ? vec2d[0].size() : 0;
+        MPI_Bcast(&rows, 1, MPI_INT, root, MPI_COMM_WORLD);
+        MPI_Bcast(&cols, 1, MPI_INT, root, MPI_COMM_WORLD);
+
+        if (rank != root)
+        {
+            vec2d.resize(rows);
+            for (int i = 0; i < rows; ++i)
+                vec2d[i].resize(cols);
+        }
+        
+        std::vector<T> flat(rows * cols);
+        if (root == 0)
+        {
+            for (int i = 0; i < rows; i++)
+                for (int j = 0; j < cols; j++)
+                    flat[i * cols + j] = vec2d[i][j];
+        }
+
+        if constexpr (std::is_same_v<T, int>)
+            MPI_Bcast(flat.data(), rows * cols, MPI_INT, root, MPI_COMM_WORLD);
+        else if constexpr (std::is_same_v<T, int64_t>)
+            MPI_Bcast(flat.data(), rows * cols, MPI_LONG_LONG, root, MPI_COMM_WORLD);
+        else if constexpr (std::is_same_v<T, double>)
+            MPI_Bcast(flat.data(), rows * cols, MPI_DOUBLE, root, MPI_COMM_WORLD);
+        else if constexpr (std::is_same_v<T, bool>)
+        {
+            std::vector<int> temp(rows * cols);
+            if (root == 0)
+                for (int i = 0; i < rows * cols; i++) temp[i] = flat[i];
+            MPI_Bcast(temp.data(), rows * cols, MPI_INT, root, MPI_COMM_WORLD);
+            if (root != 0)
+                for (int i = 0; i < rows * cols; i++) flat[i] = temp[i];
+        }
+        else
+            throw std::invalid_argument("Unsupported vector type for broadcast_vectors");
+        
+        if (rank != root)
+        {
+            for (int i = 0; i < rows; i++)
+                for (int j = 0; j < cols; j++)
+                    vec2d[i][j] = flat[i * cols + j];
         }
     }
 
