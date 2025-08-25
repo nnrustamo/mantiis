@@ -24,8 +24,202 @@
 
 #include <mpi.h>
 
+constexpr int Q = 9; // hardcoded for D2Q9
+
 namespace mantiis_parallel
 {
+    template<typename T> struct MpiType;
+    template<> struct MpiType<int>       { static MPI_Datatype type() { return MPI_INT;       } };
+    template<> struct MpiType<float>     { static MPI_Datatype type() { return MPI_FLOAT;     } };
+    template<> struct MpiType<double>    { static MPI_Datatype type() { return MPI_DOUBLE;    } };
+    template<> struct MpiType<int64_t>   { static MPI_Datatype type() { return MPI_LONG_LONG; } };
+
+    struct Instruction {
+        int64_t id;   // row index
+        int64_t ic;   // source col
+        int64_t ng;   // dest col
+        int64_t peer; // target rank
+    };
+
+    template<typename T>
+    class MPICommunicationManager 
+    {
+    public:
+        MPICommunicationManager(int64_t myrank,
+                                const std::vector<Instruction>& send_instructions) : rank(myrank)
+        {
+            build(send_instructions);
+        }
+
+        void exchange(std::vector<T>& f,
+                      std::vector<T>& ftemp,
+                      MPI_Comm comm, int tagBase = 100) 
+        {
+            int numProcs;
+            MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
+            MPI_Datatype dtype = MpiType<T>::type();
+            int64_t count;
+
+            for (int i = 0; i < numProcs - 1; i++)
+            {   
+                // send
+                for (auto& peer_elem : send_map_id)
+                {
+                    // pop ids for each peer rank
+                    auto peer_rank = peer_elem.first;
+                    auto ids = peer_elem.second;
+                    auto ics = send_map_ic[peer_rank];
+                    
+                    send_buffer.resize(ids.size());
+
+                    // pack data to send
+                    count = 0;
+                    for (size_t idx = 0; idx < ids.size(); ++idx)
+                    {
+                        int64_t id = ids[idx];
+                        int64_t ic = ics[idx];
+
+                        if (count > send_buffer.size())
+                            throw std::runtime_error("Send buffer overflow.");
+
+                        send_buffer[count] = ftemp[id * Q + ic];
+                        count++;
+                    }
+
+                    // send data
+                    MPI_Send(send_buffer.data(), send_buffer.size(), dtype, peer_rank, tagBase, MPI_COMM_WORLD);
+                }
+                
+                // receive
+                for (auto& peer_elem : recv_map_id)
+                {   
+                    auto peer_rank = peer_elem.first;
+                    recv_buffer.resize(peer_elem.second.size());
+                    MPI_Recv(recv_buffer.data(), recv_buffer.size(), dtype, peer_rank, tagBase, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                }
+
+                // put sh*t together
+                for (auto& peer_elem : recv_map_id)
+                {   
+                    auto peer_rank = peer_elem.first;
+                    auto ids = peer_elem.second;
+                    auto ics = recv_map_ic[peer_rank];
+                    count = 0;
+                    for (size_t idx = 0; idx < ids.size(); ++idx)
+                    {
+                        int64_t id = ids[idx];
+                        int64_t ic = ics[idx];
+
+                        if (count > send_buffer.size())
+                            throw std::runtime_error("Send buffer overflow.");
+
+                        f[id * Q + ic] = recv_buffer[count];
+                        count++;
+                    }
+                    
+                }
+            }
+        }
+
+        void printCommunicationMaps() const
+        {
+            std::cout << "==================== Send Map NG for "<<rank<<" ====================" << std::endl;
+            for (const auto& [key, values] : send_map_ng) {
+                std::cout << "Peer: " << key << " -> [ ";
+                for (const auto& val : values) {
+                    std::cout << val << " ";
+                }
+                std::cout << "]" << std::endl;
+            }
+
+            std::cout << "==================== Send Map IC for "<<rank<<" ====================" << std::endl;
+            for (const auto& [key, values] : send_map_ic) {
+                std::cout << "Peer: " << key << " -> [ ";
+                for (const auto& val : values) {
+                    std::cout << val << " ";
+                }
+                std::cout << "]" << std::endl;
+            }
+
+            std::cout << "==================== Recv Map ID for "<<rank<<" ====================" << std::endl;
+            for (const auto& [key, values] : recv_map_id) {
+                std::cout << "Peer: " << key << " -> [ ";
+                for (const auto& val : values) {
+                    std::cout << val << " ";
+                }
+                std::cout << "]" << std::endl;
+            }
+
+            std::cout << "==================== Recv Map IC for "<<rank<<" ====================" << std::endl;
+            for (const auto& [key, values] : recv_map_ic) {
+                std::cout << "Peer: " << key << " -> [ ";
+                for (const auto& val : values) {
+                    std::cout << val << " ";
+                }
+                std::cout << "]" << std::endl;
+            }
+        }
+
+    private:
+        int64_t rank;
+        std::unordered_map<int64_t, std::vector<int64_t>> send_map_id;
+        std::unordered_map<int64_t, std::vector<int64_t>> send_map_ng;
+        std::unordered_map<int64_t, std::vector<int64_t>> send_map_ic;
+        std::unordered_map<int64_t, std::vector<int64_t>> recv_map_id;
+        std::unordered_map<int64_t, std::vector<int64_t>> recv_map_ic;
+        std::vector<T> send_buffer;
+        std::vector<T> recv_buffer;
+        
+        void build(const std::vector<Instruction>& send_instructions)
+        {   
+            std::cout<<"rank "<<rank<<" is building indices"<<std::endl;
+            for (auto& in : send_instructions)
+            {
+                send_map_ng[in.peer].push_back(in.ng);
+                send_map_ic[in.peer].push_back(in.ic);
+                send_map_id[in.peer].push_back(in.id);
+            }
+            
+            std::cout<<"rank "<<rank<<" is sending indices"<<std::endl;
+            int tag = 0;
+            for (auto& peer_send_data : send_map_ng)
+            {
+                auto send_data_ng = peer_send_data.second;
+                auto peer_rank = peer_send_data.first;
+                auto send_data_ic = send_map_ic[peer_rank];
+
+                MPI_Send(send_data_ng.data(), send_data_ng.size(), MPI_LONG_LONG, peer_rank, tag, MPI_COMM_WORLD);
+                MPI_Send(send_data_ic.data(), send_data_ic.size(), MPI_LONG_LONG, peer_rank, tag+10, MPI_COMM_WORLD);
+            }
+
+            int numProcs;
+            MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
+
+            std::cout<<"rank "<<rank<<" is receiving indices"<<std::endl;
+            for (int i = 0; i < numProcs - 1; i++) 
+            {
+                MPI_Status status_1;
+                MPI_Status status_2;
+
+                // ========================= Receive ID/NG Data =========================
+                MPI_Probe(MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &status_1);
+                int count;
+                MPI_Get_count(&status_1, MPI_LONG_LONG, &count);
+                std::vector<int64_t> recvDataID(count);
+                MPI_Recv(recvDataID.data(), count, MPI_LONG_LONG, status_1.MPI_SOURCE, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                recv_map_id[static_cast<int64_t>(status_1.MPI_SOURCE)] = recvDataID;
+
+                // ========================= Receive IC Data =========================
+                MPI_Probe(status_1.MPI_SOURCE, tag + 10, MPI_COMM_WORLD, &status_2);
+                MPI_Get_count(&status_2, MPI_LONG_LONG, &count);
+                std::vector<int64_t> recvDataIC(count);
+                MPI_Recv(recvDataIC.data(), count, MPI_LONG_LONG, status_2.MPI_SOURCE, tag + 10, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                recv_map_ic[static_cast<int64_t>(status_2.MPI_SOURCE)] = recvDataIC;
+            }
+            std::cout<<"rank "<<rank<<" is done with indices"<<std::endl;
+        }
+    };
+
     void launchMPI(int &proc_id, int &num_of_proc, int &num_thread)
     {
         omp_set_num_threads(num_thread);            
@@ -215,5 +409,4 @@ namespace mantiis_parallel
                     vec2d[i][j] = flat[i * cols + j];
         }
     }
-
 } // namespace mantiis_parallel

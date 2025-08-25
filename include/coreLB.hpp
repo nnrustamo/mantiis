@@ -113,18 +113,15 @@ public:
     std::vector<std::vector<int64_t>> streamingForceI2;
     std::vector<std::vector<int>> bouncingForceIC;
 
-    // MPI communication IDS
-    std::vector<int64_t> comm_ids;
-    std::vector<int64_t> comm_ids_ng;
-    std::vector<int64_t> comm_ids_ic;
-    std::vector<int64_t> comm_rank;
-
     //
     double diff = 1.0;
     std::vector<double> diff_over_time;
 
     // grid
     Grid2D& grid;
+
+    // mpi communcations
+    std::unique_ptr<mantiis_parallel::MPICommunicationManager<double>> mpi_comm_manager;
 
 public:
     LB2D(int &, int &, lattice &, Grid2D &, Shape &);
@@ -204,7 +201,7 @@ public:
     // bring back the solid points in simulation domain
     // these functions should only be called at the end of the simulation
     void completeSingleGridDomain();
-    void ReconstructOriginalGrid();
+    void reconstructOriginalGrid();
 
 };
 
@@ -212,14 +209,40 @@ public:
 // Constructor
 LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y), latt(latt), grid(G)
 {   
+    // MPI communication indices
+    std::vector<int64_t> comm_ids;
+    std::vector<int64_t> comm_ids_ng;
+    std::vector<int64_t> comm_ids_ic;
+    std::vector<int64_t> comm_rank;
+
     // set up MPI communication indices
     mantiis_parallel::getMPICommunicationIDS(grid.startID, grid.endID,  grid.cellsPerProc,
         grid.gridConnect, 
-        comm_ids, comm_ids_ic, comm_ids_ng, comm_rank);
-        
+        comm_ids, comm_ids_ic, comm_ids_ng, comm_rank);    
+    
     // for debugging
-    // mantiis_parallel::printMPICommunicationIDs(comm_ids, comm_ids_ic, 
-    //     comm_ids_ng, comm_rank);
+    mantiis_parallel::printMPICommunicationIDs(comm_ids, comm_ids_ic, 
+        comm_ids_ng, comm_rank);
+    
+    std::vector<mantiis_parallel::Instruction> send_instrcutions;
+    for (int64_t i = 0; i < comm_ids.size(); i++) 
+    {
+        mantiis_parallel::Instruction instruction;
+        instruction.id = comm_ids[i];
+        instruction.ic = comm_ids_ic[i];
+        instruction.ng = comm_ids_ng[i];
+        instruction.peer = comm_rank[i];
+        
+        send_instrcutions.push_back(instruction);
+    }
+
+    int rank, numProcs;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
+    mpi_comm_manager = std::make_unique<mantiis_parallel::MPICommunicationManager<double>>(rank, send_instrcutions);
+    MPI_Barrier(MPI_COMM_WORLD);
+    mpi_comm_manager->printCommunicationMaps();
+
 
     if (grid.isMultigrid)
         calculateMultigridTauS(shape);
@@ -333,9 +356,8 @@ void LB2D::equilibrium()
     {
         k_ic = k * NC;
         for (int ic = 0; ic < NC; ic++)
-        {
             feq[k_ic + ic] = W[ic] * rho[k] * (1.0 + F1 * (latt.e_x[ic] * ux[k] + latt.e_y[ic] * uy[k]) + F2 * pow(latt.e_x[ic] * ux[k] + latt.e_y[ic] * uy[k], 2) - F3 * usq[k]);
-        }
+
     }
 }
 
@@ -734,10 +756,10 @@ void LB2D::stream(int lvl = 1)
 // std::fill(f.begin(), f.end(), 0);
 #pragma ompomp parallel for default(shared)
     for (int64_t i = 0; i < streamID.size(); i++)
-    {
         if (grid.gridLevel[streamID[i]] == lvl)
             f[streamLOC[i] * NC + streamIC[i]] = ftemp[streamID[i] * NC + streamIC[i]];
-    }
+
+    mpi_comm_manager->exchange(f, ftemp, MPI_COMM_WORLD);
 }
 
 // Simple halfway bounce back wall boundary
@@ -745,10 +767,8 @@ void LB2D::BBWall(int lvl = 1)
 {
 #pragma ompomp parallel for default(shared)
     for (int64_t i = 0; i < boundaryID.size(); i++)
-    {
         if (grid.gridLevel[boundaryID[i]] == lvl)
             f[boundaryID[i] * NC + latt.icOpp[boundaryIC[i]]] = ftemp[boundaryID[i] * NC + boundaryIC[i]];
-    }
 }
 
 void LB2D::getBoundaryTypes()
@@ -807,7 +827,6 @@ void LB2D::SRBBWall(int lvl = 1)
     int srOpp;
 #pragma ompomp parallel for default(shared) private(srOpp)
     for (int64_t i = 0; i < boundaryID.size(); i++)
-    {
         if (grid.gridLevel[boundaryID[i]] == lvl)
         {   
             r = 0.4987*pow(grid.kn[boundaryID[i]], -0.131) - 0.25;
@@ -818,7 +837,6 @@ void LB2D::SRBBWall(int lvl = 1)
             f[boundaryID[i] * NC + latt.icOpp[boundaryIC[i]]] += r * ftemp[boundaryID[i] * NC + boundaryIC[i]];
             f[boundaryID[i] * NC + srOpp] += (1 - r) * ftemp[boundaryID[i] * NC + boundaryIC[i]];
         }
-    }
 }
 
 // Maxwellian diffusion + bounce back wall boundary
@@ -1185,7 +1203,7 @@ void LB2D::completeSingleGridDomain()
     }
 }
 
-void LB2D::ReconstructOriginalGrid()
+void LB2D::reconstructOriginalGrid()
 {
     // Copy data
     std::vector<double> ux_copy(grid.localGridSize);

@@ -45,7 +45,6 @@ public:
     int num_procs;
     int num_threads;
 
-    std::unique_ptr<MpiSession> mpi;
     lattice latt;
     std::unique_ptr<Shape> shape;
     std::unique_ptr<Grid2D> grid;
@@ -79,7 +78,7 @@ public:
         }
     }
 
-    void init() 
+    void init()
     {   
         shape = std::make_unique<Shape>(Nx, Ny, _GLOBAL_::Cl);
         if (proc_id == 0) 
@@ -97,7 +96,7 @@ public:
 
         grid->MPI_broadcast(0);
         grid->MPI_distributeGridData();
-        // grid->debugPrintVectors();
+        grid->debugPrintVectors();
 
         lb = std::make_unique<LB2D>(Nx, Ny, latt, *grid, *shape);
         lb->initialize();
