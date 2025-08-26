@@ -221,8 +221,8 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
         comm_ids, comm_ids_ic, comm_ids_ng, comm_rank);    
     
     // for debugging
-    mantiis_parallel::printMPICommunicationIDs(comm_ids, comm_ids_ic, 
-        comm_ids_ng, comm_rank);
+    // mantiis_parallel::printMPICommunicationIDs(comm_ids, comm_ids_ic, 
+    //     comm_ids_ng, comm_rank);
     
     std::vector<mantiis_parallel::Instruction> send_instrcutions;
     for (int64_t i = 0; i < comm_ids.size(); i++) 
@@ -241,8 +241,7 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
     MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
     mpi_comm_manager = std::make_unique<mantiis_parallel::MPICommunicationManager<double>>(rank, send_instrcutions);
     MPI_Barrier(MPI_COMM_WORLD);
-    mpi_comm_manager->printCommunicationMaps();
-
+    // mpi_comm_manager->printCommunicationMaps();
 
     if (grid.isMultigrid)
         calculateMultigridTauS(shape);
@@ -1090,7 +1089,13 @@ void LB2D::calculateVelocityDifference()
         sum1 += usqMinusOld[i];
         sum2 += sqrt(usq[i]);
     }
-    diff = sum1 / sum2;
+
+    double sum1_cum, sum2_cum;
+
+    MPI_Reduce(&sum1, &sum1_cum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&sum2, &sum2_cum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    diff = sum1_cum / sum2_cum;
+    MPI_Bcast(&diff, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     diff_over_time.push_back(diff);
 }
 

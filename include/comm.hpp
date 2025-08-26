@@ -105,7 +105,7 @@ namespace mantiis_parallel
                     auto ids = peer_elem.second;
                     auto ics = recv_map_ic[peer_rank];
                     count = 0;
-                    for (size_t idx = 0; idx < ids.size(); ++idx)
+                    for (int64_t idx = 0; idx < ids.size(); ++idx)
                     {
                         int64_t id = ids[idx];
                         int64_t ic = ics[idx];
@@ -172,35 +172,34 @@ namespace mantiis_parallel
         
         void build(const std::vector<Instruction>& send_instructions)
         {   
-            std::cout<<"rank "<<rank<<" is building indices"<<std::endl;
             for (auto& in : send_instructions)
             {
                 send_map_ng[in.peer].push_back(in.ng);
                 send_map_ic[in.peer].push_back(in.ic);
                 send_map_id[in.peer].push_back(in.id);
             }
-            
-            std::cout<<"rank "<<rank<<" is sending indices"<<std::endl;
+
             int tag = 0;
             for (auto& peer_send_data : send_map_ng)
             {
                 auto send_data_ng = peer_send_data.second;
                 auto peer_rank = peer_send_data.first;
                 auto send_data_ic = send_map_ic[peer_rank];
-
+                
                 MPI_Send(send_data_ng.data(), send_data_ng.size(), MPI_LONG_LONG, peer_rank, tag, MPI_COMM_WORLD);
-                MPI_Send(send_data_ic.data(), send_data_ic.size(), MPI_LONG_LONG, peer_rank, tag+10, MPI_COMM_WORLD);
+                MPI_Send(send_data_ic.data(), send_data_ic.size(), MPI_LONG_LONG, peer_rank, tag + 10, MPI_COMM_WORLD);
             }
 
             int numProcs;
             MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
-
-            std::cout<<"rank "<<rank<<" is receiving indices"<<std::endl;
-            for (int i = 0; i < numProcs - 1; i++) 
+            auto weight = [numProcs](int rank) -> int 
             {
-                MPI_Status status_1;
-                MPI_Status status_2;
-
+                return numProcs== 1 ? 0 : ((rank == 0 || rank == numProcs - 1) ? 2 : 4);
+            };
+            
+            MPI_Status status_1, status_2;
+            for (int rep = 0; rep < weight(rank) / 2; rep++)
+            {
                 // ========================= Receive ID/NG Data =========================
                 MPI_Probe(MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &status_1);
                 int count;
@@ -209,14 +208,13 @@ namespace mantiis_parallel
                 MPI_Recv(recvDataID.data(), count, MPI_LONG_LONG, status_1.MPI_SOURCE, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 recv_map_id[static_cast<int64_t>(status_1.MPI_SOURCE)] = recvDataID;
 
-                // ========================= Receive IC Data =========================
-                MPI_Probe(status_1.MPI_SOURCE, tag + 10, MPI_COMM_WORLD, &status_2);
+                // ========================= Receive IC Data =========================   
+                MPI_Probe(MPI_ANY_SOURCE, tag + 10, MPI_COMM_WORLD, &status_2);
                 MPI_Get_count(&status_2, MPI_LONG_LONG, &count);
                 std::vector<int64_t> recvDataIC(count);
                 MPI_Recv(recvDataIC.data(), count, MPI_LONG_LONG, status_2.MPI_SOURCE, tag + 10, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 recv_map_ic[static_cast<int64_t>(status_2.MPI_SOURCE)] = recvDataIC;
             }
-            std::cout<<"rank "<<rank<<" is done with indices"<<std::endl;
         }
     };
 

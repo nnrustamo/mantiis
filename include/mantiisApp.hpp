@@ -96,7 +96,7 @@ public:
 
         grid->MPI_broadcast(0);
         grid->MPI_distributeGridData();
-        grid->debugPrintVectors();
+        // grid->debugPrintVectors();
 
         lb = std::make_unique<LB2D>(Nx, Ny, latt, *grid, *shape);
         lb->initialize();
