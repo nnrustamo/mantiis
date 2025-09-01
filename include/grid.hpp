@@ -1430,6 +1430,7 @@ void Grid2D::debugPrintVectors() const
             print1DVector(locpore, "locpore");
             print1DVector(kn, "kn");
             print1DVector(bndTypes, "bndTypes");
+            print1DVector(solidID, "solidID");
             print2DVector(gridIJ, "gridIJ");
             print2DVector(gridConnect, "gridConnect");
             std::cout << std::flush;

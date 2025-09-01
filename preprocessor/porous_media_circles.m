@@ -86,7 +86,7 @@ function img = porous_media_circles(N, num_circles, radius_range)
     img(2:end-1, 1:floor(0.1*N)) = 1;
     img(2:end-1, N-floor(0.1*N):end) = 1;
 
-    figure; imshow(img);
-    title('Porous Media Image');
+    % figure; imshow(img);
+    % title('Porous Media Image');
 
 end

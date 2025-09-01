@@ -118,7 +118,6 @@ public:
             lb->evolutionStepOfMultiBlock(lb->grid.maxLevel);
             lb->calculateMacroscopicPorperties();
             lb->calculateVelocityDifference();
-
             if (verbose == 1 && proc_id == 0)
                 std::cout << "Timestep: " << lb->t << ", error: " << lb->diff << "\n";
 
@@ -131,27 +130,25 @@ public:
                 // Optional: dump intermediate results
             }
         }
-
-        // fName = folder + "SimulationDetails.txt";
-        // std::ofstream simulationDetails(fName);
-        // simulationDetails << "Domain dimension: " << shape->Nx << " x " << shape->Ny << "\n";
-        // simulationDetails << "Tolerance was set to " << tol << "\n";
-        // simulationDetails << "Number timesteps to converge: " << lb->t << "\n";
-        // simulationDetails << "The number of active cells: " << grid->globalGridSize << "\n";
-
-        // lb->ReconstructOriginalGrid();
-        // IO::writeVectorToFile(folder + "ux.txt", lb->ux);
-        // IO::writeVectorToFile(folder + "uy.txt", lb->uy);
-        // IO::writeVectorToFile(folder + "rho.txt", lb->rho);
-        // IO::writeVectorToFile(folder + "convergence.txt", lb->diff_over_time);
-        
+        lb->convertToPhysicalUnits();
+        lb->completeSingleGridDomain();
         if (proc_id == 0)
-        {
+        {   
+            IO::writeVectorToFile(folder + "ux.txt", lb->ux);
+            IO::writeVectorToFile(folder + "uy.txt", lb->uy);
+            IO::writeVectorToFile(folder + "rho.txt", lb->rho);
+            IO::writeVectorToFile(folder + "convergence.txt", lb->diff_over_time);
+
+            fName = folder + "SimulationDetails.txt";
+            std::ofstream simulationDetails(fName);
+            simulationDetails << "Domain dimension: " << shape->Nx << " x " << shape->Ny << "\n";
+            simulationDetails << "Tolerance was set to " << tol << "\n";
+            simulationDetails << "Number timesteps executed: " << lb->t << "\n";
+            simulationDetails << "The number of active cells: " << grid->globalGridSize << "\n";
             auto end = high_resolution_clock::now();
             auto duration = duration_cast<milliseconds>(end - start);
             std::cout << "Total run time (milliseconds) " << std::setprecision(15) << duration.count() << std::endl;
         }
     }
-
     ~MantiisApp(){MPI_Finalize();}
 };

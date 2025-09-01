@@ -23,6 +23,7 @@
 #pragma once
 
 #include <mpi.h>
+#include <unistd.h>
 
 constexpr int Q = 9; // hardcoded for D2Q9
 
@@ -34,7 +35,8 @@ namespace mantiis_parallel
     template<> struct MpiType<double>    { static MPI_Datatype type() { return MPI_DOUBLE;    } };
     template<> struct MpiType<int64_t>   { static MPI_Datatype type() { return MPI_LONG_LONG; } };
 
-    struct Instruction {
+    struct Instruction 
+    {
         int64_t id;   // row index
         int64_t ic;   // source col
         int64_t ng;   // dest col
@@ -52,112 +54,131 @@ namespace mantiis_parallel
         }
 
         void exchange(std::vector<T>& f,
-                      std::vector<T>& ftemp,
-                      MPI_Comm comm, int tagBase = 100) 
-        {
+              std::vector<T>& ftemp,
+              MPI_Comm comm, int tagBase = 100) 
+        {   
             int numProcs;
             MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
             MPI_Datatype dtype = MpiType<T>::type();
             int64_t count;
 
-            for (int i = 0; i < numProcs - 1; i++)
-            {   
-                // send
-                for (auto& peer_elem : send_map_id)
+            std::vector<MPI_Request> requests;
+            std::vector<std::vector<T>> all_send_buffers; // keep per-peer buffers alive
+
+            // ========================= Post nonblocking sends =========================
+            for (auto& peer_elem : send_map_id)
+            {
+                auto peer_rank = peer_elem.first;
+                auto ids = peer_elem.second;
+                auto ics = send_map_ic[peer_rank];
+
+                std::vector<T> peer_send_buffer(ids.size()); // separate buffer per peer
+
+                // pack data to send
+                count = 0;
+                for (size_t idx = 0; idx < ids.size(); ++idx)
                 {
-                    // pop ids for each peer rank
-                    auto peer_rank = peer_elem.first;
-                    auto ids = peer_elem.second;
-                    auto ics = send_map_ic[peer_rank];
-                    
-                    send_buffer.resize(ids.size());
+                    int64_t id = ids[idx];
+                    int64_t ic = ics[idx];
 
-                    // pack data to send
-                    count = 0;
-                    for (size_t idx = 0; idx < ids.size(); ++idx)
-                    {
-                        int64_t id = ids[idx];
-                        int64_t ic = ics[idx];
+                    if (count >= peer_send_buffer.size())
+                        throw std::runtime_error("Send buffer overflow.");
 
-                        if (count > send_buffer.size())
-                            throw std::runtime_error("Send buffer overflow.");
-
-                        send_buffer[count] = ftemp[id * Q + ic];
-                        count++;
-                    }
-
-                    // send data
-                    MPI_Send(send_buffer.data(), send_buffer.size(), dtype, peer_rank, tagBase, MPI_COMM_WORLD);
-                }
-                
-                // receive
-                for (auto& peer_elem : recv_map_id)
-                {   
-                    auto peer_rank = peer_elem.first;
-                    recv_buffer.resize(peer_elem.second.size());
-                    MPI_Recv(recv_buffer.data(), recv_buffer.size(), dtype, peer_rank, tagBase, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                    peer_send_buffer[count] = ftemp[id * Q + ic];
+                    count++;
                 }
 
-                // put sh*t together
-                for (auto& peer_elem : recv_map_id)
-                {   
-                    auto peer_rank = peer_elem.first;
-                    auto ids = peer_elem.second;
-                    auto ics = recv_map_ic[peer_rank];
-                    count = 0;
-                    for (int64_t idx = 0; idx < ids.size(); ++idx)
-                    {
-                        int64_t id = ids[idx];
-                        int64_t ic = ics[idx];
+                MPI_Request req;
+                MPI_Isend(peer_send_buffer.data(), peer_send_buffer.size(), dtype, peer_rank, tagBase, MPI_COMM_WORLD, &req);
+                requests.push_back(req);
 
-                        if (count > send_buffer.size())
-                            throw std::runtime_error("Send buffer overflow.");
+                // keep buffer alive until MPI_Waitall
+                all_send_buffers.push_back(std::move(peer_send_buffer));
+            }
 
-                        f[id * Q + ic] = recv_buffer[count];
-                        count++;
-                    }
-                    
+            // ========================= Post nonblocking receives and unpack =========================
+            for (auto& peer_elem : recv_map_id)
+            {   
+                auto peer_rank = peer_elem.first;
+                recv_buffer.resize(peer_elem.second.size());
+
+                MPI_Request req;
+                MPI_Irecv(recv_buffer.data(), recv_buffer.size(), dtype, peer_rank, tagBase, MPI_COMM_WORLD, &req);
+                MPI_Wait(&req, MPI_STATUS_IGNORE);
+
+                // put sh*t together  
+                auto ids = peer_elem.second;
+                auto ics = recv_map_ic[peer_rank];
+                count = 0;
+                for (int64_t idx = 0; idx < ids.size(); ++idx)
+                {
+                    int64_t id = ids[idx];
+                    int64_t ic = ics[idx];
+
+                    if (count >= recv_buffer.size())
+                        throw std::runtime_error("Receive buffer overflow.");
+                    f[id * Q + ic] = recv_buffer[count];
+                    count++;
                 }
             }
+
+            // ========================= Wait for all sends to complete =========================
+            if (!requests.empty())
+                MPI_Waitall(requests.size(), requests.data(), MPI_STATUSES_IGNORE);
         }
 
         void printCommunicationMaps() const
         {
-            std::cout << "==================== Send Map NG for "<<rank<<" ====================" << std::endl;
-            for (const auto& [key, values] : send_map_ng) {
+            MPI_Barrier(MPI_COMM_WORLD);
+            sleep(2);
+            std::cout << "==================== Send Map NG for "<<rank<<" with size "<<send_map_ng.size()<< " ====================" << std::endl;
+            for (const auto& [key, values] : send_map_ng) 
+            {
                 std::cout << "Peer: " << key << " -> [ ";
-                for (const auto& val : values) {
+                for (const auto& val : values) 
+                {
+                    std::cout << val << " ";
+                }
+                std::cout << "]" << std::endl;
+            }
+            MPI_Barrier(MPI_COMM_WORLD);
+            sleep(2);
+            std::cout << "==================== Send Map IC for "<<rank<<" with size "<<send_map_ic.size()<<" ====================" << std::endl;
+            for (const auto& [key, values] : send_map_ic) 
+            {
+                std::cout << "Peer: " << key << " -> [ ";
+                for (const auto& val : values) 
+                {
+                    std::cout << val << " ";
+                }
+                std::cout << "]" << std::endl;
+            }
+            MPI_Barrier(MPI_COMM_WORLD);
+            sleep(2);
+            std::cout << "==================== Recv Map ID for "<<rank<<" with size "<<recv_map_id.size()<<" ====================" << std::endl;
+            for (const auto& [key, values] : recv_map_id) 
+            {
+                std::cout << "Peer: " << key << " -> [ ";
+                for (const auto& val : values) 
+                {
+                    std::cout << val << " ";
+                }
+                std::cout << "]" << std::endl;
+            }
+            MPI_Barrier(MPI_COMM_WORLD);
+            sleep(2);
+            std::cout << "==================== Recv Map IC for "<<rank<<" with size "<<recv_map_ic.size()<<" ====================" << std::endl;
+            for (const auto& [key, values] : recv_map_ic) 
+            {
+                std::cout << "Peer: " << key << " -> [ ";
+                for (const auto& val : values) 
+                {
                     std::cout << val << " ";
                 }
                 std::cout << "]" << std::endl;
             }
 
-            std::cout << "==================== Send Map IC for "<<rank<<" ====================" << std::endl;
-            for (const auto& [key, values] : send_map_ic) {
-                std::cout << "Peer: " << key << " -> [ ";
-                for (const auto& val : values) {
-                    std::cout << val << " ";
-                }
-                std::cout << "]" << std::endl;
-            }
-
-            std::cout << "==================== Recv Map ID for "<<rank<<" ====================" << std::endl;
-            for (const auto& [key, values] : recv_map_id) {
-                std::cout << "Peer: " << key << " -> [ ";
-                for (const auto& val : values) {
-                    std::cout << val << " ";
-                }
-                std::cout << "]" << std::endl;
-            }
-
-            std::cout << "==================== Recv Map IC for "<<rank<<" ====================" << std::endl;
-            for (const auto& [key, values] : recv_map_ic) {
-                std::cout << "Peer: " << key << " -> [ ";
-                for (const auto& val : values) {
-                    std::cout << val << " ";
-                }
-                std::cout << "]" << std::endl;
-            }
+            MPI_Barrier(MPI_COMM_WORLD);
         }
 
     private:
@@ -171,7 +192,7 @@ namespace mantiis_parallel
         std::vector<T> recv_buffer;
         
         void build(const std::vector<Instruction>& send_instructions)
-        {   
+        {      
             for (auto& in : send_instructions)
             {
                 send_map_ng[in.peer].push_back(in.ng);
@@ -180,27 +201,33 @@ namespace mantiis_parallel
             }
 
             int tag = 0;
+
+            // Persistent send buffers
+            std::map<int, std::vector<int64_t>> send_buffers_ng;
+            std::map<int, std::vector<int64_t>> send_buffers_ic;
+            std::vector<MPI_Request> requests;
+            
             for (auto& peer_send_data : send_map_ng)
             {
-                auto send_data_ng = peer_send_data.second;
-                auto peer_rank = peer_send_data.first;
-                auto send_data_ic = send_map_ic[peer_rank];
-                
-                MPI_Send(send_data_ng.data(), send_data_ng.size(), MPI_LONG_LONG, peer_rank, tag, MPI_COMM_WORLD);
-                MPI_Send(send_data_ic.data(), send_data_ic.size(), MPI_LONG_LONG, peer_rank, tag + 10, MPI_COMM_WORLD);
-            }
+                int peer_rank = peer_send_data.first;
 
-            int numProcs;
-            MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
-            auto weight = [numProcs](int rank) -> int 
-            {
-                return numProcs== 1 ? 0 : ((rank == 0 || rank == numProcs - 1) ? 2 : 4);
-            };
-            
-            MPI_Status status_1, status_2;
-            for (int rep = 0; rep < weight(rank) / 2; rep++)
-            {
-                // ========================= Receive ID/NG Data =========================
+                // prepare send buffers
+                send_buffers_ng[peer_rank] = peer_send_data.second;
+                send_buffers_ic[peer_rank] = send_map_ic[peer_rank];
+
+                MPI_Request req_ng, req_ic;
+
+                // ========================= Send =========================
+                MPI_Isend(send_buffers_ng[peer_rank].data(), send_buffers_ng[peer_rank].size(), MPI_LONG_LONG,
+                        peer_rank, tag, MPI_COMM_WORLD, &req_ng);
+                MPI_Isend(send_buffers_ic[peer_rank].data(), send_buffers_ic[peer_rank].size(), MPI_LONG_LONG,
+                        peer_rank, tag + 10, MPI_COMM_WORLD, &req_ic);
+
+                requests.push_back(req_ng);
+                requests.push_back(req_ic);
+
+                // ========================= Receive =========================
+                MPI_Status status_1;
                 MPI_Probe(MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &status_1);
                 int count;
                 MPI_Get_count(&status_1, MPI_LONG_LONG, &count);
@@ -208,19 +235,24 @@ namespace mantiis_parallel
                 MPI_Recv(recvDataID.data(), count, MPI_LONG_LONG, status_1.MPI_SOURCE, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 recv_map_id[static_cast<int64_t>(status_1.MPI_SOURCE)] = recvDataID;
 
-                // ========================= Receive IC Data =========================   
+                // ========================= Receive IC Data =========================
+                MPI_Status status_2;
                 MPI_Probe(MPI_ANY_SOURCE, tag + 10, MPI_COMM_WORLD, &status_2);
                 MPI_Get_count(&status_2, MPI_LONG_LONG, &count);
                 std::vector<int64_t> recvDataIC(count);
                 MPI_Recv(recvDataIC.data(), count, MPI_LONG_LONG, status_2.MPI_SOURCE, tag + 10, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 recv_map_ic[static_cast<int64_t>(status_2.MPI_SOURCE)] = recvDataIC;
             }
+
+            // ========================= Wait for all sends to complete =========================
+            if (!requests.empty())
+                MPI_Waitall(requests.size(), requests.data(), MPI_STATUSES_IGNORE);
         }
     };
 
     void launchMPI(int &proc_id, int &num_of_proc, int &num_thread)
     {
-        omp_set_num_threads(num_thread);            
+        omp_set_num_threads(num_thread);      
         MPI_Init(NULL, NULL);                       
         MPI_Comm_rank(MPI_COMM_WORLD, &proc_id);    
         MPI_Comm_size(MPI_COMM_WORLD, &num_of_proc);
@@ -234,21 +266,20 @@ namespace mantiis_parallel
 
         int64_t cellsPerProc = gridSize / numProcs;
         int64_t remainder = gridSize % numProcs;
+
         int64_t startIdx, endIdx, localGridSize;
 
-        if (rank == numProcs - 1) 
+        if (rank < remainder) 
         {
-            startIdx = rank * cellsPerProc;
-            localGridSize = cellsPerProc + remainder;
-            endIdx = startIdx + localGridSize;
-        } 
-        else 
+            localGridSize = cellsPerProc + 1;
+            startIdx = rank * localGridSize;
+        } else 
         {
-            startIdx = rank * cellsPerProc;
             localGridSize = cellsPerProc;
-            endIdx = startIdx + localGridSize;
+            startIdx = remainder * (cellsPerProc + 1) + (rank - remainder) * cellsPerProc;
         }
 
+        endIdx = startIdx + localGridSize;
         return {startIdx, endIdx, localGridSize, cellsPerProc};
     }
 
@@ -267,7 +298,34 @@ namespace mantiis_parallel
             throw std::invalid_argument("Unsupported vector type.");
     }
 
-    void getMPICommunicationIDS(const int64_t startID, const int64_t endID, const int64_t cellsPerProc,
+    std::pair<int64_t, int64_t> globalToLocal(int64_t globalIndex, int64_t gridSize) 
+    {
+        int numProcs;
+        MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
+
+        if (globalIndex < 0 || globalIndex >= gridSize)
+            throw std::out_of_range("globalIndex out of range");
+
+        int64_t cellsPerProc = gridSize / numProcs;
+        int64_t remainder    = gridSize % numProcs;
+
+        if (globalIndex < (cellsPerProc + 1) * remainder) 
+        {
+            int64_t block = cellsPerProc + 1;
+            int64_t rank = globalIndex / block;
+            int64_t localIndex = globalIndex % block;
+            return {rank, localIndex};
+        } 
+        else 
+        {
+            int64_t g = globalIndex - remainder * (cellsPerProc + 1);
+            int64_t rank = remainder + g / cellsPerProc;
+            int64_t localIndex = g % cellsPerProc;
+            return {rank, localIndex};
+        }
+    }
+
+    void getMPICommunicationIDS(const int64_t startID, const int64_t endID, const int64_t gridSize,
                                 const std::vector<std::vector<int64_t>> &gridConnect,
                                 std::vector<int64_t> &comm_ids, 
                                 std::vector<int64_t> &comm_ids_ic,
@@ -285,9 +343,9 @@ namespace mantiis_parallel
                 {
                     comm_ids.push_back(i);
                     comm_ids_ic.push_back(ic);
-                    comm_ids_ng.push_back(gridConnect[i][ic] < startID ? cellsPerProc - (startID - gridConnect[i][ic]) : 
-                                            gridConnect[i][ic] - endID);
-                    comm_rank.push_back(gridConnect[i][ic] < startID ? (rank - 1 + numProcs) % numProcs : (rank + 1) % numProcs);
+                    auto [peer, ng] = globalToLocal(gridConnect[i][ic], gridSize);
+                    comm_ids_ng.push_back(ng);
+                    comm_rank.push_back(peer);
                 }
     }
     
@@ -406,5 +464,41 @@ namespace mantiis_parallel
                 for (int j = 0; j < cols; j++)
                     vec2d[i][j] = flat[i * cols + j];
         }
+    }
+
+    template <typename T>
+    std::vector<T> gatherToRoot(const std::vector<T>& localVec)
+    {
+        int rank, numProcs;
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
+
+        int localSize = static_cast<int>(localVec.size());
+
+        std::vector<int> recvCounts, displs;
+        if (rank == 0) 
+            recvCounts.resize(numProcs);
+
+        MPI_Gather(&localSize, 1, MPI_INT,
+                recvCounts.data(), 1, MPI_INT,
+                0, MPI_COMM_WORLD);
+        
+        std::vector<T> globalVec;
+        if (rank == 0) 
+        {
+            displs.resize(numProcs);
+            displs[0] = 0;
+            for (int i = 1; i < numProcs; i++)
+                displs[i] = displs[i - 1] + recvCounts[i - 1];
+
+            globalVec.resize(displs.back() + recvCounts.back());
+        }
+
+        MPI_Datatype dtype = MpiType<T>::type();
+        MPI_Gatherv(localVec.data(), localSize, dtype,  // adjust MPI type if T != double
+                    globalVec.data(), recvCounts.data(), displs.data(), dtype,
+                    0, MPI_COMM_WORLD);
+
+        return globalVec;
     }
 } // namespace mantiis_parallel

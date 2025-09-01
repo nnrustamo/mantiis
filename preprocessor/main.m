@@ -1,8 +1,8 @@
 close all; clear; clc
 %% Define domain parameters
 % dimensions
-ny = 16;
-nx = 16;
+ny = 1024;
+nx = 1024;
 % write to this folder
 output_folder = '../large_domain/';
 
@@ -23,17 +23,17 @@ Resolution = 1.0e-9; % m
 % pore = randomGaussianDomain(ny, nx);
 
 % pore = randomDomain(ny, nx);
-pore = simplePore(ny, nx);
+% pore = simplePore(ny, nx);
 % pore = narrowing_tube(nx, 500, 10);
 % pore = createRectangleObstacleFlowGeom(nx);
 % pore = createTriangularFlowGeom(nx);
-% pore = porous_media_circles(nx, 10, [5, 20]);
+pore = porous_media_circles(nx, 2, [250, 250]);
 
-figure(); imagesc(pore); colormap gray;
-saveas(gcf, strcat(output_folder, 'domain.png'))
+% figure(); imagesc(pore); colormap gray;
+% saveas(gcf, strcat(output_folder, 'domain.png'))
 
 % clean boundaries
-% pore = clean_boundaries(pore);
+pore = clean_boundaries(pore);
 % figure; imagesc(pore); colormap gray;
 
 % local pore size
@@ -46,12 +46,12 @@ saveas(gcf, strcat(output_folder, 'domain.png'))
 % localpore(localpore~=0) = locpore_man;
 
 %% Save
-figure(); imagesc(pore); colormap gray;
-saveas(gcf, strcat(output_folder, 'domain.png'))
-figure(); imagesc(kn); colormap jet; colorbar;
-saveas(gcf, strcat(output_folder, 'kn.png'))
-figure(); imagesc(localpore); colormap jet; colorbar;
-saveas(gcf, strcat(output_folder, 'localpore.png'))
+% figure(); imagesc(pore); colormap gray;
+% saveas(gcf, strcat(output_folder, 'domain.png'))
+% figure(); imagesc(kn); colormap jet; colorbar;
+% saveas(gcf, strcat(output_folder, 'kn.png'))
+% figure(); imagesc(localpore); colormap jet; colorbar;
+% saveas(gcf, strcat(output_folder, 'localpore.png'))
 
 savetoFile(kn, strcat(output_folder ,'Kn.dat'))
 savetoFile(localpore, strcat(output_folder ,'localporesize.dat'))

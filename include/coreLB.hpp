@@ -216,7 +216,7 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
     std::vector<int64_t> comm_rank;
 
     // set up MPI communication indices
-    mantiis_parallel::getMPICommunicationIDS(grid.startID, grid.endID,  grid.cellsPerProc,
+    mantiis_parallel::getMPICommunicationIDS(grid.startID, grid.endID,  grid.globalGridSize,
         grid.gridConnect, 
         comm_ids, comm_ids_ic, comm_ids_ng, comm_rank);    
     
@@ -247,7 +247,6 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
         calculateMultigridTauS(shape);
     else
         calculateSingleGridTaus(shape);
-
     // Extract indices
     streamingForceIC.resize(grid.localGridSize);
     streamingForceI2.resize(grid.localGridSize);
@@ -1137,16 +1136,14 @@ void LB2D::evolutionStepOfMultiBlock(int lvl) // initial value of lvl (level) is
         stream(lvl);
         applyBoundaryConditions(lvl);
     }
+
     // recursively call function itslef with lower levels
     if (lvl > 1)
-    {
         evolutionStepOfMultiBlock(lvl - 1);
-    }
+
     // interpolation start from the lowest level
     if (lvl != grid.maxLevel)
-    {   
        interpolateBlockInterface(lvl, lvl + 1);
-    }
 }
 
 void LB2D::convertToPhysicalUnits()
@@ -1162,6 +1159,9 @@ void LB2D::convertToPhysicalUnits()
 
 void LB2D::completeSingleGridDomain()
 {
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
     // Copy data
     std::vector<double> ux_copy(grid.localGridSize);
     std::vector<double> uy_copy(grid.localGridSize);
@@ -1185,25 +1185,37 @@ void LB2D::completeSingleGridDomain()
 
     // Re-allocate memory
     ux.resize(NX * NY);
+    std::fill(ux.begin(), ux.end(), 0.0);
     uy.resize(NX * NY);
+    std::fill(uy.begin(), uy.end(), 0.0);
     rho.resize(NX * NY);
+    std::fill(rho.begin(), rho.end(), 0.0);
 
+    // Gather all
+    auto ux_gathered = mantiis_parallel::gatherToRoot(ux_copy);
+    auto uy_gathered = mantiis_parallel::gatherToRoot(uy_copy);
+    auto rho_gathered = mantiis_parallel::gatherToRoot(rho_copy);
+    
     // Rewrite data with solid points
-    int64_t counter = 0;
-    for (int64_t i = 0; i < NX * NY; i++)
-    {
-        if (std::count(grid.solidID.begin(), grid.solidID.end(), i) != 0)
+    if (rank == 0)
+    {   
+        std::sort(grid.solidID.begin(), grid.solidID.end());
+        int64_t counter = 0;
+        for (int64_t i = 0; i < NX * NY; i++)
         {
-            ux[i] = 0;
-            uy[i] = 0;
-            rho[i] = 0;
-        }
-        else
-        {
-            ux[i] = ux_copy[counter];
-            uy[i] = uy_copy[counter];
-            rho[i] = rho_copy[counter];
-            counter++;
+            if (std::binary_search(grid.solidID.begin(), grid.solidID.end(), i))
+            {
+                ux[i] = 0.0;
+                uy[i] = 0.0;
+                rho[i] = 0.0;
+            }
+            else
+            {
+                ux[i] = ux_gathered[counter];
+                uy[i] = uy_gathered[counter];
+                rho[i] = rho_gathered[counter];
+                counter++;
+            }
         }
     }
 }
@@ -1232,8 +1244,11 @@ void LB2D::reconstructOriginalGrid()
 
     // Re-allocate memory
     ux.resize(NX * NY);
+    std::fill(ux.begin(), ux.end(), 0);
     uy.resize(NX * NY);
+    std::fill(uy.begin(), uy.end(), 0);
     rho.resize(NX * NY);
+    std::fill(ux.begin(), ux.end(), 0);
 
     int i, j, dim, num_child_cells;
 
