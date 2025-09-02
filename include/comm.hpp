@@ -24,6 +24,7 @@
 
 #include <mpi.h>
 #include <unistd.h>
+#include "globalParameters.hpp"
 
 constexpr int Q = 9; // hardcoded for D2Q9
 
@@ -327,6 +328,7 @@ namespace mantiis_parallel
 
     void getMPICommunicationIDS(const int64_t startID, const int64_t endID, const int64_t gridSize,
                                 const std::vector<std::vector<int64_t>> &gridConnect,
+                                const std::vector<int> &bndTypes,
                                 std::vector<int64_t> &comm_ids, 
                                 std::vector<int64_t> &comm_ids_ic,
                                 std::vector<int64_t> &comm_ids_ng, 
@@ -338,14 +340,19 @@ namespace mantiis_parallel
         MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
 
         for (int64_t i = 0; i < gridConnect.size(); i++)
-            for (int ic = 0; ic < gridConnect[i].size(); ic++)
+            for (int ic = 0; ic < Q; ic++)
                 if (gridConnect[i][ic] >= 0 && (gridConnect[i][ic] >= endID || gridConnect[i][ic] < startID))
                 {
-                    comm_ids.push_back(i);
-                    comm_ids_ic.push_back(ic);
-                    auto [peer, ng] = globalToLocal(gridConnect[i][ic], gridSize);
-                    comm_ids_ng.push_back(ng);
-                    comm_rank.push_back(peer);
+                    bool isBoundary = (bndTypes[i] != -1); // has at least 1 boundary connection
+                    bool isStream = !isBoundary || _GLOBAL_::ifStream[bndTypes[i]][ic];
+                    if (isStream)
+                    {
+                        comm_ids.push_back(i);
+                        comm_ids_ic.push_back(ic);
+                        auto [peer, ng] = globalToLocal(gridConnect[i][ic], gridSize);
+                        comm_ids_ng.push_back(ng);
+                        comm_rank.push_back(peer);
+                    }
                 }
     }
     
@@ -495,7 +502,7 @@ namespace mantiis_parallel
         }
 
         MPI_Datatype dtype = MpiType<T>::type();
-        MPI_Gatherv(localVec.data(), localSize, dtype,  // adjust MPI type if T != double
+        MPI_Gatherv(localVec.data(), localSize, dtype,
                     globalVec.data(), recvCounts.data(), displs.data(), dtype,
                     0, MPI_COMM_WORLD);
 

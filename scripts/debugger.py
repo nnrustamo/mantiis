@@ -1,6 +1,6 @@
 import re
 from decimal import Decimal, getcontext
-from pathlib import Path
+import sys
 
 # Set precision to at least 20 digits for safety
 getcontext().prec = 20
@@ -32,13 +32,15 @@ def compare_with_ground_truth(basefile, comparefiles):
         for rank, entries in test.items():
             for key, val in entries.items():
                 if key in ground_rank0:
-                    diff = val - ground_rank0[key]
-                    if diff != 0:
+                    diff = abs(val - ground_rank0[key])
+                    if diff > 1.0e-16:
                         print(f"Mismatch: rank {rank}, {key}: {val} vs {ground_rank0[key]} (diff={diff})")
 
 if __name__ == "__main__":
-    basefile = "1_procs.txt"
-    comparefiles = sorted(Path(".").glob("*_procs.txt"))
-    comparefiles = [str(f) for f in comparefiles if not str(f).startswith("1_")]
+    if len(sys.argv) < 3:
+        print("Usage: python3 compare.py basefile comparefile1 [comparefile2 ...]")
+        sys.exit(1)
 
+    basefile = sys.argv[1]
+    comparefiles = sys.argv[2:]
     compare_with_ground_truth(basefile, comparefiles)

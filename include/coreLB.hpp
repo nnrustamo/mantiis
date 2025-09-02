@@ -217,7 +217,7 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
 
     // set up MPI communication indices
     mantiis_parallel::getMPICommunicationIDS(grid.startID, grid.endID,  grid.globalGridSize,
-        grid.gridConnect, 
+        grid.gridConnect, grid.bndTypes,
         comm_ids, comm_ids_ic, comm_ids_ng, comm_rank);    
     
     // for debugging
@@ -294,6 +294,17 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
                     periodicIC.push_back(ic);
                 }
             }
+            else if (grid.gridConnect[i][ic] != -1 && (grid.gridConnect[i][ic] < grid.startID || grid.gridConnect[i][ic] >= grid.endID))
+            {
+                bool isBoundary = (grid.bndTypes[i] != -1); // has at least 1 boundary connection
+                bool isStream = !isBoundary || ifStream[grid.bndTypes[i]][ic];
+                if (!isStream)
+                {
+                    boundaryID.push_back(i);
+                    boundaryIC.push_back(ic);
+                    vtemp2.push_back(ic);
+                }
+            }
             else if (grid.gridConnect[i][ic] == -1 && !ifStream[grid.bndTypes[i]][ic])
             {
                 boundaryID.push_back(i);
@@ -349,13 +360,12 @@ void LB2D::initialize()
 void LB2D::equilibrium()
 {
     int64_t k_ic;
-#pragma ompomp parallel for default(shared) private(k_ic)
+#pragma omp parallel for default(shared) private(k_ic)
     for (int64_t k = 0; k < grid.localGridSize; k++)
     {
         k_ic = k * NC;
         for (int ic = 0; ic < NC; ic++)
             feq[k_ic + ic] = W[ic] * rho[k] * (1.0 + F1 * (latt.e_x[ic] * ux[k] + latt.e_y[ic] * uy[k]) + F2 * pow(latt.e_x[ic] * ux[k] + latt.e_y[ic] * uy[k], 2) - F3 * usq[k]);
-
     }
 }
 
@@ -629,7 +639,7 @@ void LB2D::MRTCollisionNonRegularized(int lvl = 1)
     std::vector<double> tempMat3(NC, 0);
     std::vector<double> tempMat4(NC, 0);
     int64_t k_ic;
-    #pragma omp parallel for default(shared) private(k_ic) firstprivate(R, tempMat1, tempMat2, tempMat3, tempMat4)
+#pragma omp parallel for default(shared) private(k_ic) firstprivate(R, tempMat1, tempMat2, tempMat3, tempMat4)
     for (int64_t k = 0; k < grid.localGridSize; k++)
     {
         if (grid.gridLevel[k] == lvl)
@@ -746,24 +756,50 @@ void LB2D::applyBoundaryConditions(int lvl = 1)
 {
     (this->*wallBoundaryMethod)(lvl);
     (this->*openBoundaryMethod)(lvl);
+
+    // uncomment this to prepare data for scripts/debugger.py to analyze bugs
+    // int rank;
+    // MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    // std::ofstream fout("f_output_rank_" + std::to_string(rank) + ".txt");
+    // for (int64_t i = 0; i < grid.localGridSize; i++)
+    // {   
+    //     for (int64_t ic = 0; ic < NC; ic++)
+    //     {
+    //         fout << "rank = " << rank << ", f[" << i + grid.startID << "][" << ic << "] = " << std::setprecision(16) << f[i * NC + ic] << std::endl;
+    //     }
+    // }
+    // fout.close();
 }
 
 // Streaming steps
 void LB2D::stream(int lvl = 1)
 {
 // std::fill(f.begin(), f.end(), 0);
-#pragma ompomp parallel for default(shared)
+#pragma omp parallel for default(shared)
     for (int64_t i = 0; i < streamID.size(); i++)
         if (grid.gridLevel[streamID[i]] == lvl)
             f[streamLOC[i] * NC + streamIC[i]] = ftemp[streamID[i] * NC + streamIC[i]];
 
     mpi_comm_manager->exchange(f, ftemp, MPI_COMM_WORLD);
+    
+    // uncomment this to prepare data for scripts/debugger.py to analyze bugs
+    // int rank;
+    // MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    // std::ofstream fout("f_output_rank_" + std::to_string(rank) + ".txt");
+    // for (int64_t i = 0; i < grid.localGridSize; i++)
+    // {   
+    //     for (int64_t ic = 0; ic < NC; ic++)
+    //     {
+    //         fout << "rank = " << rank << ", f[" << i + grid.startID << "][" << ic << "] = " << std::setprecision(16) << f[i * NC + ic] << std::endl;
+    //     }
+    // }
+    // fout.close();
 }
 
 // Simple halfway bounce back wall boundary
 void LB2D::BBWall(int lvl = 1)
 {
-#pragma ompomp parallel for default(shared)
+#pragma omp parallel for default(shared)
     for (int64_t i = 0; i < boundaryID.size(); i++)
         if (grid.gridLevel[boundaryID[i]] == lvl)
             f[boundaryID[i] * NC + latt.icOpp[boundaryIC[i]]] = ftemp[boundaryID[i] * NC + boundaryIC[i]];
@@ -823,7 +859,7 @@ void LB2D::getBoundaryTypes()
 void LB2D::SRBBWall(int lvl = 1)
 {
     int srOpp;
-#pragma ompomp parallel for default(shared) private(srOpp)
+#pragma omp parallel for default(shared) private(srOpp, r)
     for (int64_t i = 0; i < boundaryID.size(); i++)
         if (grid.gridLevel[boundaryID[i]] == lvl)
         {   
@@ -873,7 +909,7 @@ void LB2D::MDBBWall(int lvl = 1)
 
 void LB2D::periodicBoundary(int lvl)
 {
-#pragma ompomp parallel for default(shared)
+#pragma omp parallel for default(shared)
     for (int64_t i = 0; i < periodicID.size(); i++)
     {
         if (grid.gridLevel[periodicID[i]] == lvl)
@@ -1064,7 +1100,7 @@ void LB2D::interpolateBlockInterface(int l1, int l2)
 
 void LB2D::zeroDown(int lvl = 1)
 {
-#pragma ompomp parallel for default(shared)
+#pragma omp parallel for default(shared)
     for (int64_t i = 0; i < grid.localGridSize; i++)
     {
         if (grid.gridLevel[i] == lvl)
@@ -1148,7 +1184,7 @@ void LB2D::evolutionStepOfMultiBlock(int lvl) // initial value of lvl (level) is
 
 void LB2D::convertToPhysicalUnits()
 {
-    #pragma ompomp parallel for default(shared)
+    #pragma omp parallel for default(shared)
     for (int64_t i = 0; i < grid.localGridSize; i++)
     {
         ux[i] = ux[i] * Cu;
@@ -1167,7 +1203,7 @@ void LB2D::completeSingleGridDomain()
     std::vector<double> uy_copy(grid.localGridSize);
     std::vector<double> rho_copy(grid.localGridSize);
 
-    #pragma ompomp parallel for default(shared)
+    #pragma omp parallel for default(shared)
     for (int64_t i = 0; i < grid.localGridSize; i++)
     {
         ux_copy[i] = ux[i];

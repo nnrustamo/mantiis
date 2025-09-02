@@ -1,6 +1,6 @@
 import sys
 
-def compare_files(file1, file2, tol=1e-10):
+def compare_files(file1, file2, tol=1e-20):
     with open(file1, 'r') as f:
         nums1 = [float(line.strip()) for line in f if line.strip()]
 

@@ -1393,7 +1393,7 @@ void Grid2D::debugPrintVectors() const
         std::cout << name << " (size: " << vec.size() << "): ";
         for (const auto &val : vec)
         {
-            std::cout << val << " ";
+            std::cout << val << "\n";
         }
         std::cout << std::endl;
     };
