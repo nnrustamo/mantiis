@@ -1,8 +1,8 @@
 close all; clear; clc
 %% Define domain parameters
 % dimensions
-ny = 2048;
-nx = 2048;
+ny = 5000;
+nx = 5000;
 % write to this folder
 output_folder = '../large_domain/';
 
@@ -13,8 +13,13 @@ Resolution = 1.0e-9; % m
 [~, ~, mean_free_path] = thermodynamicProperties(Pressure, Temperature);
 
 % create a domain or load existing one
-% pore = loadTxtFile("../porous_media/pore_raw.txt");
-% pore = reshape(pore, [ny, nx]);
+pore = loadTxtFile("pore_raw.txt");
+% disp(pore)
+pore = reshape(pore, [ny, nx]);
+pore(2:end-1, 1:floor(0.1*nx)) = 1;
+pore(2:end-1, nx-floor(0.1*nx):end) = 1;
+% disp(pore)
+
 % pore(:, 1:25) = 1;
 % pore(:, end-24:end) = 1;
 % pore(1, :) = 0;
@@ -27,7 +32,7 @@ Resolution = 1.0e-9; % m
 % pore = narrowing_tube(nx, 500, 10);
 % pore = createRectangleObstacleFlowGeom(nx);
 % pore = createTriangularFlowGeom(nx);
-pore = porous_media_circles(nx, 300, [16, 256]);
+% pore = porous_media_circles(nx, 300, [16, 256]);
 
 % figure(); imagesc(pore); colormap gray;
 % saveas(gcf, strcat(output_folder, 'domain.png'))
