@@ -73,6 +73,7 @@ public:
     // Depending on boundary types and simulation conditions
     std::vector<int> pore;
     std::vector<double> rho;
+    std::vector<double> rho_old;
     std::vector<double> ux;
     std::vector<double> uy;
     std::vector<double> Fx;
@@ -140,7 +141,7 @@ public:
 
     void calculateForces();
 
-    void ApplySourceTerm();
+    void applySourceTerm();
 
     void matMulLin(const std::vector<double> &, const std::vector<double> &, std::vector<double> &);
 
@@ -180,11 +181,17 @@ public:
 
     void calculateMacroscopicPorperties();
 
+    void calculateDensity();
+
+    void calculateVelocity();
+
     void interpolateBlockInterface(int, int);
 
     void zeroDown(int);
 
     void calculateVelocityDifference();
+
+    void calculateDensityDifference();
 
     void simulate(double, int, int);
 
@@ -326,6 +333,7 @@ void LB2D::initialize()
 {
     // Initialize distributions and other variables
     rho.resize(grid.localGridSize);
+    rho_old.resize(grid.localGridSize);
     ux.resize(grid.localGridSize);
     uy.resize(grid.localGridSize);
     uxsq.resize(grid.localGridSize);
@@ -338,6 +346,9 @@ void LB2D::initialize()
     fb.resize(grid.localGridSize * NC);
     ftemp.resize(grid.localGridSize * NC);
     fneq.resize(grid.localGridSize * NC);
+    psi.resize(grid.localGridSize);
+    Fx.resize(grid.localGridSize);
+    Fy.resize(grid.localGridSize);
     std::fill(rho.begin(), rho.end(), rhoin);
     std::fill(ux.begin(), ux.end(), 0.0);
     std::fill(uy.begin(), uy.end(), 0.0);
@@ -455,9 +466,11 @@ void LB2D::getLocalMFP()
 void LB2D::getPseudoPotential()
 {
     double acc;
+#pragma omp parallelgma omp parallel for default(shared) private(acc)
     for (int64_t i = 0; i < grid.localGridSize; i++)
     {
-        acc = (rho[i] / Mw_lu * R_lu * T_lu / (1 - b_lu * rho[i] / Mw_lu) - a_alpha_lu * rho[i] / Mw_lu * rho[i] / Mw_lu / (1 + 2 * b_lu * rho[i] / Mw_lu - b_lu * b_lu * rho[i] / Mw_lu * rho[i] / Mw_lu) - (1.0 / 3.0) * rho[i]) / (3.0 * Gff);
+        double molar_density = rho[i] / Mw_lu;
+        acc = (molar_density * R_lu * T_lu / (1 - b_lu * molar_density) - a_alpha_lu * molar_density * molar_density / (1 + 2 * b_lu * molar_density - b_lu * b_lu * molar_density * molar_density) - (1.0 / 3.0) * rho[i]) / (3.0 * Gff);
         if (acc < 0)
         {
             std::cout << "pseudo potential is complex" << std::endl;
@@ -470,8 +483,6 @@ void LB2D::getPseudoPotential()
 
 void LB2D::calculateForces()
 {
-    getPseudoPotential();
-
     int64_t ic_curr, i_nex;
     double Fx_ff, Fy_ff, Fx_fw, Fy_fw;
     for (int64_t i = 0; i < grid.localGridSize; i++)
@@ -505,14 +516,14 @@ void LB2D::calculateForces()
     }
 }
 
-void LB2D::ApplySourceTerm()
+void LB2D::applySourceTerm()
 {
     int64_t k_ic;
     double cDotF;
     std::vector<double> uF(4);
     std::vector<double> ccs(4);
     std::vector<double> S(NC);
-    std::vector<double> tempMat1(NC);
+    std::vector<double> tempMat1(NC*NC);
     std::vector<double> tempMat2(NC);
     std::vector<double> tempMat3(NC);
     std::vector<double> tempMat4(NC);
@@ -524,7 +535,6 @@ void LB2D::ApplySourceTerm()
 
         for (int64_t ic = 0; ic < NC; ic++)
         {
-
             cDotF = latt.e_x[ic] * Fx[k] + latt.e_y[ic] * Fy[k];
 
             ccs = {(double)latt.e_x[ic] * latt.e_x[ic] - CS2, (double)latt.e_x[ic] * latt.e_y[ic],
@@ -935,7 +945,7 @@ void LB2D::calculateMacroscopicPorperties()
 #pragma omp parallel for default(shared) reduction(+ : jx, jy) private(k_ic)
     for (int64_t i = 0; i < grid.localGridSize; i++)
     {
-        jx = 0, jy = 0;
+        jx = 0; jy = 0;
 
         rho[i] = 0;
         k_ic = i * NC;
@@ -951,6 +961,51 @@ void LB2D::calculateMacroscopicPorperties()
 
         ux[i] = jx / rho[i] + Fbody / (2.0 * rho[i]) * pow(2.0, grid.gridLevel[i] - 1);
         uy[i] = jy / rho[i];
+
+        uxsq[i] = ux[i] * ux[i];
+        uysq[i] = uy[i] * uy[i];
+        usq[i] = uxsq[i] + uysq[i];
+
+        // TODO
+        if (ux[i] < 0)
+        {
+            // std::cout<<"negative velocity detected\n";
+            // std::cout<<"Cell id: "<<grid.gridIJ[i][0]<<" "<<grid.gridIJ[i][1]<<std::endl;
+            // exit(1);
+        }
+    }
+}
+
+void LB2D::calculateDensity()
+{
+    int64_t k_ic;
+#pragma omp parallel for default(shared) private(k_ic)
+    for (int64_t i = 0; i < grid.localGridSize; i++)
+    {
+        rho[i] = 0;
+        k_ic = i * NC;
+        for (int64_t ic = 0; ic < NC; ic++)
+            rho[i] += f[k_ic + ic];
+    }
+}
+
+void LB2D::calculateVelocity()
+{
+    double jx = 0, jy = 0;
+    int64_t k_ic;
+#pragma omp parallel for default(shared) reduction(+ : jx, jy) private(k_ic)
+    for (int64_t i = 0; i < grid.localGridSize; i++)
+    {
+        jx = 0; jy = 0;
+        k_ic = i * NC;
+        for (int64_t ic = 0; ic < NC; ic++)
+        {
+            jx += f[k_ic + ic] * latt.e_x[ic];
+            jy += f[k_ic + ic] * latt.e_y[ic];
+        }
+
+        ux[i] = jx / rho[i] + Fx[i] / (2.0 * rho[i]) * pow(2.0, grid.gridLevel[i] - 1);
+        uy[i] = jy / rho[i] + Fy[i] / (2.0 * rho[i]) * pow(2.0, grid.gridLevel[i] - 1);;
 
         uxsq[i] = ux[i] * ux[i];
         uysq[i] = uy[i] * uy[i];
@@ -1131,6 +1186,22 @@ void LB2D::calculateVelocityDifference()
     MPI_Reduce(&sum2, &sum2_cum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
     diff = sum1_cum / sum2_cum;
     MPI_Bcast(&diff, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    diff_over_time.push_back(diff);
+}
+
+void LB2D::calculateDensityDifference()
+{   
+    double local_max = 0.0;
+
+#pragma omp parallel for default(shared) reduction(max : local_max)
+    for (int64_t i = 0; i < grid.localGridSize; i++)
+    {
+        auto rho_diff = std::abs(rho[i] - rho_old[i]) / rho_old[i];
+        if (rho_diff > local_max)
+            local_max = rho_diff;
+    }
+    if (local_max < 1.0e-15) local_max = 1.0e-5;
+    MPI_Allreduce(&local_max, &diff, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
     diff_over_time.push_back(diff);
 }
 

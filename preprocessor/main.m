@@ -1,8 +1,8 @@
 close all; clear; clc
 %% Define domain parameters
 % dimensions
-ny = 5000;
-nx = 5000;
+ny = 100;
+nx = 100;
 % write to this folder
 output_folder = '../large_domain/';
 
@@ -13,11 +13,11 @@ Resolution = 1.0e-9; % m
 [~, ~, mean_free_path] = thermodynamicProperties(Pressure, Temperature);
 
 % create a domain or load existing one
-pore = loadTxtFile("pore_raw.txt");
+% pore = loadTxtFile("pore_raw.txt");
 % disp(pore)
-pore = reshape(pore, [ny, nx]);
-pore(2:end-1, 1:floor(0.1*nx)) = 1;
-pore(2:end-1, nx-floor(0.1*nx):end) = 1;
+% pore = reshape(pore, [ny, nx]);
+% pore(2:end-1, 1:floor(0.1*nx)) = 1;
+% pore(2:end-1, nx-floor(0.1*nx):end) = 1;
 % disp(pore)
 
 % pore(:, 1:25) = 1;
@@ -28,7 +28,7 @@ pore(2:end-1, nx-floor(0.1*nx):end) = 1;
 % pore = randomGaussianDomain(ny, nx);
 
 % pore = randomDomain(ny, nx);
-% pore = simplePore(ny, nx);
+pore = simplePore(ny, nx);
 % pore = narrowing_tube(nx, 500, 10);
 % pore = createRectangleObstacleFlowGeom(nx);
 % pore = createTriangularFlowGeom(nx);
