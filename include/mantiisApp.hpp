@@ -217,13 +217,13 @@ public:
         lb->calculateForces();
         lb->calculateVelocity();
         lb->equilibrium();
-        lb->fb = lb->f; // save precollision
         lb->MRTCollisionNonRegularized();
         lb->applySourceTerm();
         lb->ftemp = lb->f; // save pre streaming
         lb->zeroDown();
         lb->stream();
         lb->BBWall();
+        lb->periodicBoundary();
         lb->calculateDensityDifference();
     }
 

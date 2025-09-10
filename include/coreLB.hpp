@@ -299,6 +299,8 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
                     periodicID.push_back(i);
                     periodicI2.push_back(neighbor);
                     periodicIC.push_back(ic);
+                    vtemp1.push_back(ic);
+                    vtemp3.push_back(neighbor);
                 }
             }
             else if (grid.gridConnect[i][ic] != -1 && (grid.gridConnect[i][ic] < grid.startID || grid.gridConnect[i][ic] >= grid.endID))
@@ -917,7 +919,7 @@ void LB2D::MDBBWall(int lvl = 1)
     }
 }
 
-void LB2D::periodicBoundary(int lvl)
+void LB2D::periodicBoundary(int lvl = 1)
 {
 #pragma omp parallel for default(shared)
     for (int64_t i = 0; i < periodicID.size(); i++)
