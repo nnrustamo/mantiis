@@ -114,6 +114,8 @@ public:
     std::vector<std::vector<int64_t>> streamingForceI2;
     std::vector<std::vector<int>> bouncingForceIC;
 
+    std::vector<int64_t> f_counter;
+
     //
     double diff = 1.0;
     std::vector<double> diff_over_time;
@@ -349,6 +351,17 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
             generalizedPeriodicInlet2.push_back(i);
         else if (grid.gridIJ[i][1] == i_out && grid.gridIJ[i][0] == j_out - 1)
             generalizedPeriodicOutlet2.push_back(i);
+    }
+
+    if (rank == 0) 
+    {
+        int64_t counter = 0;
+        for (int64_t i = 0; i < NX * NY; i++)
+            if (!std::binary_search(grid.solidID.begin(), grid.solidID.end(), i)) 
+            {
+                f_counter.push_back(counter);
+                counter++;
+            }
     }
 }
 
@@ -1603,14 +1616,11 @@ std::vector<double> LB2D::prepareDistributions()
     std::vector<double> f_global(NX * NY * NC, 0.0);
     if (rank == 0) 
     {
-        int64_t counter = 0;
-        for (int64_t i = 0; i < NX * NY; i++)
-            if (!std::binary_search(grid.solidID.begin(), grid.solidID.end(), i)) 
-            {
-                for (int64_t ic = 0; ic < NC; ic++)
-                    f_global[i * NC + ic] = f_gathered[counter * NC + ic];
-                counter++;
-            }
+        for (int64_t i = 0; i < f_counter.size(); i++)
+        {
+            for (int64_t ic = 0; ic < NC; ic++)
+                f_global[i * NC + ic] = f_gathered[f_counter[i] * NC + ic];
+        }
     }
     return f_global;
 }

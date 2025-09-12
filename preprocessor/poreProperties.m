@@ -50,7 +50,7 @@ function [Kn, locporesize, pore, BW3] = poreProperties(pore, lamb, Cl)
         for i =1:ny
             for j =1:nx
                 % the case where pore size is too small
-                if pore(i, j) == 1 && locporesize(i, j) < 5
+                if pore(i, j) == 1 && locporesize(i, j) < 2
                     pore(i, j) = 0;
                 end
             end

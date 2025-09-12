@@ -1,10 +1,10 @@
 close all; clear; clc
 %% Define domain parameters
 % dimensions
-ny = 100;
-nx = 100;
+ny = 1024;
+nx = 1024;
 % write to this folder
-output_folder = '../large_domain/';
+output_folder = '/home/nrustamo/projects/HNO/image_generation/images/nx1024_ny1024_scaling0.8_sigma50_octave40/';
 
 % physical conditions
 Pressure = 2.0e6; % Pa
@@ -13,22 +13,23 @@ Resolution = 1.0e-9; % m
 [~, ~, mean_free_path] = thermodynamicProperties(Pressure, Temperature);
 
 % create a domain or load existing one
-% pore = loadTxtFile("pore_raw.txt");
+pore = readBinaryMatrix(output_folder + "binary_image.txt");
 % disp(pore)
 % pore = reshape(pore, [ny, nx]);
-% pore(2:end-1, 1:floor(0.1*nx)) = 1;
-% pore(2:end-1, nx-floor(0.1*nx):end) = 1;
+pore(:, 1:50) = 1;
+pore(:, end-51:end) = 1;
+pore(1, :) = 0;
+pore(end, :) = 0;
 % disp(pore)
 
 % pore(:, 1:25) = 1;
 % pore(:, end-24:end) = 1;
-% pore(1, :) = 0;
-% pore(end, :) = 0;
+
 
 % pore = randomGaussianDomain(ny, nx);
 
 % pore = randomDomain(ny, nx);
-pore = simplePore(ny, nx);
+% pore = simplePore(ny, nx);
 % pore = narrowing_tube(nx, 500, 10);
 % pore = createRectangleObstacleFlowGeom(nx);
 % pore = createTriangularFlowGeom(nx);
@@ -51,12 +52,12 @@ pore = clean_boundaries(pore);
 % localpore(localpore~=0) = locpore_man;
 
 %% Save
-% figure(); imagesc(pore); colormap gray;
-% saveas(gcf, strcat(output_folder, 'domain.png'))
-% figure(); imagesc(kn); colormap jet; colorbar;
-% saveas(gcf, strcat(output_folder, 'kn.png'))
-% figure(); imagesc(localpore); colormap jet; colorbar;
-% saveas(gcf, strcat(output_folder, 'localpore.png'))
+figure(); imagesc(pore); colormap gray;
+saveas(gcf, strcat(output_folder, 'domain.png'))
+figure(); imagesc(kn); colormap jet; colorbar;
+saveas(gcf, strcat(output_folder, 'kn.png'))
+figure(); imagesc(localpore); colormap jet; colorbar;
+saveas(gcf, strcat(output_folder, 'localpore.png'))
 
 savetoFile(kn, strcat(output_folder ,'Kn.dat'))
 savetoFile(localpore, strcat(output_folder ,'localporesize.dat'))

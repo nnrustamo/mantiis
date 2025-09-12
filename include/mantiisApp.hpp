@@ -68,7 +68,7 @@ public:
     int iters;
 
 private:
-    std::thread writer_thread; // persistent writer thread
+    std::vector<std::thread> writer_threads; 
 
     bool load_existing_model = 1;
     bool dump_final_results = 1;
@@ -282,26 +282,41 @@ public:
                 if (lb->diff < tol)
                     break;
 
-                lb->t++;
-
                 if (lb->t < dump_distributions_first_timestep) 
                 {
                     auto f_intermediate = lb->prepareDistributions();
                     fName = folder + "f_" + std::to_string(lb->t) + ".txt";
                     if (proc_id == 0)
                     {
-                        if (writer_thread.joinable()) 
+                        // Join and remove finished threads to avoid resource leaks
+                        for (auto it = writer_threads.begin(); it != writer_threads.end(); )
                         {
-                            writer_thread.join(); // Wait for previous write to finish
+                            if (it->joinable())
+                            {
+                                it->join();
+                                it = writer_threads.erase(it);
+                            }
+                            else
+                            {
+                                ++it;
+                            }
                         }
-                        writer_thread = std::thread(&WriterThread<double>::write, fName, f_intermediate);
+                        // Launch a new thread for writing
+                        writer_threads.emplace_back(&WriterThread<double>::write, fName, std::move(f_intermediate));
                     }
                 }
+
+                lb->t++;
             }
-            // After loop, ensure last write finishes
-            if (proc_id == 0 && writer_thread.joinable()) 
+            // join all threads
+            if (proc_id == 0)
             {
-                writer_thread.join();
+                for (auto& t : writer_threads)
+                {
+                    if (t.joinable())
+                        t.join();
+                }
+                writer_threads.clear();
             }
         };
 
@@ -336,14 +351,18 @@ public:
             throw std::runtime_error("Unknown simulation type: " + simulation_type);
         }
 
+        std::vector<double> f_intermediate;
         if (dump_final_results)
-        {
+        {   
             // lb->convertToPhysicalUnits();
             lb->completeSingleGridDomain();
+            f_intermediate = lb->prepareDistributions();
         }
 
         if (proc_id == 0 && dump_final_results)
         {   
+            IO::writeVectorToFile(folder + "f.txt", f_intermediate);
+
             IO::writeVectorToFile(folder + "ux.txt", lb->ux);
             IO::writeVectorToFile(folder + "uy.txt", lb->uy);
             IO::writeVectorToFile(folder + "rho.txt", lb->rho);
@@ -358,6 +377,7 @@ public:
             auto end = high_resolution_clock::now();
             auto duration = duration_cast<milliseconds>(end - start);
             std::cout << "Total run time (milliseconds) " << std::setprecision(15) << duration.count() << std::endl;
+            simulationDetails << "Total run time (milliseconds): " << std::setprecision(15) << duration.count();
         }
     }
     ~MantiisApp(){MPI_Finalize();}
