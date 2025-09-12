@@ -32,7 +32,7 @@ pore = simplePore(ny, nx);
 % pore = narrowing_tube(nx, 500, 10);
 % pore = createRectangleObstacleFlowGeom(nx);
 % pore = createTriangularFlowGeom(nx);
-% pore = porous_media_circles(nx, 300, [16, 256]);
+% pore = porous_media_circles(nx, 10, [10, 20]);
 
 % figure(); imagesc(pore); colormap gray;
 % saveas(gcf, strcat(output_folder, 'domain.png'))

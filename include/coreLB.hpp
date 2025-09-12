@@ -38,7 +38,7 @@
 #include "grid.hpp"
 #include "comm.hpp"
 
-using namespace _GLOBAL_; // not the best way
+// using namespace _GLOBAL_; // not the best way
 
 class LB2D
 {
@@ -58,7 +58,7 @@ public:
     // ================================================= Simulation domain
     int NX;
     int NY;
-    double resolution = Cl;
+    double resolution = _GLOBAL_::Cl;
     int t = 0;
 
     // ================================================= D2Q9 lattice structure
@@ -173,9 +173,9 @@ public:
 
     void periodicBoundary(int);
 
-    void pressureBoundary(int);
+    void generalizedPeriodicBoundaryAdsorption(int);
 
-    void generalizedPeriodicBoundary(int);
+    void generalizedPeriodicBoundaryTransport(int);
 
     void applyBoundaryConditions(int);
 
@@ -264,6 +264,18 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
     std::vector<int> vtemp2;
     std::vector<int64_t> vtemp3;
 
+    // inlet outlet 
+    int ny_c;
+    if (NY % 2 == 1)
+        ny_c = (NY + 1) / 2 - 1;
+    else
+        ny_c = NY / 2 - 1;
+
+    int i_in = ny_c;
+    int j_in = 0;
+    int i_out = ny_c;
+    int j_out = NX - 1;
+
     for (int64_t i = 0; i < grid.localGridSize; i++)
     {
         for (int ic = 0; ic < NC; ic++)
@@ -278,7 +290,7 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
                 if (!is_x_periodic && !is_y_periodic)
                 {    
                     bool isBoundary = (grid.bndTypes[i] != -1); // has at least 1 boundary connection
-                    bool isStream  = !isBoundary || ifStream[grid.bndTypes[i]][ic];
+                    bool isStream  = !isBoundary || _GLOBAL_::ifStream[grid.bndTypes[i]][ic];
                     if (isStream) // (-1) represents no boundary connections
                     {
                         streamID.push_back(i);
@@ -306,7 +318,7 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
             else if (grid.gridConnect[i][ic] != -1 && (grid.gridConnect[i][ic] < grid.startID || grid.gridConnect[i][ic] >= grid.endID))
             {
                 bool isBoundary = (grid.bndTypes[i] != -1); // has at least 1 boundary connection
-                bool isStream = !isBoundary || ifStream[grid.bndTypes[i]][ic];
+                bool isStream = !isBoundary || _GLOBAL_::ifStream[grid.bndTypes[i]][ic];
                 if (!isStream)
                 {
                     boundaryID.push_back(i);
@@ -314,7 +326,7 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
                     vtemp2.push_back(ic);
                 }
             }
-            else if (grid.gridConnect[i][ic] == -1 && !ifStream[grid.bndTypes[i]][ic])
+            else if (grid.gridConnect[i][ic] == -1 && !_GLOBAL_::ifStream[grid.bndTypes[i]][ic])
             {
                 boundaryID.push_back(i);
                 boundaryIC.push_back(ic);
@@ -327,6 +339,16 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
         vtemp1.clear();
         vtemp2.clear();
         vtemp3.clear();
+
+        // inlet outlet 
+        if (grid.gridIJ[i][1] == i_in && grid.gridIJ[i][0] == j_in)
+            generalizedPeriodicInlet.push_back(i);
+        else if (grid.gridIJ[i][1] == i_out && grid.gridIJ[i][0] == j_out)
+            generalizedPeriodicOutlet.push_back(i);
+        else if (grid.gridIJ[i][1] == i_in && grid.gridIJ[i][0] == j_in + 1)
+            generalizedPeriodicInlet2.push_back(i);
+        else if (grid.gridIJ[i][1] == i_out && grid.gridIJ[i][0] == j_out - 1)
+            generalizedPeriodicOutlet2.push_back(i);
     }
 }
 
@@ -351,7 +373,7 @@ void LB2D::initialize()
     psi.resize(grid.localGridSize);
     Fx.resize(grid.localGridSize);
     Fy.resize(grid.localGridSize);
-    std::fill(rho.begin(), rho.end(), rhoin);
+    std::fill(rho.begin(), rho.end(), _GLOBAL_::rhoin);
     std::fill(ux.begin(), ux.end(), 0.0);
     std::fill(uy.begin(), uy.end(), 0.0);
     std::fill(f.begin(), f.end(), 0.0);
@@ -406,7 +428,7 @@ void LB2D::calculateMultigridTauS(Shape &shape)
             }
         }
         // Calculate props
-        resizedShape.calculateProperties(resolution / resizingFactor, mfp);
+        resizedShape.calculateProperties(resolution / resizingFactor, _GLOBAL_::mfp);
         // Calculate taus
         std::vector<std::vector<double>> tau_level;
         tau_level.resize(resizedBinaryImage.size(), std::vector<double>(resizedBinaryImage[0].size(), 0.0));
@@ -459,8 +481,8 @@ void LB2D::getLocalMFP()
 {
     for (int64_t i = 0; i < grid.localGridSize; i++)
     {
-        mfp = 1.0 / (sqrt(2.0) * Crho_mol * rho[i] / Mw_lu * NA * M_PI * (2 * d_mol / 2.0 + 2 * d_mol / 2.0) * (2 * d_mol / 2.0 + 2 * d_mol / 2.0)); // pow(d_mol, (double)2.0));
-        grid.kn[i] = mfp / (grid.locpore[i] * Cl);
+        _GLOBAL_::mfp = 1.0 / (sqrt(2.0) * _GLOBAL_::Crho_mol * rho[i] / _GLOBAL_::Mw_lu * _GLOBAL_::NA * M_PI * (2 * _GLOBAL_::d_mol / 2.0 + 2 * _GLOBAL_::d_mol / 2.0) * (2 * _GLOBAL_::d_mol / 2.0 + 2 * _GLOBAL_::d_mol / 2.0)); // pow(_GLOBAL_::d_mol, (double)2.0));
+        grid.kn[i] = _GLOBAL_::mfp / (grid.locpore[i] * _GLOBAL_::Cl);
     }
 }
 
@@ -471,8 +493,8 @@ void LB2D::getPseudoPotential()
 #pragma omp parallelgma omp parallel for default(shared) private(acc)
     for (int64_t i = 0; i < grid.localGridSize; i++)
     {
-        double molar_density = rho[i] / Mw_lu;
-        acc = (molar_density * R_lu * T_lu / (1 - b_lu * molar_density) - a_alpha_lu * molar_density * molar_density / (1 + 2 * b_lu * molar_density - b_lu * b_lu * molar_density * molar_density) - (1.0 / 3.0) * rho[i]) / (3.0 * Gff);
+        double molar_density = rho[i] / _GLOBAL_::Mw_lu;
+        acc = (molar_density * _GLOBAL_::R_lu * _GLOBAL_::T_lu / (1 - _GLOBAL_::b_lu * molar_density) - _GLOBAL_::a_alpha_lu * molar_density * molar_density / (1 + 2 * _GLOBAL_::b_lu * molar_density - _GLOBAL_::b_lu * _GLOBAL_::b_lu * molar_density * molar_density) - (1.0 / 3.0) * rho[i]) / (3.0 * _GLOBAL_::Gff);
         if (acc < 0)
         {
             std::cout << "pseudo potential is complex" << std::endl;
@@ -500,20 +522,20 @@ void LB2D::calculateForces()
             ic_curr = streamingForceIC[i][icx];
             i_nex = streamingForceI2[i][icx];
 
-            Fx_ff += (-6.0) * Gff * psi[i] * wf[ic_curr] * psi[i_nex] * latt.e_x[ic_curr];
+            Fx_ff += (-6.0) * _GLOBAL_::Gff * psi[i] * _GLOBAL_::wf[ic_curr] * psi[i_nex] * latt.e_x[ic_curr];
 
-            Fy_ff += (-6.0) * Gff * psi[i] * wf[ic_curr] * psi[i_nex] * latt.e_y[ic_curr];
+            Fy_ff += (-6.0) * _GLOBAL_::Gff * psi[i] * _GLOBAL_::wf[ic_curr] * psi[i_nex] * latt.e_y[ic_curr];
         }
 
         // the part where next node is a wall
         for (int icx = 0; icx < bouncingForceIC[i].size(); icx++)
         {
             ic_curr = bouncingForceIC[i][icx];
-            Fx_fw += (-1.0) * Gfs * psi[i] * psi[i] * wf[ic_curr] * latt.e_x[ic_curr];
-            Fy_fw += (-1.0) * Gfs * psi[i] * psi[i] * wf[ic_curr] * latt.e_y[ic_curr];
+            Fx_fw += (-1.0) * _GLOBAL_::Gfs * psi[i] * psi[i] * _GLOBAL_::wf[ic_curr] * latt.e_x[ic_curr];
+            Fy_fw += (-1.0) * _GLOBAL_::Gfs * psi[i] * psi[i] * _GLOBAL_::wf[ic_curr] * latt.e_y[ic_curr];
         }
 
-        Fx[i] = Fx_ff + Fx_fw + Fbody;
+        Fx[i] = Fx_ff + Fx_fw + _GLOBAL_::Fbody;
         Fy[i] = Fy_ff + Fy_fw;
     }
 }
@@ -552,10 +574,10 @@ void LB2D::applySourceTerm()
 
         // relaxation parameters
         // double tau_s = 0.5 + sqrt((double)(6.0 / M_PI)) * (localPoreSize[k] - 1) * Kn[k] / (1.0 + 2.0 * Kn[k]);
-        double tau_q = 0.5 + (3.0 + M_PI * (2.0 * taus[k] - 1.0) * (2.0 * taus[k] - 1.0) * A2) / (8.0 * (2.0 * taus[k] - 1.0));
-        double tau_d = 0.5 + (3.0 / 2.0) * sqrt((double)3.0) * 1.0 / pow((double)(1.0 / sqrt((double)(mfp / Cl * 1.0 / (1.0 + 2.0 * grid.kn[k]))) * 2.0), (double)2.0);
+        double tau_q = 0.5 + (3.0 + M_PI * (2.0 * taus[k] - 1.0) * (2.0 * taus[k] - 1.0) * _GLOBAL_::A2) / (8.0 * (2.0 * taus[k] - 1.0));
+        double tau_d = 0.5 + (3.0 / 2.0) * sqrt((double)3.0) * 1.0 / pow((double)(1.0 / sqrt((double)(_GLOBAL_::mfp / _GLOBAL_::Cl * 1.0 / (1.0 + 2.0 * grid.kn[k]))) * 2.0), (double)2.0);
 
-        R = {
+        _GLOBAL_::R = {
             1.0 / 1.0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             1.0 / 1.1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             1.0 / 1.2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -568,14 +590,14 @@ void LB2D::applySourceTerm()
 
         // I - 1/2* R
         for (int u = 0; u < NC * NC; u++)
-            tempMat1[u] = I[u] - 0.5 * R[u];
+            tempMat1[u] = _GLOBAL_::I[u] - 0.5 * _GLOBAL_::R[u];
 
         // M x S
-        matMulLin(M, S, tempMat2);
+        matMulLin(_GLOBAL_::M, S, tempMat2);
         // (I - 1/2* R) x M x S
         matMulLin(tempMat1, tempMat2, tempMat3);
         // M-1 x (I - 1/2* R) x M x S
-        matMulLin(Minv, tempMat3, tempMat4);
+        matMulLin(_GLOBAL_::Minv, tempMat3, tempMat4);
         //
         for (int ic = 0; ic < NC; ic++)
             f[k_ic + ic] = f[k_ic + ic] + tempMat4[ic];
@@ -638,7 +660,7 @@ void LB2D::SRTCollision(int lvl = 1)
         {
             k_ic = i * NC;
             for (int ic = 0; ic < NC; ic++)
-                f[k_ic + ic] = f[k_ic + ic] - 1.0 / tau_SRT * (f[k_ic + ic] - feq[k_ic + ic]);
+                f[k_ic + ic] = f[k_ic + ic] - 1.0 / _GLOBAL_::tau_SRT * (f[k_ic + ic] - feq[k_ic + ic]);
         }
     }
 }
@@ -651,7 +673,7 @@ void LB2D::MRTCollisionNonRegularized(int lvl = 1)
     std::vector<double> tempMat3(NC, 0);
     std::vector<double> tempMat4(NC, 0);
     int64_t k_ic;
-#pragma omp parallel for default(shared) private(k_ic) firstprivate(R, tempMat1, tempMat2, tempMat3, tempMat4)
+#pragma omp parallel for default(shared) private(k_ic) firstprivate(_GLOBAL_::R, tempMat1, tempMat2, tempMat3, tempMat4)
     for (int64_t k = 0; k < grid.localGridSize; k++)
     {
         if (grid.gridLevel[k] == lvl)
@@ -659,10 +681,10 @@ void LB2D::MRTCollisionNonRegularized(int lvl = 1)
             k_ic = k * NC;
             // relaxation parameters
             // double tau_s = 0.5 + sqrt((double)(6.0 / M_PI)) * (localPoreSize[k] - 1) * Kn[k] / (1.0 + 2.0 * Kn[k]);
-            double tau_q = 0.5 + (3.0 + M_PI * (2.0 * taus[k] - 1.0) * (2.0 * taus[k] - 1.0) * A2) / (8.0 * (2.0 * taus[k] - 1.0));
-            double tau_d = 0.5 + (3.0 / 2.0) * sqrt((double)3.0) * 1.0 / pow((double)(1.0 / sqrt((double)(mfp / Cl * 1.0 / (1.0 + 2.0 * grid.kn[k]))) * 2.0), (double)2.0);
+            double tau_q = 0.5 + (3.0 + M_PI * (2.0 * taus[k] - 1.0) * (2.0 * taus[k] - 1.0) * _GLOBAL_::A2) / (8.0 * (2.0 * taus[k] - 1.0));
+            double tau_d = 0.5 + (3.0 / 2.0) * sqrt((double)3.0) * 1.0 / pow((double)(1.0 / sqrt((double)(_GLOBAL_::mfp / _GLOBAL_::Cl * 1.0 / (1.0 + 2.0 * grid.kn[k]))) * 2.0), (double)2.0);
 
-            R = {
+            _GLOBAL_::R = {
                 1.0 / 1.0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 1.0 / 1.1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 1.0 / 1.2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -682,11 +704,11 @@ void LB2D::MRTCollisionNonRegularized(int lvl = 1)
                 tempMat1[ic] = f[k_ic + ic] - feq[k_ic + ic];
 
             // M x (f - feq)
-            matMulLin(M, tempMat1, tempMat2);
+            matMulLin(_GLOBAL_::M, tempMat1, tempMat2);
             // R x M x (f - feq)
-            matMulLin(R, tempMat2, tempMat3);
+            matMulLin(_GLOBAL_::R, tempMat2, tempMat3);
             // M-1 x R x M x (f - feq)
-            matMulLin(Minv, tempMat3, tempMat4);
+            matMulLin(_GLOBAL_::Minv, tempMat3, tempMat4);
 
             for (int ic = 0; ic < NC; ic++)
                 f[k_ic + ic] = f[k_ic + ic] - tempMat4[ic];
@@ -702,17 +724,17 @@ void LB2D::MRTCollisionRegularized(int lvl = 1)
     std::vector<double> tempMat3(NC);
     std::vector<double> tempMat4(NC);
     int64_t k_ic;
-#pragma omp parallel for default(shared) private(k_ic) firstprivate(R, tempMat1, tempMat2, tempMat3, tempMat4)
+#pragma omp parallel for default(shared) private(k_ic) firstprivate(_GLOBAL_::R, tempMat1, tempMat2, tempMat3, tempMat4)
     for (int64_t k = 0; k < grid.localGridSize; k++)
     {
         if (grid.gridLevel[k] == lvl)
         {
             k_ic = k * NC;
             // relaxation parameters
-            double tau_q = 0.5 + (3.0 + M_PI * (2.0 * taus[k] - 1.0) * (2.0 * taus[k] - 1.0) * A2) / (8.0 * (2.0 * taus[k] - 1.0));
-            double tau_d = 1.0; //0.5 + (3.0 / 2.0) * sqrt((double)3.0) * 1.0 / pow((double)(1.0 / sqrt((double)(mfp / Cl * 1.0 / (1.0 + 2.0 * grid.kn[k]))) * 2.0), (double)2.0);
+            double tau_q = 0.5 + (3.0 + M_PI * (2.0 * taus[k] - 1.0) * (2.0 * taus[k] - 1.0) * _GLOBAL_::A2) / (8.0 * (2.0 * taus[k] - 1.0));
+            double tau_d = 1.0; //0.5 + (3.0 / 2.0) * sqrt((double)3.0) * 1.0 / pow((double)(1.0 / sqrt((double)(_GLOBAL_::mfp / _GLOBAL_::Cl * 1.0 / (1.0 + 2.0 * grid.kn[k]))) * 2.0), (double)2.0);
 
-            R = {
+            _GLOBAL_::R = {
                 1.0 / 1.0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 1.0 / 1.1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 1.0 / 1.2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -732,11 +754,11 @@ void LB2D::MRTCollisionRegularized(int lvl = 1)
                 tempMat1[ic] = fneq[k_ic + ic];
 
             // M x (f - feq)
-            matMulLin(M, tempMat1, tempMat2);
+            matMulLin(_GLOBAL_::M, tempMat1, tempMat2);
             // R x M x (f - feq)
-            matMulLin(R, tempMat2, tempMat3);
+            matMulLin(_GLOBAL_::R, tempMat2, tempMat3);
             // M-1 x R x M x (f - feq)
-            matMulLin(Minv, tempMat3, tempMat4);
+            matMulLin(_GLOBAL_::Minv, tempMat3, tempMat4);
 
             for (int ic = 0; ic < NC; ic++)
                 f[k_ic + ic] = feq[k_ic + ic] + fneq[k_ic + ic] - tempMat4[ic];
@@ -871,17 +893,17 @@ void LB2D::getBoundaryTypes()
 void LB2D::SRBBWall(int lvl = 1)
 {
     int srOpp;
-#pragma omp parallel for default(shared) private(srOpp, r)
+#pragma omp parallel for default(shared) private(srOpp, _GLOBAL_::r)
     for (int64_t i = 0; i < boundaryID.size(); i++)
         if (grid.gridLevel[boundaryID[i]] == lvl)
         {   
-            r = 0.4987*pow(grid.kn[boundaryID[i]], -0.131) - 0.25;
-            // r = 2.0 * A1 / (sqrt(6.0 / M_PI) + A1);
-            // r = 1/(1 + sqrt(M_PI/6.0) * A1 + (taus[boundaryID[i]] - 0.5) / (8 * pow(taus[boundaryID[i]] - 0.5, 2.0)));
-            // std::cout<<"r value: "<<r<<std::endl;
-            srOpp = icsr[grid.bndTypes[boundaryID[i]]][boundaryIC[i]];
-            f[boundaryID[i] * NC + latt.icOpp[boundaryIC[i]]] += r * ftemp[boundaryID[i] * NC + boundaryIC[i]];
-            f[boundaryID[i] * NC + srOpp] += (1 - r) * ftemp[boundaryID[i] * NC + boundaryIC[i]];
+            _GLOBAL_::r = 0.4987*pow(grid.kn[boundaryID[i]], -0.131) - 0.25;
+            // _GLOBAL_::r = 2.0 * A1 / (sqrt(6.0 / M_PI) + A1);
+            // _GLOBAL_::r = 1/(1 + sqrt(M_PI/6.0) * A1 + (taus[boundaryID[i]] - 0.5) / (8 * pow(taus[boundaryID[i]] - 0.5, 2.0)));
+            // std::cout<<"r value: "<<_GLOBAL_::r<<std::endl;
+            srOpp = _GLOBAL_::icsr[grid.bndTypes[boundaryID[i]]][boundaryIC[i]];
+            f[boundaryID[i] * NC + latt.icOpp[boundaryIC[i]]] += _GLOBAL_::r * ftemp[boundaryID[i] * NC + boundaryIC[i]];
+            f[boundaryID[i] * NC + srOpp] += (1 - _GLOBAL_::r) * ftemp[boundaryID[i] * NC + boundaryIC[i]];
         }
 }
 
@@ -898,8 +920,8 @@ void LB2D::MDBBWall(int lvl = 1)
             k2 = boundaryIC[i];
             Kdeno = 0.0;
             Kno = 0.0;
-            normal_x = xy_norm[grid.bndTypes[boundaryID[i]]][0];
-            normal_y = xy_norm[grid.bndTypes[boundaryID[i]]][1];
+            normal_x = _GLOBAL_::xy_norm[grid.bndTypes[boundaryID[i]]][0];
+            normal_y = _GLOBAL_::xy_norm[grid.bndTypes[boundaryID[i]]][1];
             for (int ic = 0; ic < NC; ic++)
             {
                 if ((latt.e_y[ic] * normal_y + latt.e_x[ic] * normal_x) > 0)
@@ -911,10 +933,10 @@ void LB2D::MDBBWall(int lvl = 1)
                     Kno += fb[k1 * NC + ic];
                 }
             }
-            r = 0.3222*pow(grid.kn[boundaryID[i]], -0.217) - 0.25;
-            // r = 1/(1 + sqrt(M_PI/6.0) * A1 + (taus[boundaryID[i]] - 0.5) / (8 * pow(taus[boundaryID[i]] - 0.5, 2.0)));
-            //std::cout<<"r value: "<<r<<std::endl;
-            f[k1 * NC + latt.icOpp[k2]] = r * ftemp[k1 * NC + k2] + (1 - r) * Kno / Kdeno * feq[k1 * NC + latt.icOpp[k2]];
+            _GLOBAL_::r = 0.3222*pow(grid.kn[boundaryID[i]], -0.217) - 0.25;
+            // _GLOBAL_::r = 1/(1 + sqrt(M_PI/6.0) * A1 + (taus[boundaryID[i]] - 0.5) / (8 * pow(taus[boundaryID[i]] - 0.5, 2.0)));
+            //std::cout<<"r value: "<<_GLOBAL_::r<<std::endl;
+            f[k1 * NC + latt.icOpp[k2]] = _GLOBAL_::r * ftemp[k1 * NC + k2] + (1 - _GLOBAL_::r) * Kno / Kdeno * feq[k1 * NC + latt.icOpp[k2]];
         }
     }
 }
@@ -930,14 +952,42 @@ void LB2D::periodicBoundary(int lvl = 1)
 }
 
 // TBD
-void LB2D::pressureBoundary(int lvl = 1)
+void LB2D::generalizedPeriodicBoundaryAdsorption(int lvl = 1)
 {
+
+#pragma omp parallel for default(shared)
+    for (int64_t i = 0; i < generalizedPeriodicInlet.size(); i++)
+    {
+        int64_t k_1_in = generalizedPeriodicInlet[i];
+        int64_t k_1_in_nc = k_1_in * NC;
+
+        int64_t k_2_in = generalizedPeriodicInlet2[i];
+        int64_t k_2_in_nc = k_2_in * NC;
+
+        int64_t k_1_out = generalizedPeriodicOutlet[i];
+        int64_t k_1_out_nc = k_1_out * NC;
+
+        int64_t k_2_out = generalizedPeriodicOutlet2[i];
+        int64_t k_2_out_nc = k_2_out * NC;
+
+
+        // inlet
+        f[k_1_in_nc + 1] = W[1] * _GLOBAL_::rhoin; // * (1.0 + F1 * ux[k_1_in] + F2 * uxsq[k_1_in] - F3 * usq[k_1_in]) + f[k_2_out_nc + 1] - feq[k_2_out_nc + 1];
+        f[k_1_in_nc + 5] = W[2] * _GLOBAL_::rhoin; // * (1.0 + F1 * (ux[k_1_in] + uy[k_1_in]) + F2 * (ux[k_1_in] + uy[k_1_in]) * (ux[k_1_in] + uy[k_1_in]) - F3 * usq[k_1_in]) + f[k_2_out_nc + 5] - feq[k_2_out_nc + 5];
+        f[k_1_in_nc + 8] = W[2] * _GLOBAL_::rhoin; // * (1.0 + F1 * (ux[k_1_in] - uy[k_1_in]) + F2 * (ux[k_1_in] - uy[k_1_in]) * (ux[k_1_in] - uy[k_1_in]) - F3 * usq[k_1_in]) + f[k_2_out_nc + 8] - feq[k_2_out_nc + 8];
+
+        // outlet
+        f[k_1_out_nc + 3] = W[1] * _GLOBAL_::rhoin; // * (1.0 - F1 * ux[k_1_out] + F2 * uxsq[k_1_out] - F3 * usq[k_1_out]) + f[k_2_in_nc + 3] - feq[k_2_in_nc + 3];
+        f[k_1_out_nc + 6] = W[2] * _GLOBAL_::rhoin; // * (1.0 + F1 * (-ux[k_1_out] + uy[k_1_out]) + F2 * (-ux[k_1_out] + uy[k_1_out]) * (-ux[k_1_out] + uy[k_1_out]) - F3 * usq[k_1_out]) + f[k_2_in_nc + 6] - feq[k_2_in_nc + 6];
+        f[k_1_out_nc + 7] = W[2] * _GLOBAL_::rhoin; // * (1.0 + F1 * (-ux[k_1_out] - uy[k_1_out]) + F2 * (-ux[k_1_out] - uy[k_1_out]) * (-ux[k_1_out] - uy[k_1_out]) - F3 * usq[k_1_out]) + f[k_2_in_nc + 7] - feq[k_2_in_nc + 7];
+    }
 }
 
 // TBD
-void LB2D::generalizedPeriodicBoundary(int lvl = 1)
+void LB2D::generalizedPeriodicBoundaryTransport(int lvl = 1)
 {
 }
+
 
 //
 void LB2D::calculateMacroscopicPorperties()
@@ -961,7 +1011,7 @@ void LB2D::calculateMacroscopicPorperties()
             jy += f[k_ic + ic] * latt.e_y[ic];
         }
 
-        ux[i] = jx / rho[i] + Fbody / (2.0 * rho[i]) * pow(2.0, grid.gridLevel[i] - 1);
+        ux[i] = jx / rho[i] + _GLOBAL_::Fbody / (2.0 * rho[i]) * pow(2.0, grid.gridLevel[i] - 1);
         uy[i] = jy / rho[i];
 
         uxsq[i] = ux[i] * ux[i];
@@ -1260,9 +1310,9 @@ void LB2D::convertToPhysicalUnits()
     #pragma omp parallel for default(shared)
     for (int64_t i = 0; i < grid.localGridSize; i++)
     {
-        ux[i] = ux[i] * Cu;
-        uy[i] = uy[i] * Cu;
-        rho[i] = rho[i] * Crho;
+        ux[i] = ux[i] * _GLOBAL_::Cu;
+        uy[i] = uy[i] * _GLOBAL_::Cu;
+        rho[i] = rho[i] * _GLOBAL_::Crho;
     }
 }
 
@@ -1536,7 +1586,10 @@ std::vector<double> LB2D::prepareRho()
 }
 
 std::vector<double> LB2D::prepareDistributions()
-{
+{   
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    
     std::vector<double> f_copy(NX*NY*NC, 0.0);
     
     // fill in
@@ -1545,5 +1598,19 @@ std::vector<double> LB2D::prepareDistributions()
         for (int64_t ic = 0; ic < NC; ic ++)
             f_copy[grid.gridID[i] * NC + ic] = f[i * NC + ic];
 
-    return f_copy;
+    std::vector<double> f_gathered = mantiis_parallel::gatherToRoot(f_copy);
+
+    std::vector<double> f_global(NX * NY * NC, 0.0);
+    if (rank == 0) 
+    {
+        int64_t counter = 0;
+        for (int64_t i = 0; i < NX * NY; i++)
+            if (!std::binary_search(grid.solidID.begin(), grid.solidID.end(), i)) 
+            {
+                for (int64_t ic = 0; ic < NC; ic++)
+                    f_global[i * NC + ic] = f_gathered[counter * NC + ic];
+                counter++;
+            }
+    }
+    return f_global;
 }

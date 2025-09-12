@@ -25,6 +25,7 @@
 #include <omp.h>
 #include <memory>
 #include <chrono>
+#include <thread>
 
 #include "lb2d.hpp"
 
@@ -34,6 +35,7 @@ struct Settings
     bool dump_final_results = 1;
     int verbose = 1;
     int dump_every_timestep = 1;
+    int dump_distributions_first_timestep = 0;
     double threshold = 1.0e-10;
     double mfp = _GLOBAL_::mfp;
     double Fbody = _GLOBAL_::Fbody;
@@ -46,8 +48,18 @@ struct Settings
     std::string simulation_type = "transport";
 };
 
+template<typename T>
+struct WriterThread 
+{
+    static void write(const std::string& fName, const std::vector<T>& data) 
+    {
+        IO::writeVectorToFile(fName, data);
+    }
+};
+
 class MantiisApp
 {
+
 public:
     bool is_multiblock;
     int Nx;
@@ -56,11 +68,14 @@ public:
     int iters;
 
 private:
+    std::thread writer_thread; // persistent writer thread
+
     bool load_existing_model = 1;
     bool dump_final_results = 1;
     double tol = 1.0e-10;
     int verbose = 1;
     int dump_every_timestep = 1;
+    int dump_distributions_first_timestep = 1e6;
 
     int proc_id;
     int num_procs;
@@ -78,21 +93,22 @@ private:
 public:
     MantiisApp(int argc, char* argv[], const Settings& settings) 
     {   
-        load_existing_model = settings.load_existing_model;
-        dump_final_results  = settings.dump_final_results;
-        verbose             = settings.verbose;
-        dump_every_timestep = settings.dump_every_timestep;
-        tol                 = settings.threshold;
-
-        _GLOBAL_::mfp       = settings.mfp;
-        _GLOBAL_::Fbody     = settings.Fbody;
-        _GLOBAL_::Cl        = settings.dx;
-        _GLOBAL_::T_phy     = settings.T;
-        _GLOBAL_::P_phy     = settings.P;
-
-        collision_method    = settings.collision_method;
-        wall_boundary       = settings.wall_boundary;
-        simulation_type     = settings.simulation_type;
+        load_existing_model                = settings.load_existing_model;
+        dump_final_results                 = settings.dump_final_results;
+        verbose                            = settings.verbose;
+        dump_every_timestep                = settings.dump_every_timestep;
+        dump_distributions_first_timestep  = settings.dump_distributions_first_timestep;
+        tol                                = settings.threshold;
+ 
+        _GLOBAL_::mfp                      = settings.mfp;
+        _GLOBAL_::Fbody                    = settings.Fbody;
+        _GLOBAL_::Cl                       = settings.dx;
+        _GLOBAL_::T_phy                    = settings.T;
+        _GLOBAL_::P_phy                    = settings.P;
+ 
+        collision_method                   = settings.collision_method;
+        wall_boundary                      = settings.wall_boundary;
+        simulation_type                    = settings.simulation_type;
 
         if (argc < 6)
         {
@@ -224,11 +240,27 @@ public:
         lb->stream();
         lb->BBWall();
         lb->periodicBoundary();
+        lb->generalizedPeriodicBoundaryAdsorption();
         lb->calculateDensityDifference();
     }
 
     void coupled_simulation_loop()
     {
+        lb->rho_old = lb->rho;
+        lb->calculateDensity();
+        lb->getPseudoPotential();
+        lb->calculateForces();
+        lb->calculateVelocity();
+        lb->equilibrium();
+        lb->MRTCollisionRegularized();
+        lb->applySourceTerm();
+        lb->ftemp = lb->f; // save pre streaming
+        lb->zeroDown();
+        lb->stream();
+        lb->SRBBWall();
+        lb->periodicBoundary();
+        // lb->generalizedPeriodicBoundaryAdsorption();
+        lb->calculateVelocityDifference();
     }
 
     void run()
@@ -252,9 +284,24 @@ public:
 
                 lb->t++;
 
-                if (lb->t <= 100) {
-                    // Optional: dump intermediate results
+                if (lb->t < dump_distributions_first_timestep) 
+                {
+                    auto f_intermediate = lb->prepareDistributions();
+                    fName = folder + "f_" + std::to_string(lb->t) + ".txt";
+                    if (proc_id == 0)
+                    {
+                        if (writer_thread.joinable()) 
+                        {
+                            writer_thread.join(); // Wait for previous write to finish
+                        }
+                        writer_thread = std::thread(&WriterThread<double>::write, fName, f_intermediate);
+                    }
                 }
+            }
+            // After loop, ensure last write finishes
+            if (proc_id == 0 && writer_thread.joinable()) 
+            {
+                writer_thread.join();
             }
         };
 
@@ -267,9 +314,21 @@ public:
             run_loop([&] { adsorption_simulation_loop(); });
         }
         else if (simulation_type == "coupled") 
-        {
+        {   
+            std::cout<<"======================= Adsorption ONLY for initial condition =======================\n";
+            auto fbody_temp = _GLOBAL_::Fbody;
+            _GLOBAL_::Fbody = 0;
+            auto iters_temp = iters;
+            iters = 100;
             run_loop([&] 
                 { adsorption_simulation_loop(); });
+            iters = iters_temp;
+            _GLOBAL_::Fbody = fbody_temp;
+            std::fill(lb->ux.begin(), lb->ux.end(), 0);
+            std::fill(lb->ux.begin(), lb->ux.end(), 0);
+            std::fill(lb->rho.begin(), lb->rho.end(), _GLOBAL_::rhoin);
+            std::fill(lb->feq.begin(), lb->feq.end(), 0);
+             std::cout<<"======================= Coupling =======================\n";
             run_loop([&] { coupled_simulation_loop(); });
         }
         else 
@@ -277,10 +336,9 @@ public:
             throw std::runtime_error("Unknown simulation type: " + simulation_type);
         }
 
-
         if (dump_final_results)
         {
-            lb->convertToPhysicalUnits();
+            // lb->convertToPhysicalUnits();
             lb->completeSingleGridDomain();
         }
 

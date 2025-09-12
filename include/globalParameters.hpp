@@ -103,7 +103,7 @@ namespace _GLOBAL_
     const double rhoin = rho_phy / Crho;
 
     // ================================================= Interaction Force constants
-    const double Gfs = -14.7; // solid-fluid interaction strength
+    const double Gfs = -12.7; // solid-fluid interaction strength
     const double Gff = -1.0;  // fluid-fluid interaction strength
     const std::vector<double> wf{0.0, 1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0, 1.0 / 12.0, 1.0 / 12.0, 1.0 / 12.0, 1.0 / 12.0};
 

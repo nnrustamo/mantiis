@@ -32,7 +32,7 @@ OPENMPI_LIBS_DIR := -L /usr/local/lib
 OPENMPI_LIBS := -lmpi
 
 BUILD_TYPE := release
-CXXFLAGS += -Ofast -fopenmp
+CXXFLAGS += -Ofast -fopenmp -pthread
 
 ifeq ($(MAKECMDGOALS),debug)
     CXXFLAGS := -std=c++17 -g -O0 -MMD -MP -I$(ALGLIB_DIR)
