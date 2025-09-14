@@ -5,10 +5,8 @@ int main(int argc, char* argv[])
 {   
     // sim settings
     Settings settings;
-    settings.dump_distributions_first_timestep = 10000;
+    settings.dump_distributions_first_timestep = 1000;
     settings.dx = 1.0e-9;
-    settings.collision_method = 1;
-    settings.wall_boundary = 0;
     settings.simulation_type = "transport";
     settings.verbose = 10;
 

@@ -114,7 +114,7 @@ public:
     std::vector<std::vector<int64_t>> streamingForceI2;
     std::vector<std::vector<int>> bouncingForceIC;
 
-    std::vector<int64_t> f_counter;
+    std::map<int64_t, int64_t> f_void_map;
 
     //
     double diff = 1.0;
@@ -359,7 +359,7 @@ LB2D::LB2D(int &x, int &y, lattice &latt, Grid2D &G, Shape &shape) : NX(x), NY(y
         for (int64_t i = 0; i < NX * NY; i++)
             if (!std::binary_search(grid.solidID.begin(), grid.solidID.end(), i)) 
             {
-                f_counter.push_back(counter);
+                f_void_map[i] = counter;
                 counter++;
             }
     }
@@ -1602,24 +1602,21 @@ std::vector<double> LB2D::prepareDistributions()
 {   
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    
-    std::vector<double> f_copy(NX*NY*NC, 0.0);
-    
+    std::vector<double> f_copy(grid.localGridSize * NC, 0.0);
     // fill in
 #pragma omp parallel for default(shared)
     for (int64_t i = 0; i < grid.gridID.size(); i++)
         for (int64_t ic = 0; ic < NC; ic ++)
-            f_copy[grid.gridID[i] * NC + ic] = f[i * NC + ic];
-
+            f_copy[i * NC + ic] = f[i * NC + ic];
     std::vector<double> f_gathered = mantiis_parallel::gatherToRoot(f_copy);
-
     std::vector<double> f_global(NX * NY * NC, 0.0);
     if (rank == 0) 
     {
-        for (int64_t i = 0; i < f_counter.size(); i++)
+        int64_t counter = 0;
+        for (auto & pair: f_void_map)
         {
             for (int64_t ic = 0; ic < NC; ic++)
-                f_global[i * NC + ic] = f_gathered[f_counter[i] * NC + ic];
+                f_global[pair.first * NC + ic] = f_gathered[pair.second * NC + ic];
         }
     }
     return f_global;

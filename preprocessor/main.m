@@ -1,11 +1,11 @@
 close all; clear; clc
 %% Define domain parameters
 % dimensions
-ny = 1024;
-nx = 1024;
+ny = 10;
+nx = 10;
 % write to this folder
-output_folder = '/home/nrustamo/projects/HNO/image_generation/images/nx1024_ny1024_scaling0.8_sigma50_octave40/';
-
+% output_folder = '/home/nrustamo/projects/HNO/image_generation/images/nx1024_ny1024_scaling0.8_sigma50_octave40/';
+output_folder = '../large_domain/'
 % physical conditions
 Pressure = 2.0e6; % Pa
 Temperature = 300; % K
@@ -13,13 +13,13 @@ Resolution = 1.0e-9; % m
 [~, ~, mean_free_path] = thermodynamicProperties(Pressure, Temperature);
 
 % create a domain or load existing one
-pore = readBinaryMatrix(output_folder + "binary_image.txt");
+% pore = readBinaryMatrix(output_folder + "binary_image.txt");
 % disp(pore)
 % pore = reshape(pore, [ny, nx]);
-pore(:, 1:50) = 1;
-pore(:, end-51:end) = 1;
-pore(1, :) = 0;
-pore(end, :) = 0;
+% pore(:, 1:50) = 1;
+% pore(:, end-51:end) = 1;
+% pore(1, :) = 0;
+% pore(end, :) = 0;
 % disp(pore)
 
 % pore(:, 1:25) = 1;
@@ -29,7 +29,7 @@ pore(end, :) = 0;
 % pore = randomGaussianDomain(ny, nx);
 
 % pore = randomDomain(ny, nx);
-% pore = simplePore(ny, nx);
+pore = simplePore(ny, nx);
 % pore = narrowing_tube(nx, 500, 10);
 % pore = createRectangleObstacleFlowGeom(nx);
 % pore = createTriangularFlowGeom(nx);
