@@ -208,10 +208,8 @@ public:
     std::vector<double> prepareDistributions();
 
     // bring back the solid points in simulation domain
-    // these functions should only be called at the end of the simulation
-    void completeSingleGridDomain();
+    std::tuple<std::vector<double>, std::vector<double>, std::vector<double>> completeSingleGridDomain();
     void reconstructOriginalGrid();
-
 };
 
 // ========================================================================================
@@ -1329,7 +1327,7 @@ void LB2D::convertToPhysicalUnits()
     }
 }
 
-void LB2D::completeSingleGridDomain()
+std::tuple<std::vector<double>, std::vector<double>, std::vector<double>> LB2D::completeSingleGridDomain()
 {
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -1348,20 +1346,25 @@ void LB2D::completeSingleGridDomain()
     }
 
     // Delete original copy
-    ux.clear();
-    ux.shrink_to_fit();
-    uy.clear();
-    uy.shrink_to_fit();
-    rho.clear();
-    rho.shrink_to_fit();
+    // ux.clear();
+    // ux.shrink_to_fit();
+    // uy.clear();
+    // uy.shrink_to_fit();
+    // rho.clear();
+    // rho.shrink_to_fit();
 
     // Re-allocate memory
-    ux.resize(NX * NY);
-    std::fill(ux.begin(), ux.end(), 0.0);
-    uy.resize(NX * NY);
-    std::fill(uy.begin(), uy.end(), 0.0);
-    rho.resize(NX * NY);
-    std::fill(rho.begin(), rho.end(), 0.0);
+    // ux.resize(NX * NY);
+    // std::fill(ux.begin(), ux.end(), 0.0);
+    // uy.resize(NX * NY);
+    // std::fill(uy.begin(), uy.end(), 0.0);
+    // rho.resize(NX * NY);
+    // std::fill(rho.begin(), rho.end(), 0.0);
+
+    // Re-allocate memory
+    std::vector<double> ux_complete(NX*NY, 0.0);
+    std::vector<double> uy_complete(NX*NY, 0.0);
+    std::vector<double> rho_complete(NX*NY, 0.0);
 
     // Gather all
     auto ux_gathered = mantiis_parallel::gatherToRoot(ux_copy);
@@ -1377,19 +1380,20 @@ void LB2D::completeSingleGridDomain()
         {
             if (std::binary_search(grid.solidID.begin(), grid.solidID.end(), i))
             {
-                ux[i] = 0.0;
-                uy[i] = 0.0;
-                rho[i] = 0.0;
+                ux_complete[i] = 0.0;
+                uy_complete[i] = 0.0;
+                rho_complete[i] = 0.0;
             }
             else
             {
-                ux[i] = ux_gathered[counter];
-                uy[i] = uy_gathered[counter];
-                rho[i] = rho_gathered[counter];
+                ux_complete[i] = ux_gathered[counter];
+                uy_complete[i] = uy_gathered[counter];
+                rho_complete[i] = rho_gathered[counter];
                 counter++;
             }
         }
     }
+    return std::make_tuple(ux_complete, uy_complete, rho_complete);
 }
 
 void LB2D::reconstructOriginalGrid()

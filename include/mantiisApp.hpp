@@ -36,6 +36,7 @@ struct Settings
     int verbose = 1;
     int dump_every_timestep = 1;
     int dump_distributions_first_timestep = 0;
+    int dump_macroscopic_every_timestep = 0;
     double threshold = 1.0e-10;
     double mfp = _GLOBAL_::mfp;
     double Fbody = _GLOBAL_::Fbody;
@@ -59,7 +60,6 @@ struct WriterThread
 
 class MantiisApp
 {
-
 public:
     bool is_multiblock;
     int Nx;
@@ -75,7 +75,8 @@ private:
     double tol = 1.0e-10;
     int verbose = 1;
     int dump_every_timestep = 1;
-    int dump_distributions_first_timestep = 1e6;
+    int dump_distributions_first_timestep = 0;
+    int dump_macroscopic_every_timestep = 0;
 
     int proc_id;
     int num_procs;
@@ -98,6 +99,7 @@ public:
         verbose                            = settings.verbose;
         dump_every_timestep                = settings.dump_every_timestep;
         dump_distributions_first_timestep  = settings.dump_distributions_first_timestep;
+        dump_macroscopic_every_timestep    = settings.dump_macroscopic_every_timestep;
         tol                                = settings.threshold;
  
         _GLOBAL_::mfp                      = settings.mfp;
@@ -309,6 +311,31 @@ public:
                         writer_threads.emplace_back(&WriterThread<double>::write, fName, std::move(f_intermediate));
                     }
                 }
+                if (lb->t < dump_macroscopic_every_timestep) 
+                {
+                    auto [ux_vec, uy_vec, rho_vec] = lb->completeSingleGridDomain();
+                    auto ux_name = folder + "ux_" + std::to_string(lb->t) + ".txt";
+                    auto uy_name = folder + "uy_" + std::to_string(lb->t) + ".txt";
+                    if (proc_id == 0)
+                    {
+                        // Join and remove finished threads to avoid resource leaks
+                        for (auto it = writer_threads.begin(); it != writer_threads.end(); )
+                        {
+                            if (it->joinable())
+                            {
+                                it->join();
+                                it = writer_threads.erase(it);
+                            }
+                            else
+                            {
+                                ++it;
+                            }
+                        }
+                        // Launch a new thread for writing
+                        writer_threads.emplace_back(&WriterThread<double>::write, ux_name, std::move(ux_vec));
+                        writer_threads.emplace_back(&WriterThread<double>::write, uy_name, std::move(uy_vec));
+                    }
+                }
 
                 lb->t++;
             }
@@ -356,10 +383,13 @@ public:
         }
 
         std::vector<double> f_intermediate;
+        std::vector<double> ux_vec;
+        std::vector<double> uy_vec;
+        std::vector<double> rho_vec;
         if (dump_final_results)
         {   
             // lb->convertToPhysicalUnits();
-            lb->completeSingleGridDomain();
+            std::tie(ux_vec, uy_vec, rho_vec) = lb->completeSingleGridDomain();
             f_intermediate = lb->prepareDistributions();
         }
 
@@ -367,9 +397,9 @@ public:
         {   
             IO::writeVectorToFile(folder + "f.txt", f_intermediate);
 
-            IO::writeVectorToFile(folder + "ux.txt", lb->ux);
-            IO::writeVectorToFile(folder + "uy.txt", lb->uy);
-            IO::writeVectorToFile(folder + "rho.txt", lb->rho);
+            IO::writeVectorToFile(folder + "ux.txt", ux_vec);
+            IO::writeVectorToFile(folder + "uy.txt", uy_vec);
+            IO::writeVectorToFile(folder + "rho.txt", rho_vec);
             IO::writeVectorToFile(folder + "convergence.txt", lb->diff_over_time);
 
             fName = folder + "SimulationDetails.txt";
