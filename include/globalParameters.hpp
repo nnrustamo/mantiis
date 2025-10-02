@@ -30,7 +30,6 @@
 
 namespace _GLOBAL_
 {   
-
     std::string system_directory = "";
     // ================================================= Simulation Conditions
     // these parameters can be modified from elsewhere
@@ -57,25 +56,26 @@ namespace _GLOBAL_
     // lattice unit constants
     const double a_lu = 2.0 / 49.0; // PR-EOS constant
     const double b_lu = 2.0 / 21.0; // PR-EOS constant
-    const double k = 0.37464 + 1.54226 * omega - 0.26992 * pow(omega, 2);
-    const double alpha = pow((1 + k * (1 - sqrt(T_phy / Tc_phy))), 2);
-    const double a_alpha_lu = a_lu * alpha;
-    const double Rs = R_EOS / Mw;
+    // Derived values that depend on runtime settings (omega, T_phy, P_phy, etc.)
+    double k = 0.37464 + 1.54226 * omega - 0.26992 * pow(omega, 2);
+    double alpha = pow((1 + k * (1 - sqrt(T_phy / Tc_phy))), 2);
+    double a_alpha_lu = a_lu * alpha;
+    double Rs = R_EOS / Mw;
     const double R_lu = 1.0;
     const double Mw_lu = 1.0;
     const double Rs_lu = R_lu / Mw_lu;
     //
-    const double a = 0.45724 * (R_EOS * Tc_phy) * (R_EOS * Tc_phy) / Pc_phy;
-    const double aG = a * alpha;
-    const double bG = 0.07780 * R_EOS * Tc_phy / Pc_phy;
-    const double AG = aG * P_phy / (R_EOS * R_EOS) / (T_phy * T_phy);
-    const double BG = bG * P_phy / R_EOS / T_phy;
+    double a = 0.45724 * (R_EOS * Tc_phy) * (R_EOS * Tc_phy) / Pc_phy;
+    double aG = a * alpha;
+    double bG = 0.07780 * R_EOS * Tc_phy / Pc_phy;
+    double AG = aG * P_phy / (R_EOS * R_EOS) / (T_phy * T_phy);
+    double BG = bG * P_phy / R_EOS / T_phy;
 
     // Z3*Z^3 + Z2*Z^2 + Z1*Z + Z0 = 0
     const double ZG3 = 1;
-    const double ZG2 = BG - 1;
-    const double ZG1 = AG - 3 * (BG * BG) - 2 * BG;
-    const double ZG0 = BG * BG * BG + (BG * BG) - AG * BG;
+    double ZG2 = BG - 1;
+    double ZG1 = AG - 3 * (BG * BG) - 2 * BG;
+    double ZG0 = BG * BG * BG + (BG * BG) - AG * BG;
     std::vector<double> ZG_solution = utils::solveCubic(ZG3, ZG2, ZG1, ZG0);
     double ZG = utils::findMaxValue(ZG_solution);
     double vG = ZG * R_EOS * T_phy / P_phy;
@@ -83,24 +83,24 @@ namespace _GLOBAL_
     double rho_phy = rho_phy_mol * Mw; // kg/m^3 - density
 
     // conversion constants C_
-    const double C_Rs = Rs / Rs_lu;                               // (m2/s2/K)/(m_lu2/s_lu2/K_lu)      = Cl^2/Ct2/CT
-    const double b_Rs = 0.07780 * Rs * Tc_phy / Pc_phy;           // m3/kg
-    const double a_Rs = 0.45724 * pow((Rs * Tc_phy), 2) / Pc_phy; // m5/kg/s2
-    const double C_as = a_Rs / a_lu;                              // (m5/kg/s2)/(m_lu5/kg_lu/s_lu2)    = Cl^5/Ct2/Cm
-    const double C_bs = b_Rs / b_lu;                              //(m3/kg)/(m_lu3/kg_lu)
-    const double C_aob = C_as / C_bs;                             // (m2/s2)/(m_lu2/s_lu2)             = Cl^2/Ct2
-    const double Ct = Cl / sqrt(C_aob);                           // conversion factor of time, s/s_lu
-    const double CT = 1 / (C_Rs / pow(Cl, 2) * pow(Ct, 2));       // conversion factor of temperature, K/K_lu
-    const double T_lu = T_phy / CT;
-    const double C_Mw = Mw / Mw_lu;          //(kg/mol)/(kg_lu/mol_lu)           = Cm/Cn
-    const double Cm = pow(Cl, 3) / C_bs;     // conversion factor of mass, kg/kg_lu
-    const double Crho = Cm / (Cl * Cl * Cl); // conversion factor of density, kg/m3
-    const double Cn = Cm / C_Mw;             // conversion factor of amount, mol/mol_lu
-    const double Cu = Cl / Ct;               // conversion factor of velocity, m/s
-    const double Cf = Cm / (pow(Ct, 2) * pow(Cl, 2));               // conversion factor of force per unit volume, kg/s2/m2
+    double C_Rs = Rs / Rs_lu;                               // (m2/s2/K)/(m_lu2/s_lu2/K_lu)      = Cl^2/Ct2/CT
+    double b_Rs = 0.07780 * Rs * Tc_phy / Pc_phy;           // m3/kg
+    double a_Rs = 0.45724 * pow((Rs * Tc_phy), 2) / Pc_phy; // m5/kg/s2
+    double C_as = a_Rs / a_lu;                              // (m5/kg/s2)/(m_lu5/kg_lu/s_lu2)    = Cl^5/Ct2/Cm
+    double C_bs = b_Rs / b_lu;                              //(m3/kg)/(m_lu3/kg_lu)
+    double C_aob = C_as / C_bs;                             // (m2/s2)/(m_lu2/s_lu2)             = Cl^2/Ct2
+    double Ct = Cl / sqrt(C_aob);                           // conversion factor of time, s/s_lu
+    double CT = 1 / (C_Rs / pow(Cl, 2) * pow(Ct, 2));       // conversion factor of temperature, K/K_lu
+    double T_lu = T_phy / CT;
+    double C_Mw = Mw / Mw_lu;          //(kg/mol)/(kg_lu/mol_lu)           = Cm/Cn
+    double Cm = pow(Cl, 3) / C_bs;     // conversion factor of mass, kg/kg_lu
+    double Crho = Cm / (Cl * Cl * Cl); // conversion factor of density, kg/m3
+    double Cn = Cm / C_Mw;             // conversion factor of amount, mol/mol_lu
+    double Cu = Cl / Ct;               // conversion factor of velocity, m/s
+    double Cf = Cm / (pow(Ct, 2) * pow(Cl, 2));               // conversion factor of force per unit volume, kg/s2/m2
     
-    const double Crho_mol = Cn / pow(Cl, 3); // conversion factor of mole density, mol/m3
-    const double rhoin = rho_phy / Crho;
+    double Crho_mol = Cn / pow(Cl, 3); // conversion factor of mole density, mol/m3
+    double rhoin = rho_phy / Crho;
 
     // ================================================= Interaction Force constants
     const double Gfs = -12.7; // solid-fluid interaction strength
@@ -161,4 +161,48 @@ namespace _GLOBAL_
         0.111111111111111, 0.055555555555556, 0.027777777777778, 0.166666666666667, 0.083333333333333, -0.166666666666667, -0.083333333333333, 0.000000000000000, -0.250000000000000};
     // MRT relaxation matrix
     std::vector<double> R;
+
+    // Recompute all derived globals after changing inputs like T_phy, P_phy, Cl, omega, Mw, etc.
+    inline void recompute()
+    {
+        k = 0.37464 + 1.54226 * omega - 0.26992 * pow(omega, 2);
+        alpha = pow((1 + k * (1 - sqrt(T_phy / Tc_phy))), 2);
+        a_alpha_lu = a_lu * alpha;
+        Rs = R_EOS / Mw;
+
+        a = 0.45724 * (R_EOS * Tc_phy) * (R_EOS * Tc_phy) / Pc_phy;
+        aG = a * alpha;
+        bG = 0.07780 * R_EOS * Tc_phy / Pc_phy;
+        AG = aG * P_phy / (R_EOS * R_EOS) / (T_phy * T_phy);
+        BG = bG * P_phy / R_EOS / T_phy;
+
+        ZG2 = BG - 1;
+        ZG1 = AG - 3 * (BG * BG) - 2 * BG;
+        ZG0 = BG * BG * BG + (BG * BG) - AG * BG;
+        ZG_solution = utils::solveCubic(ZG3, ZG2, ZG1, ZG0);
+        ZG = utils::findMaxValue(ZG_solution);
+        vG = ZG * R_EOS * T_phy / P_phy;
+        rho_phy_mol = 1 / vG;
+        rho_phy = rho_phy_mol * Mw;
+
+        C_Rs = Rs / Rs_lu;
+        b_Rs = 0.07780 * Rs * Tc_phy / Pc_phy;
+        a_Rs = 0.45724 * pow((Rs * Tc_phy), 2) / Pc_phy;
+        C_as = a_Rs / a_lu;
+        C_bs = b_Rs / b_lu;
+        C_aob = C_as / C_bs;
+        Ct = Cl / sqrt(C_aob);
+        CT = 1 / (C_Rs / pow(Cl, 2) * pow(Ct, 2));
+        T_lu = T_phy / CT;
+        C_Mw = Mw / Mw_lu;
+        Cm = pow(Cl, 3) / C_bs;
+        Crho = Cm / (Cl * Cl * Cl);
+        Cn = Cm / C_Mw;
+        Cu = Cl / Ct;
+        Cf = Cm / (pow(Ct, 2) * pow(Cl, 2));
+        Crho_mol = Cn / pow(Cl, 3);
+        rhoin = rho_phy / Crho;
+
+        mfp = 1.0 / (sqrt(2.0) * Crho_mol * rhoin / Mw_lu * NA * M_PI * (2 * d_mol / 2.0 + 2 * d_mol / 2.0) * (2 * d_mol / 2.0 + 2 * d_mol / 2.0));
+    }
 }

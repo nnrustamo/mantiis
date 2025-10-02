@@ -105,6 +105,8 @@ public:
         _GLOBAL_::Cl                       = settings.dx;
         _GLOBAL_::T_phy                    = settings.T;
         _GLOBAL_::P_phy                    = settings.P;
+        
+        _GLOBAL_::recompute();
  
         collision_method                   = settings.collision_method;
         wall_boundary                      = settings.wall_boundary;
@@ -129,6 +131,8 @@ public:
         {
             std::cout << "Mean free path: " << _GLOBAL_::mfp << "\n";
             std::cout << "Cl: " << _GLOBAL_::Cl << "\n";
+            std::cout << "Temperature: " << _GLOBAL_::T_phy << "\n";
+            std::cout << "Pressure: " << _GLOBAL_::P_phy << "\n";
             std::cout << "Fbody: " << _GLOBAL_::Fbody << "\n";
             std::cout << "Force conversion factor: " << std::setprecision(15) << _GLOBAL_::Cf << "\n";
             std::cout << "Input density: " << std::setprecision(15) << _GLOBAL_::rhoin << "\n";
