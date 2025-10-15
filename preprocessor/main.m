@@ -1,26 +1,26 @@
 close all; clear; clc
 %% Define domain parameters
 % dimensions
-ny = 512;
-nx = 512;
+ny = 1024;
+nx = 1024;
 % write to this folder
 % output_folder = '/home/nrustamo/projects/HNO/image_generation/images/nx1024_ny1024_scaling0.8_sigma50_octave40/';
-output_folder = '../Andrew/medium/';
+output_folder = '../POD/case3/fine/';
 % physical conditions
 Pressure = 2.0e6; % Pa
 Temperature = 300.0; % K
-Resolution = 1.0e-9 / 2; % m
+Resolution = 1.0e-9 / 4; % m
 [~, ~, mean_free_path] = thermodynamicProperties(Pressure, Temperature);
 
 % create a domain or load existing one
 pore = loadTxtFile(output_folder + "pore.dat");
-disp(pore)
+% disp(pore)
 pore = reshape(pore, [ny, nx]);
 pore(:, 1:10) = 1;
 pore(:, end-10:end) = 1;
 pore(1, :) = 0;
 pore(end, :) = 0;
-disp(pore)
+% disp(pore)
 
 % pore(:, 1:25) = 1;
 % pore(:, end-24:end) = 1;

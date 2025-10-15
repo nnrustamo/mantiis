@@ -311,7 +311,7 @@ public:
                         writer_threads.emplace_back(&WriterThread<double>::write, fName, std::move(f_intermediate));
                     }
                 }
-                if (lb->t < dump_macroscopic_every_timestep) 
+                if (lb->t % dump_macroscopic_every_timestep == 0) 
                 {
                     auto [ux_vec, uy_vec, rho_vec] = lb->completeSingleGridDomain();
                     auto ux_name = folder + "ux_" + std::to_string(lb->t) + ".txt";
