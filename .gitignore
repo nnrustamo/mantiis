@@ -12,4 +12,5 @@
 *.log
 *.d
 *.o
+*.h5
 mantiis

@@ -22,13 +22,13 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import sys
 
-def plot_imgs(array_2d, color_map='turbo', cbar_title = None, name=''):
+def plot_imgs(array_2d, color_map='seismic', cbar_title = None, name=''):
     """
     Plot an image from a 2D numpy array and add a colorbar with the specified colormap.
 
     Parameters:
     - array_2d: 2D numpy array representing the image data.
-    - color_map: Colormap to use for the colorbar. Default is 'turbo'.
+    - color_map: Colormap to use for the colorbar. Default is 'seismic'.
     - name: Name of the png file to save to
 
     Returns:
@@ -55,13 +55,13 @@ def plot_imgs(array_2d, color_map='turbo', cbar_title = None, name=''):
     plt.savefig(name + ".svg", bbox_inches='tight', pad_inches=0.1)
     plt.close()
 
-def plot_contour(array_2d, color_map='turbo', cbar_title=None, name=''):
+def plot_contour(array_2d, color_map='seismic', cbar_title=None, name=''):
     """
     Plot a contour plot from a 2D numpy array and add a colorbar with the specified colormap.
 
     Parameters:
     - array_2d: 2D numpy array representing the image data.
-    - color_map: Colormap to use for the contour plot. Default is 'turbo'.
+    - color_map: Colormap to use for the contour plot. Default is 'seismic'.
     - cbar_title: Title for the colorbar. Default is None.
     - name: Name of the PNG file to save to.
 
@@ -110,20 +110,20 @@ if __name__ == "__main__":
     """
     ux = np.loadtxt(file_path + 'ux.txt').reshape((ny, nx))
     print(f"Maximum of ux = {np.max(ux, axis=None)}, minimum of ux = {np.min(ux, axis=None)}")
-    plot_imgs(ux, "turbo", cbar_title="Streamwise velocity (m/s)", name = output_path + 'ux')
+    plot_imgs(ux, "seismic", cbar_title="Streamwise velocity (m/s)", name = output_path + 'ux')
 
     uy = np.loadtxt(file_path + 'uy.txt').reshape((ny, nx))
     print(f"Maximum of uy = {np.max(uy, axis=None)}, minimum of uy = {np.min(uy, axis=None)}")
-    plot_imgs(uy, "turbo", "Y-dir velocity (m/s)", output_path + 'uy')
+    plot_imgs(uy, "seismic", "Y-dir velocity (m/s)", output_path + 'uy')
 
     speed = np.sqrt(ux**2 + uy**2)
-    plot_imgs(speed, "turbo", "Velocity magnitude (m/s)", output_path + 'speed')
+    plot_imgs(speed, "seismic", "Velocity magnitude (m/s)", output_path + 'speed')
 
     rho = np.loadtxt(file_path + 'rho.txt').reshape((ny, nx))
-    plot_imgs(rho, "turbo", "Density (km/m3)", output_path + 'rho')
+    plot_imgs(rho, "seismic", "Density (km/m3)", output_path + 'rho')
 
     kn = np.loadtxt(file_path + 'Kn.dat').reshape((ny, nx)).transpose()
-    plot_imgs(kn, "turbo", "Knudsen number", output_path + 'kn')
+    plot_imgs(kn, "seismic", "Knudsen number", output_path + 'kn')
 
     poresize = np.loadtxt(file_path + 'localporesize.dat').reshape((ny, nx)).transpose()
-    plot_imgs(poresize, "turbo", "Local characteristic length", output_path + 'localpore')
+    plot_imgs(poresize, "seismic", "Local characteristic length", output_path + 'localpore')

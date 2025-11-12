@@ -5,7 +5,7 @@ ny = 1024;
 nx = 1024;
 % write to this folder
 % output_folder = '/home/nrustamo/projects/HNO/image_generation/images/nx1024_ny1024_scaling0.8_sigma50_octave40/';
-output_folder = '../POD/case3/fine/';
+output_folder = '../circles/c5/fine/';
 % physical conditions
 Pressure = 2.0e6; % Pa
 Temperature = 300.0; % K
