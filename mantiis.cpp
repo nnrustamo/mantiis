@@ -3,7 +3,7 @@
 
 int main(int argc, char* argv[])
 {   
-    double scaling_factor = 1.0;
+    double scaling_factor = 4.0;
 
     // sim settings
     Settings settings;
@@ -12,9 +12,9 @@ int main(int argc, char* argv[])
     settings.verbose = 10;
     settings.T = 300.0;
     settings.P = 2.0e6;
-    settings.dx = 3.0e-9 / scaling_factor;
+    settings.dx = 12.0e-9 / scaling_factor;
     settings.Fbody = 1.0e-8 / scaling_factor;
-    settings.dump_macroscopic_every_timestep = 1.0e6;
+    settings.dump_macroscopic_every_timestep = 1.0e6 * static_cast<int>(scaling_factor);
     settings.dump_distributions_first_timestep = -1;
 
     auto little_focker = std::make_unique<MantiisApp>(argc, argv, settings);

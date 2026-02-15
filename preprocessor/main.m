@@ -1,23 +1,24 @@
 close all; clear; clc
 %% Define domain parameters
 % dimensions
-ny = 1024;
-nx = 1024;
+scaling_factor = 1
+ny = 1536*scaling_factor;
+nx = 1536*scaling_factor;
 % write to this folder
 % output_folder = '/home/nrustamo/projects/HNO/image_generation/images/nx1024_ny1024_scaling0.8_sigma50_octave40/';
-output_folder = '../circles/c5/fine/';
+output_folder = '../mowry2/coarse/';
 % physical conditions
 Pressure = 2.0e6; % Pa
 Temperature = 300.0; % K
-Resolution = 1.0e-9 / 4; % m
+Resolution = 12.0e-9/scaling_factor  % m
 [~, ~, mean_free_path] = thermodynamicProperties(Pressure, Temperature);
 
 % create a domain or load existing one
-pore = loadTxtFile(output_folder + "pore.dat");
-% disp(pore)
+pore = loadTxtFile(output_folder + "mowry_coarse.txt");
+% disp(pore)fine
 pore = reshape(pore, [ny, nx]);
-pore(:, 1:10) = 1;
-pore(:, end-10:end) = 1;
+pore(:, 1:25*scaling_factor) = 1;
+pore(:, end-25*scaling_factor:end) = 1;
 pore(1, :) = 0;
 pore(end, :) = 0;
 % disp(pore)

@@ -18,7 +18,7 @@
 
 CXX := mpic++
 
-CXXFLAGS := -std=c++17 -MMD -MP
+CXXFLAGS := -std=c++20 -MMD -MP
 LDFLAGS := 
 
 ALGLIB_DIR:=$(HOME)/Programs/alglib/alg/src
