@@ -45,6 +45,9 @@ OPENMPI_INCLUDE := -I /usr/include/openmpi-x86_64
 OPENMPI_LIBS_DIR := -L /usr/lib64/openmpi/lib
 OPENMPI_LIBS := -lmpi
 
+# Include parent directory for mantiis headers
+MANTIIS_INCLUDE := -I ..
+
 BUILD_TYPE := release
 CXXFLAGS += -Ofast -fopenmp -pthread
 
@@ -53,25 +56,39 @@ ifeq ($(MAKECMDGOALS),debug)
     BUILD_TYPE := debug
 endif
 
-TARGET := mantiis
-SRC := mantiis.cpp $(wildcard $(ALGLIB_DIR)/*.cpp)
-OBJ := $(SRC:.cpp=.o)
-DEP := $(OBJ:.o=.d)
+# Targets
+TARGETS := transport_test adsorption_test
 
-$(TARGET): $(OBJ)
-	$(CXX) $(CXXFLAGS) $(OPENCV_INCLUDE) $(OPENMPI_INCLUDE) $(OBJ) -o $@ $(LDFLAGS) $(OPENCV_LIBS_DIR) $(OPENCV_LIBS) $(OPENMPI_LIBS_DIR) $(OPENMPI_LIBS)
+# ALGLIB sources
+ALGLIB_SRC := $(wildcard $(ALGLIB_DIR)/*.cpp)
+ALGLIB_OBJ := $(ALGLIB_SRC:.cpp=.o)
 
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) $(OPENCV_INCLUDE) $(OPENMPI_INCLUDE) -c $< -o $@
+# Test sources and objects
+TRANSPORT_OBJ := transport_test.o $(ALGLIB_OBJ)
+ADSORPTION_OBJ := adsorption_test.o $(ALGLIB_OBJ)
 
-clean:
-	rm -f $(TARGET) $(OBJ) $(DEP)
+ALL_OBJ := transport_test.o adsorption_test.o $(ALGLIB_OBJ)
+DEP := $(ALL_OBJ:.o=.d)
 
 CXXFLAGS += -I$(ALGLIB_DIR)
 
-debug: $(TARGET)
+.PHONY: all clean debug
+
+all: $(TARGETS)
+
+transport_test: $(TRANSPORT_OBJ)
+	$(CXX) $(CXXFLAGS) $(MANTIIS_INCLUDE) $(OPENCV_INCLUDE) $(OPENMPI_INCLUDE) $^ -o $@ $(LDFLAGS) $(OPENCV_LIBS_DIR) $(OPENCV_LIBS) $(OPENMPI_LIBS_DIR) $(OPENMPI_LIBS)
+
+adsorption_test: $(ADSORPTION_OBJ)
+	$(CXX) $(CXXFLAGS) $(MANTIIS_INCLUDE) $(OPENCV_INCLUDE) $(OPENMPI_INCLUDE) $^ -o $@ $(LDFLAGS) $(OPENCV_LIBS_DIR) $(OPENCV_LIBS) $(OPENMPI_LIBS_DIR) $(OPENMPI_LIBS)
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) $(MANTIIS_INCLUDE) $(OPENCV_INCLUDE) $(OPENMPI_INCLUDE) -c $< -o $@
+
+clean:
+	rm -f $(TARGETS) $(ALL_OBJ) $(DEP)
+
+debug: $(TARGETS)
 
 -include $(DEP)
-
-.PHONY: clean debug
 

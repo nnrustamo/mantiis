@@ -42,6 +42,7 @@
 #include <limits>
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <unordered_map>
 
 #include "io.hpp"
@@ -730,12 +731,20 @@ namespace utils
                     std::vector<int> &bnd_types)
     {
         using namespace IO;
+        
+        // Get HOME directory
+        const char* home = std::getenv("HOME");
+        if (!home) {
+            throw std::runtime_error("[ERROR]: HOME environment variable not set.");
+        }
+        std::string basePath = std::string(home) + "/projects/mantiis/include/system_files/";
+        
         // ifStream
         int numberOfTypes = ifStream.size();
         int numberOfDirections = 9; // as in D2Q9
         int totalentries = numberOfTypes*numberOfDirections;
         std::vector<double> data(totalentries, 0.0);
-        std::string fName = "include/system_files/ifstream.txt";
+        std::string fName = basePath + "ifstream.txt";
         loadDataFromFile(fName, data);
         for (int i = 0; i < numberOfDirections; i++) // row ID, y axis
         {
@@ -746,7 +755,7 @@ namespace utils
         }
         // icsr
         std::fill(data.begin(), data.end(), 0.0);
-        fName = "include/system_files/icsr.txt";
+        fName = basePath + "icsr.txt";
         loadDataFromFile(fName, data);
         for (int i = 0; i < numberOfDirections; i++) // row ID, y axis
         {
@@ -761,7 +770,7 @@ namespace utils
         data.resize(totalentries);
         data.shrink_to_fit();
         std::fill(data.begin(), data.end(), 0.0);
-        fName = "include/system_files/xy_norm.txt";
+        fName = basePath + "xy_norm.txt";
         loadDataFromFile(fName, data);
         for (int i = 0; i < numberOfDirections; i++) // row ID, y axis
         {
@@ -775,7 +784,7 @@ namespace utils
         data.resize(numberOfTypes);
         data.shrink_to_fit();
         std::fill(data.begin(), data.end(), 0.0);
-        fName = "include/system_files/bnd_types.txt";
+        fName = basePath + "bnd_types.txt";
         loadDataFromFile(fName, data);
         for (int j = 0; j < numberOfTypes; j++) // column ID, x axis
         {

@@ -12,7 +12,7 @@ This project implements a grid refinement method for the Lattice Boltzmann Metho
 1. **Clone the Repository**
 
    ```bash
-   git clone git@github.com:nnrustamo/multigrid.git
+   git clone git@github.com:nnrustamo/mantiis.git
 
 2. **Build ALGLIB**
 
